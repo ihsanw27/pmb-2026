@@ -9,61 +9,17 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  
   <script src="https://unpkg.com/html5-qrcode"></script>
 
   <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background-color: #f0f4f8;
-      color: #334155;
-    }
+    body { font-family: 'Poppins', sans-serif; background-color: #f0f4f8; color: #334155; }
     .navbar-custom { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); }
-    .card-custom {
-      background: white;
-      border: none;
-      border-radius: 16px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-      padding: 30px;
-      margin: 20px auto;
-      max-width: 450px;
-    }
-    .form-control, .form-select {
-      border-radius: 10px;
-      padding: 12px 15px;
-      border: 1px solid #cbd5e1;
-      font-size: 0.95rem;
-    }
-    .form-control:focus, .form-select:focus {
-      border-color: #3b82f6;
-      box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25);
-    }
-    .btn-custom {
-      border-radius: 10px;
-      padding: 12px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      transition: all 0.3s ease;
-    }
-    .btn-primary-custom {
-      background-color: #2563eb;
-      color: white;
-      border: none;
-    }
-    .btn-primary-custom:hover { background-color: #1d4ed8; color: white; transform: translateY(-2px); }
-    
-    /* Area Scanner Bersih */
-    #reader {
-      width: 100%;
-      border-radius: 16px;
-      overflow: hidden;
-      border: 3px dashed #cbd5e1;
-      background-color: #f8fafc;
-      min-height: 250px;
-      position: relative;
-    }
+    .card-custom { background: white; border: none; border-radius: 16px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); padding: 30px; margin: 20px auto; max-width: 450px; }
+    .form-control, .form-select { border-radius: 10px; padding: 12px 15px; border: 1px solid #cbd5e1; }
+    .btn-custom { border-radius: 10px; padding: 12px; font-weight: 600; transition: all 0.3s ease; }
+    .btn-primary-custom { background-color: #2563eb; color: white; border: none; }
+    #reader { width: 100%; border-radius: 16px; overflow: hidden; border: 3px dashed #cbd5e1; background-color: #f8fafc; min-height: 250px; position: relative; }
     #reader video { object-fit: cover; border-radius: 16px; }
-    
     .hidden { display: none !important; }
     .info-badge { background-color: #e0f2fe; color: #0369a1; border-radius: 8px; padding: 15px; }
   </style>
@@ -72,18 +28,16 @@
 
   <nav class="navbar navbar-dark navbar-custom shadow-sm py-3">
     <div class="container-fluid justify-content-center">
-      <span class="navbar-brand mb-0 h1 fw-bold"><i class="bi bi-shield-check me-2"></i>PMB Poltek Petrokimia</span>
+      <span class="navbar-brand mb-0 h1 fw-bold"><i class="bi bi-shield-check me-2"></i>Portal Petugas Lapangan</span>
     </div>
   </nav>
 
   <div class="container">
     
-    <div id="view-login" class="card-custom text-center animation-fade">
-      <div class="mb-4 text-primary" style="font-size: 3rem;">
-        <i class="bi bi-person-badge"></i>
-      </div>
-      <h4 class="fw-bold mb-1">Login Panitia</h4>
-      <p class="text-muted small mb-4">Silakan masuk menggunakan kredensial Anda</p>
+    <div id="view-login" class="card-custom text-center">
+      <div class="mb-4 text-primary" style="font-size: 3rem;"><i class="bi bi-person-badge"></i></div>
+      <h4 class="fw-bold mb-1">Login Petugas</h4>
+      <p class="text-muted small mb-4">Masuk dengan Email & Kode Anda</p>
       
       <div class="input-group mb-3 text-start">
         <span class="input-group-text bg-white border-end-0"><i class="bi bi-envelope text-muted"></i></span>
@@ -92,12 +46,10 @@
       
       <div class="input-group mb-4 text-start">
         <span class="input-group-text bg-white border-end-0"><i class="bi bi-key text-muted"></i></span>
-        <input type="password" id="kodeLogin" class="form-control" placeholder="Masukkan Kode Login">
+        <input type="password" id="kodeLogin" class="form-control border-start-0" placeholder="Kode Login (Case Sensitive)">
       </div>
              
-      <button onclick="login()" class="btn btn-primary-custom w-100" id="btn-login">
-        MASUK SISTEM <i class="bi bi-arrow-right ms-1"></i>
-      </button>
+      <button onclick="login()" class="btn btn-primary-custom w-100" id="btn-login">MASUK SISTEM</button>
     </div>
 
     <div id="view-dashboard" class="hidden">
@@ -108,11 +60,10 @@
             <p class="mb-0 small text-uppercase fw-bold opacity-75">Petugas Aktif</p>
             <h5 id="nama-panitia" class="mb-0 fw-bold">Memuat...</h5>
           </div>
-          <i class="bi bi-person-check-fill fs-2 opacity-50"></i>
         </div>
 
         <div class="mb-4">
-          <label class="form-label small fw-bold text-muted">Tugas Saat Ini:</label>
+          <label class="form-label small fw-bold text-muted">Kategori Tugas Anda:</label>
           <select id="pilih-tugas" class="form-select border-primary fw-bold text-primary shadow-sm"></select>
         </div>
 
@@ -120,7 +71,7 @@
           <h6 class="text-center fw-bold mb-3"><i class="bi bi-qr-code-scan me-2"></i>Arahkan ke QR Peserta</h6>
           <div id="reader"></div>
           <button onclick="nyalakanKamera()" class="btn btn-outline-primary btn-custom w-100 mt-3 hidden" id="btn-restart-cam">
-            <i class="bi bi-camera-video me-2"></i>Nyalakan Ulang Kamera
+            Nyalakan Ulang Kamera
           </button>
         </div>
 
@@ -133,14 +84,24 @@
             </div>
           </div>
           
-          <div class="mb-3">
-            <label class="form-label small fw-bold text-muted">Hasil / Nilai Utama:</label>
-            <input type="text" id="input-nilai" class="form-control form-control-lg" placeholder="Contoh: Lolos / 12 Menit">
+          <div class="mb-3 p-3 bg-light rounded border">
+            <label class="form-label small fw-bold text-muted" id="label-input">Input Penilaian:</label>
+            
+            <div id="wrapper-lari" class="hidden">
+              <input type="number" id="input-lari" class="form-control form-control-lg" placeholder="Masukkan Angka Hasil Lari">
+            </div>
+
+            <div id="wrapper-checklist" class="hidden py-2 text-center">
+              <div class="form-check form-switch d-inline-block text-start" style="transform: scale(1.3); transform-origin: left center;">
+                <input class="form-check-input" type="checkbox" id="input-check-lolos">
+                <label class="form-check-label ms-2 fw-bold text-success" for="input-check-lolos">PESERTA LOLOS</label>
+              </div>
+            </div>
           </div>
           
           <div class="mb-4">
-            <label class="form-label small fw-bold text-muted">Catatan Tambahan (Opsional):</label>
-            <textarea id="input-catatan" class="form-control" rows="2" placeholder="Ketik catatan di sini..."></textarea>
+            <label class="form-label small fw-bold text-muted">Catatan (Opsional):</label>
+            <textarea id="input-catatan" class="form-control" rows="2" placeholder="Catatan..."></textarea>
           </div>
           
           <div class="row g-2">
@@ -148,9 +109,7 @@
               <button onclick="batal()" class="btn btn-light btn-custom w-100 border text-muted">Batal</button>
             </div>
             <div class="col-8">
-              <button onclick="simpan()" class="btn btn-success btn-custom w-100" id="btn-simpan">
-                <i class="bi bi-save me-2"></i>SIMPAN DATA
-              </button>
+              <button onclick="simpan()" class="btn btn-success btn-custom w-100" id="btn-simpan">SIMPAN</button>
             </div>
           </div>
         </div>
@@ -161,43 +120,35 @@
 
   <script>
     // ==========================================
-    // MASUKKAN URL API GOOGLE SCRIPT ANDA DI SINI
+    // DEPLOY BARU LALU PASTE URL DI SINI!
     // ==========================================
-    const API_URL = "https://script.google.com/macros/s/AKfycbzJQjxT6QKsyuNMn4KCxsFuRAD5MPItgHdqPVdAvintroDIf9dAeMxhCWyyaX4LkfeW/exec";
+    const API_URL = "URL_APPS_SCRIPT_ANDA";
     
     let html5QrCode;
     let pesertaSedangDinilai = "";
     let dataHadir = []; 
 
-    // Fungsi Fetch ke Google Apps Script
     async function kirimKeExcel(data) {
       try {
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          body: JSON.stringify(data)
-        });
+        const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify(data) });
         return await response.json();
       } catch (e) {
-        Swal.fire('Koneksi Terputus', 'Pastikan internet Anda stabil.', 'error');
+        Swal.fire('Error', 'Internet terputus!', 'error');
         return null;
       }
     }
 
-    // 1. PROSES LOGIN
     async function login() {
       let email = document.getElementById("email-login").value;
-      let kode = document.getElementById("kodeLogin").value; // <-- INI YANG DIPERBAIKI
+      let kode = document.getElementById("kodeLogin").value;
       let btn = document.getElementById("btn-login");
       
-      if(!email || !kode) {
-        return Swal.fire('Data Tidak Lengkap', 'Harap isi Email dan Kode Akses!', 'warning');
-      }
+      if(!email || !kode) return Swal.fire('Oops', 'Isi Email dan Kode!', 'warning');
       
-      // Loading State
-      btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Memverifikasi...`;
+      btn.innerHTML = `Memuat...`;
       btn.disabled = true;
       
-      let res = await kirimKeExcel({ action: "login", email: email, kodeLogin: kode }); // <-- .toUpperCase() DIHAPUS KARENA CASE-SENSITIVE
+      let res = await kirimKeExcel({ action: "login", email: email, kodeLogin: kode });
       
       if(res && res.success) {
         document.getElementById("view-login").classList.add("hidden");
@@ -207,46 +158,60 @@
         let select = document.getElementById("pilih-tugas");
         select.innerHTML = "";
         res.kategoriList.forEach(t => select.innerHTML += `<option value="${t}">${t}</option>`);
+        
+        sesuaikanInput();
 
-        // Sinkronisasi Data Peserta Hadir
         let resHadir = await kirimKeExcel({ action: "getHadir" });
         if(resHadir && resHadir.success) {
           dataHadir = resHadir.data;
-          // Inisialisasi Kamera setelah data siap
           html5QrCode = new Html5Qrcode("reader");
           nyalakanKamera();
-          
-          Swal.fire({
-            toast: true, position: 'top-end', icon: 'success',
-            title: `Selamat bertugas, ${res.nama.split(" ")[0]}!`,
-            showConfirmButton: false, timer: 3000
-          });
         }
       } else {
-        Swal.fire('Gagal Login', res ? res.message : 'Kredensial salah', 'error');
-        btn.innerHTML = `MASUK SISTEM <i class="bi bi-arrow-right ms-1"></i>`;
+        Swal.fire('Gagal Login', res.message, 'error');
+        btn.innerHTML = `MASUK SISTEM`;
         btn.disabled = false;
       }
     }
 
-    // 2. KAMERA NATIVE (KONTROL PENUH UI)
+    // Mengubah tampilan berdasarkan tugas ("Tes Lari" vs "Verifikasi Administrasi" dll)
+    function sesuaikanInput() {
+      const tugas = document.getElementById("pilih-tugas").value.toLowerCase();
+      const wrapLari = document.getElementById("wrapper-lari");
+      const wrapCheck = document.getElementById("wrapper-checklist");
+      const label = document.getElementById("label-input");
+
+      if (tugas.includes("lari")) {
+        wrapLari.classList.remove("hidden");
+        wrapCheck.classList.add("hidden");
+        label.innerText = "Input Hasil Lari (Angka):";
+      } else if (tugas.includes("kesehatan")) {
+        wrapLari.classList.add("hidden");
+        wrapCheck.classList.add("hidden");
+        label.innerText = "Silakan isi Catatan Medis di bawah:";
+      } else {
+        wrapLari.classList.add("hidden");
+        wrapCheck.classList.remove("hidden");
+        label.innerText = "Status Kelulusan:";
+        document.getElementById("input-check-lolos").checked = false;
+      }
+    }
+
+    document.getElementById("pilih-tugas").addEventListener("change", sesuaikanInput);
+
     function nyalakanKamera() {
       document.getElementById("btn-restart-cam").classList.add("hidden");
-      
-      // Membaca dari kamera belakang (environment)
       html5QrCode.start(
         { facingMode: "environment" },
         { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 },
-        onScanSuccess,
-        onScanFailure
-      ).catch((err) => {
-        Swal.fire('Akses Kamera Ditolak', 'Izinkan browser menggunakan kamera Anda.', 'warning');
+        onScanSuccess, () => {}
+      ).catch(() => {
+        Swal.fire('Kamera Error', 'Izinkan kamera.', 'warning');
         document.getElementById("btn-restart-cam").classList.remove("hidden");
       });
     }
 
     function onScanSuccess(decodedText) {
-      // Hentikan kamera agar frame membeku
       html5QrCode.stop().then(() => {
         document.getElementById("area-scanner").classList.add("hidden");
         document.getElementById("btn-restart-cam").classList.remove("hidden");
@@ -256,25 +221,19 @@
         if(peserta) {
           pesertaSedangDinilai = decodedText;
           document.getElementById("nama-peserta").innerText = `${peserta.nama} (${decodedText})`;
-          document.getElementById("input-nilai").value = "";
+          document.getElementById("input-lari").value = "";
           document.getElementById("input-catatan").value = "";
           document.getElementById("form-nilai").classList.remove("hidden");
         } else {
           Swal.fire({
-            icon: 'error',
-            title: 'Tidak Ditemukan!',
-            text: `Peserta ${decodedText} belum Check-In di meja depan.`,
+            icon: 'error', title: 'Belum Check-In!', 
+            text: `Peserta belum lapor di depan.`,
             confirmButtonText: 'Scan Ulang'
-          }).then(() => {
-            batal();
-          });
+          }).then(() => batal());
         }
       });
     }
 
-    function onScanFailure(error) { /* Dibiarkan kosong agar console rapi */ }
-
-    // 3. BATAL & SIMPAN
     function batal() {
       document.getElementById("form-nilai").classList.add("hidden");
       document.getElementById("area-scanner").classList.remove("hidden");
@@ -283,17 +242,26 @@
     }
 
     async function simpan() {
-      let nilai = document.getElementById("input-nilai").value;
-      if(!nilai) return Swal.fire('Isian Kosong', 'Harap isi Hasil/Nilai Utama!', 'warning');
+      const tugas = document.getElementById("pilih-tugas").value.toLowerCase();
+      let nilai = "";
+
+      if (tugas.includes("lari")) {
+        nilai = document.getElementById("input-lari").value;
+        if (!nilai) return Swal.fire('Oops', 'Isi angka lari!', 'warning');
+      } else if (tugas.includes("kesehatan")) {
+        nilai = ""; // Kesehatan cukup catatan medis saja
+      } else {
+        nilai = document.getElementById("input-check-lolos").checked ? "Lolos" : "Tidak Lolos";
+      }
 
       let btn = document.getElementById("btn-simpan");
-      btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...`;
+      btn.innerHTML = `Menyimpan...`;
       btn.disabled = true;
       
       let payload = {
         action: "simpanNilai",
         noPeserta: pesertaSedangDinilai,
-        kategori: document.getElementById("pilih-tugas").value,
+        kategori: tugas, 
         nilaiUtama: nilai,
         nilaiCatatan: document.getElementById("input-catatan").value
       };
@@ -301,19 +269,13 @@
       let res = await kirimKeExcel(payload);
       
       if(res && res.success) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Berhasil Tersimpan!',
-          text: 'Data telah masuk ke Excel.',
-          timer: 2000,
-          showConfirmButton: false
-        });
-        setTimeout(() => batal(), 2000);
+        Swal.fire({ icon: 'success', title: 'Tersimpan!', timer: 1500, showConfirmButton: false });
+        setTimeout(() => batal(), 1500);
       } else {
-        Swal.fire('Gagal Menyimpan', 'Periksa koneksi internet Anda.', 'error');
+        Swal.fire('Gagal Menyimpan', res.message, 'error');
       }
       
-      btn.innerHTML = `<i class="bi bi-save me-2"></i>SIMPAN DATA`;
+      btn.innerHTML = `SIMPAN`;
       btn.disabled = false;
     }
   </script>
