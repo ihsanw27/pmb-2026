@@ -17,29 +17,23 @@
     .form-control { border-radius: 14px; padding: 14px 18px; border: 1.5px solid var(--border-soft); font-weight: 500; background: #f4f7f9; }
     .form-control:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(91, 124, 250, 0.15); outline: none; background: #ffffff; }
     .input-group-text { border-radius: 14px; border: 1.5px solid var(--border-soft); background: #f4f7f9; color: var(--text-muted); }
-    .input-group:focus-within .input-group-text { border-color: var(--accent); color: var(--accent); background: #ffffff; }
     .btn-custom { border-radius: 14px; padding: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
     .btn-accent { background: var(--accent); color: white; border: none; box-shadow: 0 6px 15px rgba(91, 124, 250, 0.2); }
-    .btn-accent:active { transform: translateY(2px); box-shadow: none; }
     .dashboard-wrapper { flex-grow: 1; padding: 20px; }
     .navbar-custom { background: var(--bg-card); border-radius: 20px; padding: 15px 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #ffffff; }
     .stat-card { background: var(--bg-card); border-radius: 20px; padding: 25px; border: 1px solid #ffffff; box-shadow: 0 4px 15px rgba(0,0,0,0.03); height: 100%; display: flex; flex-direction: column; transition: all 0.3s ease; }
-    .stat-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; transition: all 0.3s ease; }
-    .stat-val { font-size: 3rem; font-weight: 800; line-height: 1; margin: 0; color: var(--text-main); transition: all 0.3s ease; }
-    .progress { background-color: #edf2f7; border-radius: 50rem; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.02); }
-    .progress-bar { font-weight: 600; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
-    .micro-label { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
+    .stat-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+    .stat-val { font-size: 3rem; font-weight: 800; line-height: 1; margin: 0; color: var(--text-main); }
+    .progress { background-color: #edf2f7; border-radius: 50rem; overflow: hidden; }
     .table-container { background: var(--bg-card); border-radius: 20px; padding: 25px; border: 1px solid #ffffff; box-shadow: 0 4px 15px rgba(0,0,0,0.03); overflow-x: auto; }
-    .table { margin-bottom: 0; }
-    .table th { background-color: #f8fafc; color: var(--text-muted); font-weight: 600; font-size: 0.8rem; letter-spacing: 0.5px; border-bottom: 2px solid var(--border-soft); padding: 15px; }
+    .table th { background-color: #f8fafc; color: var(--text-muted); font-weight: 600; font-size: 0.8rem; border-bottom: 2px solid var(--border-soft); padding: 15px; }
     .table td { padding: 15px; vertical-align: middle; border-bottom: 1px solid var(--border-soft); font-size: 0.85rem; font-weight: 500; }
-    .search-box { max-width: 350px; width: 100%; }
     .hidden { display: none !important; }
     .fade-in { animation: fadeIn 0.4s ease forwards; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .cursor-pointer { cursor: pointer; }
     .link-detail { transition: all 0.2s ease; cursor: pointer; text-decoration: none; }
     .link-detail:hover { opacity: 0.7; text-decoration: underline; }
+    .photo-thumb { width: 80px; height: 80px; object-fit: cover; border-radius: 12px; border: 2px solid var(--border-soft); margin-bottom: 10px; }
   </style>
 </head>
 <body>
@@ -49,8 +43,8 @@
       <img src="https://i.ibb.co.com/TDsSQQ6B/IMG-1501-removebg-preview.png" alt="Logo Kampus" class="campus-logo">
       <h4 class="fw-bold mb-1">Portal Dashboard</h4>
       <p class="small mb-4 fw-medium text-muted">Dashboard Monitor Tes Fisik PMB PIPB</p>
-      <div class="input-group mb-3"><span class="input-group-text"><i class="bi bi-envelope"></i></span><input type="email" id="email" class="form-control border-start-0" placeholder="Email Terdaftar"></div>
-      <div class="input-group mb-4"><span class="input-group-text"><i class="bi bi-key"></i></span><input type="password" id="kode" class="form-control border-start-0 border-end-0" placeholder="Kode Keamanan"><span class="input-group-text bg-transparent border-start-0 cursor-pointer" onclick="togglePwd()"><i class="bi bi-eye-slash" id="icon-mata"></i></span></div>
+      <div class="input-group mb-3"><span class="input-group-text"><i class="bi bi-envelope"></i></span><input type="email" id="email" class="form-control" placeholder="Email Terdaftar"></div>
+      <div class="input-group mb-4"><span class="input-group-text"><i class="bi bi-key"></i></span><input type="password" id="kode" class="form-control" placeholder="Kode Keamanan"></div>
       <button onclick="login()" class="btn btn-custom btn-accent w-100" id="btn-login"><i class="bi bi-shield-lock" id="l-icon"></i> <span id="l-text">MASUK DASHBOARD</span></button>
     </div>
   </div>
@@ -58,92 +52,29 @@
   <div id="view-dashboard" class="dashboard-wrapper hidden fade-in">
     <div class="navbar-custom container-fluid">
       <div class="d-flex align-items-center gap-3">
-        <img src="https://i.ibb.co.com/TDsSQQ6B/IMG-1501-removebg-preview.png" alt="Logo" style="height: 40px; object-fit: contain;">
-        <div class="border-start ps-3 border-2" style="border-color: var(--border-soft) !important;">
-          <h5 class="mb-0 fw-bold" style="color: var(--text-main);">Monitor Tes Fisik PMB</h5>
-          <small class="text-muted fw-medium">Real-time Data Terpusat</small>
-        </div>
+        <h5 class="mb-0 fw-bold">Monitor Tes Fisik PMB</h5>
       </div>
       <div class="d-flex align-items-center gap-3">
         <div class="text-end d-none d-md-block">
-          <small class="text-muted d-block" style="font-size: 0.7rem;">LOGIN SEBAGAI</small>
-          <strong id="admin-nama" class="fs-6" style="color: var(--accent);">Nama Panitia</strong>
+          <small class="text-muted d-block">LOGIN SEBAGAI</small>
+          <strong id="admin-nama" class="fs-6 text-primary">Nama Panitia</strong>
         </div>
-        <button onclick="loadData()" id="btn-refresh" class="btn btn-light rounded-circle border p-2" style="width: 42px; height: 42px; color: var(--accent); background: #f8fafc;"><i class="bi bi-arrow-clockwise fs-5"></i></button>
-        <button onclick="logout()" class="btn btn-light rounded-circle border p-2" title="Keluar" style="width: 42px; height: 42px; color: var(--danger); background: #fff5f5; border-color: #ffe3e3 !important;"><i class="bi bi-power fs-5"></i></button>
+        <button onclick="loadData()" id="btn-refresh" class="btn btn-light rounded-circle border"><i class="bi bi-arrow-clockwise"></i></button>
+        <button onclick="logout()" class="btn btn-light rounded-circle border text-danger"><i class="bi bi-power"></i></button>
       </div>
     </div>
 
     <div class="container-fluid mb-4">
-      <div class="row mb-4">
-        <div class="col-12">
-          <div class="stat-card" style="padding: 25px 30px;">
-            <div class="d-flex justify-content-between align-items-end mb-3">
-              <div>
-                <div class="stat-title mb-1" style="color: var(--accent);"><i class="bi bi-people-fill fs-5"></i> Total Check-in Kehadiran</div>
-                <div class="small fw-medium text-muted"><span id="d-hadir" class="fw-bold fs-6 text-dark">0</span> dari <span id="d-total">0</span> Peserta di Database</div>
-              </div>
-              <div class="fw-bold fs-2" style="color: var(--accent);"><span id="d-persen">0</span>%</div>
-            </div>
-            <div class="progress" style="height: 16px;"><div id="bar-hadir" class="progress-bar" style="background-color: var(--accent); width: 0%"></div></div>
-          </div>
-        </div>
-      </div>
-
       <div class="row g-4">
-        <div class="col-md-4">
-          <div class="stat-card">
-            <div class="stat-title"><i class="bi bi-shield-check fs-5" style="color:#f59f00;"></i> Pos Verifikasi Administrasi</div>
-            <div class="mt-2 mb-4">
-              <div class="d-flex justify-content-between micro-label"><span>Sedang Diproses</span><span><span id="d-sudah-verif">0</span>/<span class="d-hadir-val">0</span> (<span id="p-proses-verif">0</span>%)</span></div>
-              <div class="progress" style="height: 10px;"><div id="bar-proses-verif" class="progress-bar" style="background-color: #fcc419; width: 0%"></div></div>
-            </div>
-            <div class="mb-4">
-              <div class="d-flex justify-content-between micro-label"><span style="color:#20c997;"><i class="bi bi-check-circle-fill"></i> Lolos Administrasi</span><span style="color:#20c997;"><span id="d-lolos-verif">0</span>/<span class="d-hadir-val">0</span> (<span id="p-lolos-verif">0</span>%)</span></div>
-              <div class="progress" style="height: 10px;"><div id="bar-lolos-verif" class="progress-bar" style="background-color: #38d9a9; width: 0%"></div></div>
-            </div>
-            <div class="mt-auto pt-3 border-top d-flex justify-content-between small fw-bold text-muted" style="border-color: var(--border-soft) !important;">
-              <span style="color:var(--danger);"><i class="bi bi-x-circle me-1"></i> <span id="d-gagal-verif">0</span> Gagal</span><span>Sisa Antre: <span id="d-antre-verif" class="text-dark">0</span></span>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-md-4">
-          <div class="stat-card">
-            <div class="stat-title"><i class="bi bi-stopwatch fs-5" style="color:#20c997;"></i> Kemajuan Pos Tes Fisik</div>
-            <p class="small mb-3 fw-medium rounded px-2 py-1 text-center text-muted" style="background:#edf2ff;">Peserta yg berhak Uji: <strong style="color:var(--accent);"><span id="d-base-fisik">0</span></strong></p>
-            
-            <div class="mb-3">
-              <div class="d-flex justify-content-between micro-label"><span>1. Pos Lari</span><span><span id="d-lari">0</span> (<span id="p-lari">0</span>%)</span></div>
-              <div class="progress" style="height: 8px;"><div id="bar-lari" class="progress-bar" style="background-color: #38d9a9; width: 0%"></div></div>
-            </div>
-            
-            <div class="mb-3">
-              <div class="d-flex justify-content-between micro-label"><span>2. Pos Ketinggian</span><span><span id="d-tinggi">0</span> (<span id="p-tinggi">0</span>%)</span></div>
-              <div class="progress mb-1" style="height: 8px;"><div id="bar-tinggi" class="progress-bar" style="background-color: #38d9a9; width: 0%"></div></div>
-              <div class="d-flex justify-content-end gap-3 text-muted" style="font-size: 0.65rem; font-weight: 700;">
-                <span style="color:#20c997;"><i class="bi bi-check-circle-fill"></i> Lolos: <span id="d-lolos-tinggi">0</span></span>
-                <span style="color:var(--danger);"><i class="bi bi-x-circle-fill"></i> Tdk Lolos: <span id="d-gagal-tinggi">0</span></span>
+        <div class="col-12">
+           <div class="stat-card">
+              <div class="stat-title text-primary"><i class="bi bi-people-fill"></i> Total Check-in Kehadiran</div>
+              <div class="d-flex justify-content-between align-items-end">
+                <h2 class="fw-bold mb-0"><span id="d-hadir">0</span> / <span id="d-total">0</span></h2>
+                <div class="fw-bold fs-4 text-primary"><span id="d-persen">0</span>%</div>
               </div>
-            </div>
-            
-            <div class="mb-2">
-              <div class="d-flex justify-content-between micro-label"><span>3. Pos Ruang Sempit</span><span><span id="d-sempit">0</span> (<span id="p-sempit">0</span>%)</span></div>
-              <div class="progress mb-1" style="height: 8px;"><div id="bar-sempit" class="progress-bar" style="background-color: #38d9a9; width: 0%"></div></div>
-              <div class="d-flex justify-content-end gap-3 text-muted" style="font-size: 0.65rem; font-weight: 700;">
-                <span style="color:#20c997;"><i class="bi bi-check-circle-fill"></i> Lolos: <span id="d-lolos-sempit">0</span></span>
-                <span style="color:var(--danger);"><i class="bi bi-x-circle-fill"></i> Tdk Lolos: <span id="d-gagal-sempit">0</span></span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-md-4">
-          <div id="p3k-card" class="stat-card text-center justify-content-center" style="background: linear-gradient(145deg, #e6fcf5 0%, #ffffff 100%); border-color: #b2f2bb;">
-            <div id="p3k-title" class="stat-title justify-content-center" style="color:var(--success);"><i class="bi bi-bandaid-fill fs-5"></i> Laporan Insiden P3K</div>
-            <p class="stat-val my-2" style="color:var(--success);" id="d-medis">0</p>
-            <p id="p3k-text" class="small fw-semibold opacity-75" style="color:var(--success);">Peserta Ditangani Medis</p>
-          </div>
+              <div class="progress mt-3" style="height: 12px;"><div id="bar-hadir" class="progress-bar bg-primary" style="width: 0%"></div></div>
+           </div>
         </div>
       </div>
     </div>
@@ -153,22 +84,22 @@
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
           <div>
             <h5 class="fw-bold mb-1">Live Rekapitulasi Penilaian</h5>
-            <span class="badge bg-light text-muted border border-secondary" style="font-size: 0.8rem;">
-              <i class="bi bi-broadcast text-primary"></i> Refresh dalam <strong id="timer-text" class="text-primary fs-6 ms-1">30</strong> detik
+            <span class="badge bg-light text-muted border">
+              <i class="bi bi-broadcast text-primary"></i> Refresh dalam <strong id="timer-text" class="text-primary">30</strong> detik
             </span>
           </div>
-          <div class="input-group search-box shadow-sm">
-            <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
-            <input type="text" id="searchInput" class="form-control border-start-0 ps-0" placeholder="Cari Nama, No Peserta, Status..." onkeyup="filterTable()">
+          <div class="input-group" style="max-width: 300px;">
+            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+            <input type="text" id="searchInput" class="form-control border-start-0" placeholder="Cari Nama..." onkeyup="filterTable()">
           </div>
         </div>
 
         <div class="table-responsive">
-          <table class="table table-hover align-middle" id="table-peserta">
+          <table class="table table-hover align-middle">
             <thead>
               <tr>
                 <th>NO PESERTA</th>
-                <th>NAMA LENGKAP</th>
+                <th>NAMA & DETAIL</th>
                 <th>VERIF ADM</th>
                 <th class="text-center">TES LARI</th>
                 <th class="text-center">KETINGGIAN</th>
@@ -177,14 +108,9 @@
               </tr>
             </thead>
             <tbody id="tbody-peserta">
-              <tr><td colspan="7" class="text-center text-muted py-4">Memuat data peserta...</td></tr>
+              <tr><td colspan="7" class="text-center text-muted py-4">Memuat data...</td></tr>
             </tbody>
           </table>
-        </div>
-        
-        <div id="no-result-msg" class="text-center py-4 hidden">
-          <i class="bi bi-search fs-1 text-muted opacity-50 mb-2 d-block"></i>
-          <p class="text-muted fw-medium mb-0">Peserta tidak ditemukan.</p>
         </div>
       </div>
     </div>
@@ -192,173 +118,82 @@
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzJQjxT6QKsyuNMn4KCxsFuRAD5MPItgHdqPVdAvintroDIf9dAeMxhCWyyaX4LkfeW/exec"; 
-    
-    let countdownInterval;
-    let secondsLeft = 30;
+    let countdownInterval, secondsLeft = 30;
 
     window.onload = () => { if(localStorage.getItem("dashSess")) restoreSession(); };
-    function togglePwd() { let i = document.getElementById("kode"), ic = document.getElementById("icon-mata"); i.type = i.type === "password" ? "text" : "password"; ic.className = i.type === "password" ? "bi bi-eye-slash" : "bi bi-eye"; ic.style.color = i.type === "password" ? "var(--text-muted)" : "var(--accent)"; }
 
     async function api(payload) {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000); 
       try { 
-        let res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), signal: controller.signal }); 
-        clearTimeout(timeoutId); return JSON.parse(await res.text()); 
-      } catch(e) { clearTimeout(timeoutId); return { success: false, message: "Koneksi terputus atau server sibuk." }; }
+        let res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }); 
+        return JSON.parse(await res.text()); 
+      } catch(e) { return { success: false }; }
     }
 
     async function login() {
       let email = document.getElementById("email").value, kode = document.getElementById("kode").value;
-      if(!email || !kode) return Swal.fire('Data Belum Lengkap', 'Masukkan Email dan Kode Keamanan!', 'warning'); 
-      let btn = document.getElementById("btn-login"), ic = document.getElementById("l-icon"), tx = document.getElementById("l-text");
-      btn.disabled = true; ic.className = "spinner-border spinner-border-sm"; tx.innerText = "Memverifikasi...";
-      
-      let res = await api({ action: "login", email: email, kodeLogin: kode });
-      if(res.success) { 
-        let rolesArray = Array.isArray(res.kategoriList) ? res.kategoriList : (res.kategoriList || "").toString().split(",");
-        let isManagement = rolesArray.some(role => role.toLowerCase().trim() === "management");
-        if (isManagement) {
-          localStorage.setItem("dashSess", JSON.stringify({ nama: res.nama, jabatan: rolesArray.join(", ") })); 
-          restoreSession(); 
-        } else {
-          Swal.fire({icon: 'error', title: 'Akses Ditolak!', text: 'Anda tidak memiliki Hak Akses Management.', confirmButtonColor: '#ff8787'});
-        }
-      } else { Swal.fire({icon:'error', title:'Login Gagal', text:res.message, confirmButtonColor:'#5b7cfa'}); }
-      btn.disabled = false; ic.className = "bi bi-shield-lock"; tx.innerText = "MASUK DASHBOARD";
+      let res = await api({ action: "login", email, kodeLogin: kode });
+      if(res.success) {
+        localStorage.setItem("dashSess", JSON.stringify({ nama: res.nama }));
+        restoreSession();
+      } else { Swal.fire('Gagal', res.message, 'error'); }
     }
 
     function restoreSession() {
       let sess = JSON.parse(localStorage.getItem("dashSess"));
-      document.getElementById("view-login").classList.add("hidden"); document.getElementById("view-dashboard").classList.remove("hidden");
+      document.getElementById("view-login").classList.add("hidden"); 
+      document.getElementById("view-dashboard").classList.remove("hidden");
       document.getElementById("admin-nama").innerText = sess.nama;
-      
       loadData();
-      startCountdown(); // Mulai Timer Hitung Mundur!
+      startCountdown();
     }
 
-    function logout() {
-      Swal.fire({ title: 'Keluar Dashboard?', icon: 'question', showCancelButton: true, confirmButtonColor: '#ff8787', confirmButtonText: 'Ya, Keluar', cancelButtonText: 'Batal' })
-      .then((result) => { if (result.isConfirmed) { localStorage.removeItem("dashSess"); clearInterval(countdownInterval); location.reload(); } });
-    }
+    function logout() { localStorage.removeItem("dashSess"); location.reload(); }
 
-    // FUNGSI TIMER HITUNG MUNDUR (COUNTDOWN)
     function startCountdown() {
       if (countdownInterval) clearInterval(countdownInterval);
       secondsLeft = 30;
-      document.getElementById("timer-text").innerText = secondsLeft;
-      
       countdownInterval = setInterval(() => {
         secondsLeft--;
-        if (secondsLeft <= 0) {
-          loadData(false); // Ambil data diam-diam (tanpa toast) saat mencapai 0
-          secondsLeft = 30; // Reset ke 30 detik
-        }
+        if (secondsLeft <= 0) { loadData(false); secondsLeft = 30; }
         document.getElementById("timer-text").innerText = secondsLeft;
       }, 1000);
     }
 
     async function loadData(showToast = true) {
-      let btn = document.getElementById("btn-refresh"), icon = btn.querySelector("i");
-      btn.disabled = true; icon.classList.add("spinner-border", "spinner-border-sm"); icon.classList.remove("bi-arrow-clockwise");
-
-      // Reset timer jika dipencet manual oleh pimpinan
-      if (showToast) {
-        secondsLeft = 30; 
-        document.getElementById("timer-text").innerText = secondsLeft;
-      }
-
-      let res = await api({ action: "getDashboard" }); 
-
+      let res = await api({ action: "getDashboard" });
       if (res.success) {
-        let d = res.stats;
-        document.getElementById("d-total").innerText = d.total; 
-        document.getElementById("d-hadir").innerText = d.hadir;
-        document.getElementById("d-persen").innerText = d.persentaseHadir; 
-        document.getElementById("bar-hadir").style.width = d.persentaseHadir + "%";
-
-        document.querySelectorAll(".d-hadir-val").forEach(el => el.innerText = d.hadir); 
-        document.getElementById("d-sudah-verif").innerText = d.sudahVerif; 
-        document.getElementById("d-lolos-verif").innerText = d.lolosVerif;
-        document.getElementById("d-gagal-verif").innerText = d.gagalVerif; 
-        document.getElementById("d-antre-verif").innerText = d.hadir - d.sudahVerif;
-        
-        let pProsesVerif = d.hadir > 0 ? Math.round((d.sudahVerif / d.hadir) * 100) : 0; 
-        let pLolosVerif = d.hadir > 0 ? Math.round((d.lolosVerif / d.hadir) * 100) : 0;
-        document.getElementById("p-proses-verif").innerText = pProsesVerif; document.getElementById("bar-proses-verif").style.width = pProsesVerif + "%";
-        document.getElementById("p-lolos-verif").innerText = pLolosVerif; document.getElementById("bar-lolos-verif").style.width = pLolosVerif + "%";
-
-        document.getElementById("d-base-fisik").innerText = d.lolosVerif;
-        document.getElementById("d-lari").innerText = d.sudahLari; 
-        document.getElementById("d-tinggi").innerText = d.sudahKetinggian; 
-        document.getElementById("d-sempit").innerText = d.sudahSempit;
-        
-        let pLari = d.lolosVerif > 0 ? Math.round((d.sudahLari / d.lolosVerif) * 100) : 0; 
-        let pTinggi = d.lolosVerif > 0 ? Math.round((d.sudahKetinggian / d.lolosVerif) * 100) : 0; 
-        let pSempit = d.lolosVerif > 0 ? Math.round((d.sudahSempit / d.lolosVerif) * 100) : 0;
-        
-        document.getElementById("p-lari").innerText = pLari; document.getElementById("bar-lari").style.width = pLari + "%";
-        document.getElementById("p-tinggi").innerText = pTinggi; document.getElementById("bar-tinggi").style.width = pTinggi + "%";
-        document.getElementById("p-sempit").innerText = pSempit; document.getElementById("bar-sempit").style.width = pSempit + "%";
-        
-        document.getElementById("d-lolos-tinggi").innerText = d.lolosKetinggian;
-        document.getElementById("d-gagal-tinggi").innerText = d.gagalKetinggian;
-        document.getElementById("d-lolos-sempit").innerText = d.lolosSempit;
-        document.getElementById("d-gagal-sempit").innerText = d.gagalSempit;
-        
-        document.getElementById("d-medis").innerText = d.insidenMedis;
-        
-        let p3kCard = document.getElementById("p3k-card");
-        let p3kTitle = document.getElementById("p3k-title");
-        let p3kVal = document.getElementById("d-medis");
-        let p3kText = document.getElementById("p3k-text");
-        
-        if (d.insidenMedis === 0) {
-          p3kCard.style.background = "linear-gradient(145deg, #e6fcf5 0%, #ffffff 100%)";
-          p3kCard.style.borderColor = "#b2f2bb"; p3kTitle.style.color = "var(--success)"; p3kVal.style.color = "var(--success)"; p3kText.style.color = "var(--success)";
-        } else {
-          p3kCard.style.background = "linear-gradient(145deg, #fff5f5 0%, #ffffff 100%)";
-          p3kCard.style.borderColor = "#ffc9c9"; p3kTitle.style.color = "var(--danger)"; p3kVal.style.color = "var(--danger)"; p3kText.style.color = "var(--danger)";
-        }
-
+        updateStats(res.stats);
         renderTable(res.data);
-        if(showToast) Swal.fire({title: 'Data Sinkron!', timer: 1000, toast: true, position: 'top-end', showConfirmButton: false, icon: 'success'});
-      } else {
-        if(showToast) Swal.fire('Gagal Refresh', 'Cek koneksi internet Anda.', 'error');
+        if(showToast) Swal.fire({title:'Updated', timer:800, toast:true, position:'top-end', showConfirmButton:false, icon:'success'});
       }
-      btn.disabled = false; icon.classList.remove("spinner-border", "spinner-border-sm"); icon.classList.add("bi-arrow-clockwise");
     }
 
-    function getBadgeStatus(val) {
-      if(val.toLowerCase() === 'lolos') return `<span class="badge bg-success bg-opacity-10 text-success border border-success">Lolos</span>`;
-      if(val.toLowerCase() === 'tidak lolos') return `<span class="badge bg-danger bg-opacity-10 text-danger border border-danger">Tidak Lolos</span>`;
-      return `<span class="badge bg-secondary">Pending</span>`;
+    function updateStats(s) {
+      document.getElementById("d-total").innerText = s.total;
+      document.getElementById("d-hadir").innerText = s.hadir;
+      document.getElementById("d-persen").innerText = s.persentaseHadir;
+      document.getElementById("bar-hadir").style.width = s.persentaseHadir + "%";
     }
 
-    function showDetail(nama, pos, catatan, panitia, waktu) {
-      let icon = "bi-card-text", color = "text-primary";
-      if(pos.toLowerCase() === "p3k") { icon = "bi-bandaid"; color = "text-danger"; }
-
+    // FUNGSI UNTUK MENAMPILKAN MODAL BIODATA LENGKAP
+    function showBiodata(p) {
+      let fotoHtml = p.foto ? `<img src="${p.foto}" class="photo-thumb shadow-sm">` : `<div class="photo-thumb bg-light d-flex align-items-center justify-content-center mx-auto"><i class="bi bi-person text-muted fs-1"></i></div>`;
+      
       Swal.fire({
-        title: `<i class="bi ${icon} ${color}"></i> Detail ${pos}`,
+        title: 'Profil Peserta',
         html: `
-          <div class="text-start mt-2">
-            <p class="mb-2 text-muted small fw-bold">PESERTA:</p>
-            <h6 class="fw-bold mb-3">${nama}</h6>
-            
-            <p class="mb-1 text-muted small fw-bold">LOG PANITIA PEMERIKSA:</p>
-            <div class="d-flex align-items-center mb-3 p-2 rounded" style="background: #f1f5f9;">
-              <i class="bi bi-person-badge fs-2 me-3" style="color: #94a3b8;"></i>
-              <div>
-                <p class="mb-0 fw-bold" style="color: #334155;">${panitia || 'Unknown'}</p>
-                <small class="text-muted"><i class="bi bi-clock-history"></i> ${waktu || '-'}</small>
-              </div>
-            </div>
-
-            <p class="mb-1 text-muted small fw-bold">CATATAN/KETERANGAN:</p>
-            <div class="p-3 rounded border" style="background: #f8fafc; color: #334155; font-weight: 500; font-size: 0.95rem; white-space: pre-wrap;">
-              ${catatan || 'Tidak ada catatan.'}
-            </div>
+          <div class="text-center mb-3">${fotoHtml}</div>
+          <div class="text-start small">
+            <table class="table table-sm table-borderless">
+              <tr><td width="100" class="fw-bold">No Peserta</td><td>: ${p.no}</td></tr>
+              <tr><td class="fw-bold">NIK</td><td>: ${p.nik || '-'}</td></tr>
+              <tr><td class="fw-bold">Nama</td><td>: ${p.nama}</td></tr>
+              <tr><td class="fw-bold">Gender</td><td>: ${p.jenis_kelamin || '-'}</td></tr>
+              <tr><td class="fw-bold">Jalur</td><td>: ${p.jalur}</td></tr>
+              <tr class="border-top"><td colspan="2" class="pt-2 fw-bold text-primary">Pilihan Jurusan:</td></tr>
+              <tr><td class="fw-bold">Jurusan 1</td><td>: ${p.jurusan_1 || '-'}</td></tr>
+              <tr><td class="fw-bold">Jurusan 2</td><td>: ${p.jurusan_2 || '-'}</td></tr>
+            </table>
           </div>
         `,
         confirmButtonText: 'Tutup',
@@ -366,63 +201,40 @@
       });
     }
 
-    function renderTable(dataPeserta) {
+    function renderTable(data) {
       let tbody = document.getElementById("tbody-peserta");
       tbody.innerHTML = "";
-
-      if(dataPeserta.length === 0) {
-        tbody.innerHTML = `<tr id="empty-row"><td colspan="7" class="text-center text-muted py-4">Belum ada peserta yang melakukan Check-In</td></tr>`;
-        return;
-      }
-
-      dataPeserta.forEach(p => {
-        let safeNama = p.nama.replace(/'/g, "\\'").replace(/"/g, "&quot;");
-
-        const getDetailLink = (catatan, posName, panitia, waktu) => {
-          if (!catatan || catatan.trim() === "") return "";
-          let safeCat = catatan.replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/\n/g, "<br>");
-          let safePanitia = panitia.replace(/'/g, "\\'");
-          let linkColor = (posName === 'P3K') ? 'text-danger' : 'text-primary';
-          return `<br><a onclick="showDetail('${safeNama}', '${posName}', '${safeCat}', '${safePanitia}', '${waktu}')" class="${linkColor} link-detail fw-bold mt-1 d-inline-block" style="font-size: 0.75rem;"><i class="bi bi-zoom-in"></i> Detail</a>`;
-        };
-
-        let badgeVerif = getBadgeStatus(p.verif) + getDetailLink(p.catVerif, 'Verifikasi', p.panVerif, p.wakVerif);
-        let badgeTinggi = getBadgeStatus(p.tinggi) + getDetailLink(p.catTinggi, 'Ketinggian', p.panTinggi, p.wakTinggi);
-        let badgeSempit = getBadgeStatus(p.sempit) + getDetailLink(p.catSempit, 'Ruang Sempit', p.panSempit, p.wakSempit);
+      data.forEach(p => {
+        // Konversi objek p ke string agar bisa dikirim ke fungsi onclick
+        let pStr = JSON.stringify(p).replace(/"/g, '&quot;');
         
-        let lariVal = p.lari !== '' ? p.lari : `<span class="badge bg-secondary">Pending</span>`;
-        let badgeLari = `<span class="fw-bold text-center">${lariVal}</span>` + getDetailLink(p.catLari, 'Tes Lari', p.panLari, p.wakLari);
-
-        let badgeMedis = p.medis !== "" 
-          ? `<span class="badge" style="background:#fff5f5; color:var(--danger); border: 1px solid #ffc9c9;"><i class="bi bi-bandaid"></i> P3K</span>` + getDetailLink(p.medis, 'P3K', p.panMedis, p.wakMedis)
-          : `<span class="badge bg-success bg-opacity-10 text-success border border-success"><i class="bi bi-shield-check"></i> Aman</span>`;
-
         tbody.innerHTML += `
           <tr class="peserta-row">
             <td class="fw-bold text-muted">${p.no}</td>
-            <td class="fw-bold">${p.nama} <br><span class="badge bg-light text-dark border fw-normal mt-1">${p.jalur}</span></td>
-            <td>${badgeVerif}</td>
-            <td class="text-center">${badgeLari}</td>
-            <td class="text-center">${badgeTinggi}</td>
-            <td class="text-center">${badgeSempit}</td>
-            <td>${badgeMedis}</td>
+            <td>
+              <div class="fw-bold">${p.nama}</div>
+              <div class="d-flex gap-2 align-items-center mt-1">
+                <span class="badge bg-light text-dark border fw-normal" style="font-size:0.7rem;">${p.jalur}</span>
+                <a onclick='showBiodata(${pStr})' class="text-primary link-detail fw-bold" style="font-size:0.75rem;">
+                  <i class="bi bi-person-lines-fill"></i> Detail Biodata
+                </a>
+              </div>
+            </td>
+            <td><span class="badge ${p.verif === 'Lolos' ? 'bg-success' : (p.verif === 'Tidak Lolos' ? 'bg-danger' : 'bg-secondary')}">${p.verif || 'Pending'}</span></td>
+            <td class="text-center fw-bold">${p.lari || '-'}</td>
+            <td class="text-center"><span class="badge ${p.tinggi === 'Lolos' ? 'bg-success' : (p.tinggi === 'Tidak Lolos' ? 'bg-danger' : 'bg-secondary')}">${p.tinggi || 'Pending'}</span></td>
+            <td class="text-center"><span class="badge ${p.sempit === 'Lolos' ? 'bg-success' : (p.sempit === 'Tidak Lolos' ? 'bg-danger' : 'bg-secondary')}">${p.sempit || 'Pending'}</span></td>
+            <td>${p.medis ? '<span class="badge bg-danger">P3K</span>' : '<span class="badge bg-success">Aman</span>'}</td>
           </tr>
         `;
       });
-      filterTable();
     }
 
     function filterTable() {
       let input = document.getElementById("searchInput").value.toLowerCase();
-      let rows = document.querySelectorAll(".peserta-row");
-      let noResultMsg = document.getElementById("no-result-msg");
-      let visibleCount = 0;
-      rows.forEach(row => {
-        if (row.textContent.toLowerCase().includes(input)) { row.style.display = ""; visibleCount++; } 
-        else { row.style.display = "none"; }
+      document.querySelectorAll(".peserta-row").forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(input) ? "" : "none";
       });
-      if (visibleCount === 0 && rows.length > 0) noResultMsg.classList.remove("hidden");
-      else noResultMsg.classList.add("hidden");
     }
   </script>
 </body>
