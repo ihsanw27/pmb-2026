@@ -11,44 +11,46 @@
   <style>
     :root { --bg-page: #f8fafc; --bg-card: #ffffff; --text-main: #0f172a; --accent: #0ea5e9; }
     body { background: var(--bg-page); color: var(--text-main); font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
-    .kiosk-container { background: var(--bg-card); border-radius: 28px; padding: 45px 35px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.08); width: 100%; max-width: 460px; text-align: center; border: 1px solid rgba(226, 232, 240, 0.8); }
+    .kiosk-container { background: var(--bg-card); border-radius: 28px; padding: 40px 30px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.08); width: 100%; max-width: 420px; text-align: center; border: 1px solid rgba(226, 232, 240, 0.8); }
     .form-control { border-radius: 16px; padding: 18px; border: 1.5px solid #cbd5e1; background: #f8fafc; font-size: 1.15rem; text-align: center; font-weight: 600; }
     .form-control:focus { background-color: #fff; border-color: var(--accent); box-shadow: 0 10px 15px -3px rgba(14, 165, 233, 0.15); outline: none; }
     .btn-custom { border-radius: 16px; padding: 18px; font-weight: 700; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; gap: 10px; }
     .btn-accent { background-color: var(--accent); color: white; border: none; }
     .btn-accent:hover { background-color: #0284c7; color: white; }
-    .qr-wrapper { background: #ffffff; border: 2px dashed #bae6fd; border-radius: 24px; padding: 25px; display: inline-block; margin: 25px 0; }
+    .qr-wrapper { background: #ffffff; border: 2px dashed #bae6fd; border-radius: 20px; padding: 20px; display: inline-block; margin-bottom: 20px; }
+    .foto-profil { width: 90px; height: 90px; object-fit: cover; border: 4px solid #e0f2fe; }
+    .avatar-placeholder { width: 90px; height: 90px; background: #e0f2fe; color: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin: 0 auto; }
     .hidden { display: none !important; }
   </style>
 </head>
 <body>
   <div class="kiosk-container">
     <div id="view-form">
-      <div style="width: 80px; height: 80px; background: #e0f2fe; color: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin: 0 auto 20px auto;"><i class="bi bi-person-vcard"></i></div>
-      <h1 class="fw-bold mb-2">Portal Peserta Tes Fisik PMB PIPB</h1>
+      <div class="avatar-placeholder mb-3"><i class="bi bi-person-vcard"></i></div>
+      <h2 class="fw-bold mb-2">Portal Peserta Tes Fisik</h2>
       <p class="text-muted fs-6 mb-4 fw-medium">Silakan masukkan Nomor Registrasi Anda.</p>
       
-      <div class="mb-4">
-        <input type="text" id="noPeserta" class="form-control" placeholder="Contoh: 2026100001" autocomplete="off">
-      </div>
+      <div class="mb-4"><input type="text" id="noPeserta" class="form-control" placeholder="Contoh: 2026100001" autocomplete="off"></div>
       
       <button onclick="doCheckIn()" class="btn btn-custom btn-accent w-100" id="btn-checkin">
-        <i class="bi bi-qr-code" id="btn-icon"></i> <span id="btn-text">Dapatkan QR ID</span>
+        <i class="bi bi-qr-code" id="btn-icon"></i> <span id="btn-text">Check-in & Buat QR</span>
       </button>
     </div>
 
     <div id="view-qr" class="hidden">
-      <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
-      <h3 class="fw-bold mt-3 text-success">Berhasil!</h3>
-      <p class="text-muted small mb-0">Tunjukkan QR Code ini kepada panitia.</p>
+      <i class="bi bi-check-circle-fill text-success" style="font-size: 3.5rem;"></i>
+      <h3 class="fw-bold mt-2 text-success">Check-In Sukses!</h3>
+      <p class="text-muted small mb-3">Tunjukkan QR Code ini di setiap Pos Ujian.</p>
       
-      <div class="qr-wrapper"><div id="qrcode-box"></div></div>
-      
-      <div class="bg-light rounded-4 py-3 mb-4">
-        <small class="text-muted fw-bold d-block">ID PESERTA</small>
-        <h3 class="fw-bold mb-0" id="qr-no-peserta">-</h3>
+      <div class="mb-3">
+        <img id="qr-foto" src="" class="rounded-circle shadow-sm mb-2 foto-profil hidden" alt="Foto Peserta">
+        <div id="qr-avatar" class="avatar-placeholder mb-2 hidden"><i class="bi bi-person-fill"></i></div>
+        <h5 class="fw-bold mb-0 text-dark" id="qr-nama">Nama Peserta</h5>
+        <span class="badge bg-primary rounded-pill mt-2 px-3 py-2 fs-6" id="qr-no-peserta">-</span>
       </div>
-      <button onclick="resetLayar()" class="btn btn-light text-secondary fw-bold w-100 rounded-pill border py-3">Selesai / Keluar</button>
+      
+      <div class="qr-wrapper"><div id="qrcode-box" class="mx-auto" style="width: 180px; height: 180px;"></div></div>
+      <button onclick="resetLayar()" class="btn btn-light text-secondary fw-bold w-100 rounded-pill border py-3 mt-2">Tutup & Kembali</button>
     </div>
   </div>
 
@@ -58,7 +60,7 @@
 
     async function doCheckIn() {
       const noInput = document.getElementById("noPeserta").value.trim();
-      if (!noInput) return Swal.fire({icon: 'warning', text: 'Masukkan nomor peserta Anda.', confirmButtonColor: '#0ea5e9'});
+      if (!noInput) return Swal.fire({icon: 'warning', text: 'Masukkan nomor peserta.', confirmButtonColor: '#0ea5e9'});
 
       let btn = document.getElementById("btn-checkin"), bIcon = document.getElementById("btn-icon"), bText = document.getElementById("btn-text");
       btn.disabled = true; bIcon.className = "spinner-border spinner-border-sm"; bText.innerText = "Memproses...";
@@ -67,22 +69,31 @@
         let res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "checkIn", noPeserta: noInput }) });
         let json = JSON.parse(await res.text());
 
-        if (json.success) tampilkanQR(noInput);
+        if (json.success) tampilkanQR(noInput, json.nama, json.foto);
         else Swal.fire({icon: 'error', title: 'Gagal', text: json.message, confirmButtonColor: '#0ea5e9'});
-      } catch(e) { Swal.fire({icon: 'error', text: 'Koneksi Terputus.', confirmButtonColor: '#0ea5e9'}); }
+      } catch(e) { Swal.fire({icon: 'error', text: 'Koneksi Terputus / Server Error.', confirmButtonColor: '#0ea5e9'}); }
 
-      btn.disabled = false; bIcon.className = "bi bi-qr-code"; bText.innerText = "Dapatkan QR ID";
+      btn.disabled = false; bIcon.className = "bi bi-qr-code"; bText.innerText = "Check-in & Buat QR";
     }
 
-    function tampilkanQR(nomor) {
+    function tampilkanQR(nomor, namaPeserta, linkFoto) {
       document.getElementById("view-form").classList.add("hidden"); document.getElementById("view-qr").classList.remove("hidden");
       document.getElementById("qr-no-peserta").innerText = nomor.toUpperCase();
+      document.getElementById("qr-nama").innerText = namaPeserta ? namaPeserta : "Peserta";
+
+      let elFoto = document.getElementById("qr-foto"), elAvatar = document.getElementById("qr-avatar");
+      if (linkFoto && linkFoto.startsWith("http")) {
+        elFoto.src = linkFoto; elFoto.classList.remove("hidden"); elAvatar.classList.add("hidden");
+      } else {
+        elFoto.classList.add("hidden"); elAvatar.classList.remove("hidden");
+      }
+
       document.getElementById("qrcode-box").innerHTML = ""; 
-      qrcode = new QRCode(document.getElementById("qrcode-box"), { text: nomor, width: 200, height: 200, colorDark : "#0f172a", colorLight : "#ffffff" });
+      qrcode = new QRCode(document.getElementById("qrcode-box"), { text: nomor, width: 180, height: 180, colorDark : "#0f172a", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H });
     }
 
     function resetLayar() {
-      document.getElementById("noPeserta").value = "";
+      document.getElementById("noPeserta").value = ""; document.getElementById("qr-foto").src = "";
       document.getElementById("view-qr").classList.add("hidden"); document.getElementById("view-form").classList.remove("hidden");
     }
   </script>
