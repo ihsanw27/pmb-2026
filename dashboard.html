@@ -49,6 +49,10 @@
     .fade-in { animation: fadeIn 0.4s ease forwards; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .cursor-pointer { cursor: pointer; }
+
+    /* Custom Link Detail Hover */
+    .link-detail { transition: all 0.2s ease; cursor: pointer; text-decoration: none; }
+    .link-detail:hover { opacity: 0.7; text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -57,7 +61,7 @@
     <div class="card-login text-center">
       <img src="https://i.ibb.co.com/TDsSQQ6B/IMG-1501-removebg-preview.png" alt="Logo Kampus" class="campus-logo">
       <h4 class="fw-bold mb-1">Portal Dashboard</h4>
-      <p class="small mb-4 fw-medium text-muted">Dashboard Tes Fisik PMB PIPB</p>
+      <p class="small mb-4 fw-medium text-muted">Dashboard Monitor Tes Fisik PMB PIPB</p>
       
       <div class="input-group mb-3"><span class="input-group-text"><i class="bi bi-envelope"></i></span><input type="email" id="email" class="form-control border-start-0" placeholder="Email Terdaftar"></div>
       <div class="input-group mb-4"><span class="input-group-text"><i class="bi bi-key"></i></span><input type="password" id="kode" class="form-control border-start-0 border-end-0" placeholder="Kode Keamanan"><span class="input-group-text bg-transparent border-start-0 cursor-pointer" onclick="togglePwd()"><i class="bi bi-eye-slash" id="icon-mata"></i></span></div>
@@ -336,6 +340,25 @@
       return `<span class="badge bg-secondary">Pending</span>`;
     }
 
+    // FUNGSI POPUP DETAIL CATATAN MEDIS
+    function showDetail(nama, catatan) {
+      Swal.fire({
+        title: '<i class="bi bi-bandaid text-danger"></i> Catatan P3K',
+        html: `
+          <div class="text-start mt-2">
+            <p class="mb-2 text-muted small fw-bold">PESERTA:</p>
+            <h6 class="fw-bold mb-3">${nama}</h6>
+            <p class="mb-1 text-muted small fw-bold">DETAIL PENANGANAN/KELUHAN:</p>
+            <div class="p-3 rounded border" style="background: #fff5f5; color: #e03131; font-weight: 500; font-size: 0.95rem;">
+              ${catatan}
+            </div>
+          </div>
+        `,
+        confirmButtonText: 'Tutup',
+        confirmButtonColor: '#ff8787'
+      });
+    }
+
     function renderTable(dataPeserta) {
       let tbody = document.getElementById("tbody-peserta");
       tbody.innerHTML = "";
@@ -346,8 +369,14 @@
       }
 
       dataPeserta.forEach(p => {
+        // Membersihkan karakter aneh pada catatan agar aman disisipkan ke fungsi JS
+        let safeMedis = p.medis.replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/\n/g, "<br>");
+        let safeNama = p.nama.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+
+        // Logika Tampilan Medis (Aman vs P3K dgn Tombol Detail)
         let badgeMedis = p.medis !== "" 
-          ? `<span class="badge" style="background:#fff5f5; color:var(--danger); border: 1px solid #ffc9c9;" title="Catatan: ${p.medis}"><i class="bi bi-bandaid"></i> P3K</span>` 
+          ? `<span class="badge" style="background:#fff5f5; color:var(--danger); border: 1px solid #ffc9c9;"><i class="bi bi-bandaid"></i> P3K</span>
+             <br><a onclick="showDetail('${safeNama}', '${safeMedis}')" class="text-danger link-detail fw-bold mt-1 d-inline-block" style="font-size: 0.75rem;"><i class="bi bi-zoom-in"></i> Detail</a>` 
           : `<span class="badge bg-success bg-opacity-10 text-success border border-success"><i class="bi bi-shield-check"></i> Aman</span>`;
 
         tbody.innerHTML += `
