@@ -112,46 +112,93 @@
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzJQjxT6QKsyuNMn4KCxsFuRAD5MPItgHdqPVdAvintroDIf9dAeMxhCWyyaX4LkfeW/exec"; 
-    let countdown = 60; // DIUBAH MENJADI 60 DETIK
+    let countdown = 60;
+    let isFetching = false; // Penanda agar tidak bentrok
 
     async function fetchStats() {
-      const ind = document.getElementById("indicator"), wrap = document.getElementById("indicator-wrap");
-      wrap.style.background = "#fff3bf"; wrap.style.color = "#e67700"; wrap.style.borderColor = "#ffec99"; ind.innerText = "Sinkronisasi..."; 
+      if (isFetching) return;
+      isFetching = true;
+      
+      const ind = document.getElementById("indicator");
+      const wrap = document.getElementById("indicator-wrap");
+      
+      // Ubah visual ke mode Loading
+      wrap.style.background = "#fff3bf"; 
+      wrap.style.color = "#e67700"; 
+      wrap.style.borderColor = "#ffec99"; 
+      ind.innerText = "Sinkronisasi..."; 
       
       try {
         let res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getDashboard" }) }).then(r=>r.json());
         if(res.success) {
           let d = res.data;
-          document.getElementById("d-total").innerText = d.total; document.getElementById("d-hadir").innerText = d.hadir;
-          document.getElementById("d-persen").innerText = d.persentaseHadir; document.getElementById("bar-hadir").style.width = d.persentaseHadir + "%";
+          
+          document.getElementById("d-total").innerText = d.total; 
+          document.getElementById("d-hadir").innerText = d.hadir;
+          document.getElementById("d-persen").innerText = d.persentaseHadir; 
+          document.getElementById("bar-hadir").style.width = d.persentaseHadir + "%";
 
-          document.querySelectorAll(".d-hadir-val").forEach(el => el.innerText = d.hadir); document.getElementById("d-base-fisik").innerText = d.lolosVerif;
+          document.querySelectorAll(".d-hadir-val").forEach(el => el.innerText = d.hadir); 
+          document.getElementById("d-base-fisik").innerText = d.lolosVerif;
 
-          document.getElementById("d-sudah-verif").innerText = d.sudahVerif; document.getElementById("d-lolos-verif").innerText = d.lolosVerif;
-          document.getElementById("d-gagal-verif").innerText = d.gagalVerif; document.getElementById("d-antre-verif").innerText = d.hadir - d.sudahVerif;
-          let pProsesVerif = d.hadir > 0 ? Math.round((d.sudahVerif / d.hadir) * 100) : 0; let pLolosVerif = d.hadir > 0 ? Math.round((d.lolosVerif / d.hadir) * 100) : 0;
-          document.getElementById("p-proses-verif").innerText = pProsesVerif; document.getElementById("bar-proses-verif").style.width = pProsesVerif + "%";
-          document.getElementById("p-lolos-verif").innerText = pLolosVerif; document.getElementById("bar-lolos-verif").style.width = pLolosVerif + "%";
+          document.getElementById("d-sudah-verif").innerText = d.sudahVerif; 
+          document.getElementById("d-lolos-verif").innerText = d.lolosVerif;
+          document.getElementById("d-gagal-verif").innerText = d.gagalVerif; 
+          document.getElementById("d-antre-verif").innerText = d.hadir - d.sudahVerif;
+          
+          let pProsesVerif = d.hadir > 0 ? Math.round((d.sudahVerif / d.hadir) * 100) : 0; 
+          let pLolosVerif = d.hadir > 0 ? Math.round((d.lolosVerif / d.hadir) * 100) : 0;
+          document.getElementById("p-proses-verif").innerText = pProsesVerif; 
+          document.getElementById("bar-proses-verif").style.width = pProsesVerif + "%";
+          document.getElementById("p-lolos-verif").innerText = pLolosVerif; 
+          document.getElementById("bar-lolos-verif").style.width = pLolosVerif + "%";
 
-          document.getElementById("d-lari").innerText = d.sudahLari; document.getElementById("d-tinggi").innerText = d.sudahKetinggian; document.getElementById("d-sempit").innerText = d.sudahSempit;
-          let pLari = d.lolosVerif > 0 ? Math.round((d.sudahLari / d.lolosVerif) * 100) : 0; let pTinggi = d.lolosVerif > 0 ? Math.round((d.sudahKetinggian / d.lolosVerif) * 100) : 0; let pSempit = d.lolosVerif > 0 ? Math.round((d.sudahSempit / d.lolosVerif) * 100) : 0;
+          document.getElementById("d-lari").innerText = d.sudahLari; 
+          document.getElementById("d-tinggi").innerText = d.sudahKetinggian; 
+          document.getElementById("d-sempit").innerText = d.sudahSempit;
+          
+          let pLari = d.lolosVerif > 0 ? Math.round((d.sudahLari / d.lolosVerif) * 100) : 0; 
+          let pTinggi = d.lolosVerif > 0 ? Math.round((d.sudahKetinggian / d.lolosVerif) * 100) : 0; 
+          let pSempit = d.lolosVerif > 0 ? Math.round((d.sudahSempit / d.lolosVerif) * 100) : 0;
           document.getElementById("p-lari").innerText = pLari; document.getElementById("bar-lari").style.width = pLari + "%";
           document.getElementById("p-tinggi").innerText = pTinggi; document.getElementById("bar-tinggi").style.width = pTinggi + "%";
           document.getElementById("p-sempit").innerText = pSempit; document.getElementById("bar-sempit").style.width = pSempit + "%";
+          
           document.getElementById("d-medis").innerText = d.insidenMedis;
         }
-        wrap.style.background = "#e6fcf5"; wrap.style.color = "#0ca678"; wrap.style.borderColor = "#c3fae8";
-      } catch(e) { wrap.style.background = "#fff5f5"; wrap.style.color = "#fa5252"; wrap.style.borderColor = "#ffe3e3"; ind.innerText = "Terputus"; }
-      countdown = 60; // DIUBAH MENJADI 60 DETIK
+        
+        // Kembalikan visual ke mode Live Normal
+        wrap.style.background = "#e6fcf5"; 
+        wrap.style.color = "#0ca678"; 
+        wrap.style.borderColor = "#c3fae8";
+        
+      } catch(e) {
+        // Kembalikan visual ke mode Error (Namun timer tetap akan jalan untuk Auto-Retry)
+        wrap.style.background = "#fff5f5"; 
+        wrap.style.color = "#fa5252"; 
+        wrap.style.borderColor = "#ffe3e3"; 
+      }
+      
+      // RESET TIMER & LEPASKAN KUNCI LOADING
+      countdown = 60; 
+      isFetching = false;
+      ind.innerText = `Live (${countdown}s)`;
     }
 
+    // Interval Timer Mutlak (Pasti berkurang setiap detik)
     setInterval(() => {
-      const ind = document.getElementById("indicator");
-      if(ind.innerText === "Sinkronisasi..." || ind.innerText === "Terputus") return;
+      if (isFetching) return; // Jangan kurangi angka jika sedang loading
+      
       countdown--;
-      if(countdown <= 0) fetchStats(); else ind.innerText = `Live (${countdown}s)`;
+      
+      if (countdown <= 0) {
+        fetchStats();
+      } else {
+        document.getElementById("indicator").innerText = `Live (${countdown}s)`;
+      }
     }, 1000);
     
+    // Panggilan pertama kali saat halaman dimuat
     fetchStats();
   </script>
 </body>
