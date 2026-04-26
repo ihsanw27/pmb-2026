@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Portal Panitia Tes Fisik PMB PIPB</title>
+  <title>Portal Panitia Lapangan Tes Fisik PMB PIPB</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -39,7 +39,7 @@
     
     <div id="view-login" class="card-custom text-center my-auto fade-in">
       <img src="https://i.ibb.co.com/TDsSQQ6B/IMG-1501-removebg-preview.png" alt="Logo Kampus" class="campus-logo">
-      <h4 class="fw-bold mb-1">Akses Panitia</h4>
+      <h4 class="fw-bold mb-1">Akses Petugas</h4>
       <p class="small mb-4 fw-medium text-muted">Masuk untuk memindai peserta tes</p>
       <div class="input-group mb-3"><span class="input-group-text"><i class="bi bi-envelope"></i></span><input type="email" id="email" class="form-control border-start-0" placeholder="Email Terdaftar"></div>
       <div class="input-group mb-4"><span class="input-group-text"><i class="bi bi-key"></i></span><input type="password" id="kode" class="form-control border-start-0 border-end-0" placeholder="Kode Keamanan"><span class="input-group-text bg-transparent border-start-0 cursor-pointer" onclick="togglePwd()"><i class="bi bi-eye-slash" id="icon-mata"></i></span></div>
@@ -130,7 +130,7 @@
     let isBulkMode = false;
     let bulkQueue = [];
     let isScanningPaused = false; 
-    let currentRole = ""; // Pengunci multi-role
+    let currentRole = ""; 
 
     window.onload = () => { if(localStorage.getItem("pmbSess")) restoreSess(); };
 
@@ -167,7 +167,17 @@
       document.getElementById("nama-panitia").innerText = sess.nama;
       
       let sel = document.getElementById("pilih-tugas"); sel.innerHTML = "";
-      sess.roles.forEach(r => sel.innerHTML += `<option value="${r}">${r}</option>`);
+      
+      let rolesRaw = Array.isArray(sess.roles) ? sess.roles : (sess.roles ? sess.roles.split(",") : []);
+      // Filter Management agar tidak muncul di scanner HP
+      let tugasScanner = rolesRaw.filter(r => r.trim().toLowerCase() !== "management");
+      
+      if(tugasScanner.length === 0) {
+        Swal.fire('Akses Terbatas', 'Anda tidak memiliki tugas lapangan (Hanya Akses Dashboard).', 'error');
+        return logout();
+      }
+
+      tugasScanner.forEach(r => sel.innerHTML += `<option value="${r.trim()}">${r.trim()}</option>`);
       currentRole = sel.value; 
       
       if(sess.bulkMode === true) {
@@ -193,26 +203,18 @@
       if(btn) btn.disabled = false; if(ic) ic.className = "bi bi-arrow-repeat";
     }
 
-    // FUNGSI GANTI POS TUGAS (MELINDUNGI DATA MULTI-ROLE)
     function gantiTugas() {
       let newRole = document.getElementById("pilih-tugas").value;
-      
       if (isBulkMode && bulkQueue.length > 0) {
         Swal.fire({
-          title: 'Ganti Pos Tugas?',
-          text: 'Terdapat antrean yang belum disimpan. Ganti pos akan menghapus antrean tersebut.',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#ff8787',
-          confirmButtonText: 'Hapus & Ganti',
-          cancelButtonText: 'Batal'
+          title: 'Ganti Pos Tugas?', text: 'Terdapat antrean yang belum disimpan. Ganti pos akan menghapus antrean tersebut.', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ff8787', confirmButtonText: 'Hapus & Ganti', cancelButtonText: 'Batal'
         }).then((result) => {
           if (result.isConfirmed) {
             bulkQueue = []; renderBulkUI();
             currentRole = newRole; resetUI();
             Swal.fire({toast: true, position: 'top', icon: 'info', title: `Pos aktif: ${currentRole}`, showConfirmButton: false, timer: 1500});
           } else {
-            document.getElementById("pilih-tugas").value = currentRole; // Kembalikan ke pilihan sebelumnya
+            document.getElementById("pilih-tugas").value = currentRole; 
           }
         });
       } else {
@@ -306,7 +308,7 @@
 
     function lanjutScan(p, txt) {
       let t = document.getElementById("pilih-tugas").value.toLowerCase();
-      if (!t.includes("kesehatan") && (t.includes("lari") || t.includes("sempit") || t.includes("ketinggian")) && p.verif.toLowerCase() !== "lolos") {
+      if (!t.includes("kesehatan") && !t.includes("medis") && p.verif.toLowerCase() !== "lolos") {
         Swal.fire({icon:'error', title:'Ditolak!', text:`Peserta Belum Lolos Verifikasi!`, confirmButtonColor:'#5b7cfa'}).then(() => {
           if (!isBulkMode) batal(); else { isScanningPaused = false; }
         });
@@ -340,7 +342,7 @@
         let inputHTML = "";
         
         if (isLari) {
-          inputHTML = `<input type="number" id="bulk-lari-${idx}" class="form-control mb-2 text-center fw-bold fs-5" placeholder="Isi angka..." style="background: #fff; border-color: var(--accent);">`;
+          inputHTML = `<input type="number" id="bulk-lari-${idx}" class="form-control mb-2 text-center fw-bold fs-5" placeholder="Isi angka lari..." style="background: #fff; border-color: var(--accent);">`;
         } else if (!isKesehatan) {
           inputHTML = `<div class="form-check form-switch mb-2"><input class="form-check-input" type="checkbox" id="bulk-check-${idx}" onchange="uiCheckBulk(${idx})"><label class="form-check-label ms-2 fw-bold" id="bulk-lbl-${idx}" style="color: var(--danger);">TIDAK LOLOS</label></div>`;
         }
