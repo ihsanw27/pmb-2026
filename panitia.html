@@ -16,6 +16,7 @@
     .navbar-custom { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); }
     .card-custom { background: white; border: none; border-radius: 16px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); padding: 30px; margin: 20px auto; max-width: 450px; }
     .form-control, .form-select { border-radius: 10px; padding: 12px 15px; border: 1px solid #cbd5e1; }
+    .form-control:focus { box-shadow: none; border-color: #cbd5e1; }
     .btn-custom { border-radius: 10px; padding: 12px; font-weight: 600; transition: all 0.3s ease; }
     .btn-primary-custom { background-color: #2563eb; color: white; border: none; }
     .btn-primary-custom:hover { background-color: #1d4ed8; color: white; }
@@ -49,7 +50,10 @@
       
       <div class="input-group mb-4 text-start">
         <span class="input-group-text bg-white border-end-0"><i class="bi bi-key text-muted"></i></span>
-        <input type="password" id="kodeLogin" class="form-control border-start-0" placeholder="Kode Login (Case Sensitive)">
+        <input type="password" id="kodeLogin" class="form-control border-start-0 border-end-0" placeholder="Kode Login (Case Sensitive)">
+        <span class="input-group-text bg-white border-start-0" onclick="togglePassword()" style="cursor: pointer;" title="Tampilkan/Sembunyikan Kode">
+          <i class="bi bi-eye-slash text-muted" id="icon-mata"></i>
+        </span>
       </div>
              
       <button onclick="login()" class="btn btn-primary-custom btn-custom w-100" id="btn-login">MASUK SISTEM</button>
@@ -140,6 +144,24 @@
 
     window.onload = () => { checkSession(); };
 
+    // FITUR UPDATE: Fungsi Intip Password
+    function togglePassword() {
+      let input = document.getElementById("kodeLogin");
+      let icon = document.getElementById("icon-mata");
+      
+      if (input.type === "password") {
+        input.type = "text";
+        icon.classList.replace("bi-eye-slash", "bi-eye");
+        icon.classList.add("text-primary");
+        icon.classList.remove("text-muted");
+      } else {
+        input.type = "password";
+        icon.classList.replace("bi-eye", "bi-eye-slash");
+        icon.classList.add("text-muted");
+        icon.classList.remove("text-primary");
+      }
+    }
+
     async function checkSession() {
       const savedSession = localStorage.getItem("panitiaSessionPMB");
       if (savedSession) {
@@ -154,7 +176,7 @@
         res.kategoriList.forEach(t => select.innerHTML += `<option value="${t}">${t}</option>`);
         
         sesuaikanInput();
-        await refreshDataPeserta(false); // Ambil data diam-diam
+        await refreshDataPeserta(false); 
         html5QrCode = new Html5Qrcode("reader");
         nyalakanKamera();
       }
@@ -172,7 +194,6 @@
       });
     }
 
-    // FITUR UPDATE: Fungsi menarik ulang data Check-In dan Status Verifikasi terbaru
     async function refreshDataPeserta(showToast = true) {
       let btn = document.getElementById("btn-refresh");
       if(btn) { btn.innerHTML = `<i class="bi bi-hourglass-split me-1"></i> Menyinkron...`; btn.disabled = true; }
@@ -274,7 +295,6 @@
         let peserta = dataHadir.find(p => p.no_peserta.toString() === decodedText.toString());
         
         if(peserta) {
-          // === SAFEGUARD FRONTEND ===
           const tugasSkg = document.getElementById("pilih-tugas").value.toLowerCase();
           const butuhVerif = tugasSkg.includes("ketinggian") || tugasSkg.includes("sempit") || tugasSkg.includes("lari");
           
@@ -285,9 +305,8 @@
                 text: `Peserta ${peserta.nama} BELUM Lolos Verifikasi Administrasi! Jika peserta merasa baru saja verifikasi, silakan klik tombol Sinkronisasi Data.`,
                 confirmButtonText: 'Kembali Scan'
              }).then(() => batal());
-             return; // Stop disini, form input tidak akan dimunculkan!
+             return; 
           }
-          // ==========================
 
           pesertaSedangDinilai = decodedText;
           document.getElementById("nama-peserta").innerText = `${peserta.nama} (${decodedText})`;
@@ -342,7 +361,7 @@
         Swal.fire({ icon: 'success', title: 'Data Tersimpan!', timer: 1500, showConfirmButton: false });
         setTimeout(() => batal(), 1500);
       } else {
-        Swal.fire('Gagal', res.message, 'error'); // Muncul jika tertolak safeguard di Backend
+        Swal.fire('Gagal', res.message, 'error');
       }
       
       btn.innerHTML = `SIMPAN`; btn.disabled = false;
