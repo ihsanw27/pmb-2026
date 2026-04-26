@@ -71,11 +71,13 @@
 
   /* Menghilangkan seleksi biru pada teks jika di klik */
   * { -webkit-tap-highlight-color: transparent; }
+  .hidden { display: none !important; }
 </style>
 </head>
 <body>
 
   <div class="container py-4">
+    <div id="error-banner" class="alert alert-warning hidden mb-3" role="alert"></div>
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
         <h3 class="fw-bold mb-0 text-glow-blue"><i class="bi bi-graph-up-arrow me-2"></i>Executive PMB Analytics</h3>
@@ -181,49 +183,83 @@
   </div>
 
   <script>
-    // GANTI URL DI BAWAH INI DENGAN URL DEPLOYMENT GOOGLE APPS SCRIPT ANDA
-    const API_URL = "URL_APPS_SCRIPT_ANDA_DISINI";
+    // ==========================================================
+    // KONFIGURASI API — GANTI URL INI JIKA DEPLOY ULANG GAS
+    // (Samakan dengan URL di index.html dan panitia.html)
+    // ==========================================================
+    const API_URL = "https://script.google.com/macros/s/AKfycbzJQjxT6QKsyuNMn4KCxsFuRAD5MPItgHdqPVdAvintroDIf9dAeMxhCWyyaX4LkfeW/exec";
 
-    async function fetchData() {
+    // --- FUNGSI API FETCH (robust: ambil teks dulu, lalu parse JSON) ---
+    async function apiCall(dataPayload) {
       try {
         const response = await fetch(API_URL, {
           method: 'POST',
-          body: JSON.stringify({ action: "getSummary" })
+          body: JSON.stringify(dataPayload)
         });
-        const res = await response.json();
-
-        if (res.success) {
-          // Update Angka Utama
-          document.getElementById('stat-total').innerText = res.total;
-          document.getElementById('stat-pria').innerText = res.pria;
-          document.getElementById('stat-wanita').innerText = res.wanita;
-          
-          document.getElementById('stat-checkin').innerText = res.checkIn;
-          document.getElementById('res-rasio-checkin').innerText = res.rasioCheckIn;
-          
-          document.getElementById('stat-verif').innerText = res.verifLolos;
-          document.getElementById('res-rasio-verif').innerText = res.rasioVerif;
-          
-          document.getElementById('stat-lari-avg').innerText = res.lariAvg;
-          document.getElementById('stat-lari-min').innerText = res.lariMin;
-          document.getElementById('stat-lari-max').innerText = res.lariMax;
-
-          // Update Progress Bars
-          document.getElementById('bar-verif').style.width = res.rasioVerif + "%";
-          document.getElementById('label-bar-verif').innerText = res.rasioVerif + "%";
-          
-          document.getElementById('bar-checkin').style.width = res.rasioCheckIn + "%";
-          document.getElementById('label-bar-checkin').innerText = res.rasioCheckIn + "%";
-
-          // Info Tambahan
-          document.getElementById('stat-tinggi-pass').innerText = res.tinggiPass || 0;
-          document.getElementById('stat-sempit-pass').innerText = res.sempitPass || 0;
-
-          document.getElementById('last-update').innerText = res.timestamp;
+        const text = await response.text();
+        try {
+          return JSON.parse(text);
+        } catch (parseErr) {
+          console.error("Respon bukan JSON:", text);
+          return { success: false, message: "Format data dari server tidak valid." };
         }
-      } catch (err) {
-        console.error("Gagal memperbarui dashboard:", err);
+      } catch (e) {
+        console.error("Fetch error:", e);
+        return null;
       }
+    }
+
+    async function fetchData() {
+      const res = await apiCall({ action: "getSummary" });
+
+      if (!res) {
+        setErrorState("Koneksi ke server gagal. Mencoba lagi...");
+        return;
+      }
+
+      if (res.success) {
+        clearErrorState();
+
+        // Update Angka Utama
+        document.getElementById('stat-total').innerText = res.total;
+        document.getElementById('stat-pria').innerText = res.pria;
+        document.getElementById('stat-wanita').innerText = res.wanita;
+        
+        document.getElementById('stat-checkin').innerText = res.checkIn;
+        document.getElementById('res-rasio-checkin').innerText = res.rasioCheckIn;
+        
+        document.getElementById('stat-verif').innerText = res.verifLolos;
+        document.getElementById('res-rasio-verif').innerText = res.rasioVerif;
+        
+        document.getElementById('stat-lari-avg').innerText = res.lariAvg;
+        document.getElementById('stat-lari-min').innerText = res.lariMin;
+        document.getElementById('stat-lari-max').innerText = res.lariMax;
+
+        // Update Progress Bars
+        document.getElementById('bar-verif').style.width = res.rasioVerif + "%";
+        document.getElementById('label-bar-verif').innerText = res.rasioVerif + "%";
+        
+        document.getElementById('bar-checkin').style.width = res.rasioCheckIn + "%";
+        document.getElementById('label-bar-checkin').innerText = res.rasioCheckIn + "%";
+
+        // Info Tambahan
+        document.getElementById('stat-tinggi-pass').innerText = res.tinggiPass || 0;
+        document.getElementById('stat-sempit-pass').innerText = res.sempitPass || 0;
+
+        document.getElementById('last-update').innerText = res.timestamp;
+      } else {
+        setErrorState(res.message || "Gagal mengambil data dari server.");
+      }
+    }
+
+    function setErrorState(msg) {
+      const el = document.getElementById('error-banner');
+      el.innerText = "\u26A0\uFE0F " + msg;
+      el.classList.remove("hidden");
+    }
+
+    function clearErrorState() {
+      document.getElementById('error-banner').classList.add("hidden");
     }
 
     // Interval Update setiap 15 detik

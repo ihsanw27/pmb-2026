@@ -134,7 +134,8 @@
 
   <script>
     // ==========================================================
-    // DEPLOY BARU GOOGLE APPS SCRIPT DAN PASTE URL DI BAWAH INI
+    // KONFIGURASI API — GANTI URL INI JIKA DEPLOY ULANG GAS
+    // (Samakan dengan URL di index.html dan dashboard.html)
     // ==========================================================
     const API_URL = "https://script.google.com/macros/s/AKfycbzJQjxT6QKsyuNMn4KCxsFuRAD5MPItgHdqPVdAvintroDIf9dAeMxhCWyyaX4LkfeW/exec";
     
@@ -254,7 +255,7 @@
       if (tugas.includes("lari")) {
         wrapLari.classList.remove("hidden"); wrapCheck.classList.add("hidden"); 
         label.innerText = "Input Hasil Lari (Angka):";
-      } else if (tugas.includes("kesehatan")) {
+      } else if (tugas.includes("kesehatan") || tugas.includes("medis")) {
         wrapLari.classList.add("hidden"); wrapCheck.classList.add("hidden"); 
         label.innerText = "Silakan isi Catatan Medis di bawah:";
       } else {
@@ -348,7 +349,7 @@
       if (tugasLower.includes("lari")) {
         nilai = document.getElementById("input-lari").value;
         if (!nilai) return Swal.fire('Oops', 'Mohon isi angka hasil lari!', 'warning');
-      } else if (tugasLower.includes("kesehatan")) {
+      } else if (tugasLower.includes("kesehatan") || tugasLower.includes("medis")) {
         nilai = ""; 
       } else {
         nilai = document.getElementById("input-check-lolos").checked ? "Lolos" : "Tidak Lolos";
