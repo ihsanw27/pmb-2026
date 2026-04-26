@@ -2,57 +2,133 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Monitoring Tes Fisik PMB Politeknik Industri Petrokimia Banten</title>
+  <title>Executive Dashboard PMB</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <style>
-    body { background-color: #0f172a; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    .stat-card { background-color: #1e293b; border-radius: 15px; padding: 25px; border-left: 5px solid #3b82f6; }
-    .stat-val { font-size: 3.5rem; font-weight: bold; margin: 0; }
+    body { background-color: #0f172a; color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    .header-panel { background: #1e293b; padding: 20px 40px; border-bottom: 1px solid #334155; }
+    .stat-card { background: #1e293b; border-radius: 12px; padding: 25px; height: 100%; border: 1px solid #334155; }
+    .stat-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; font-weight: 700; margin-bottom: 15px; }
+    .stat-val { font-size: 3.5rem; font-weight: 800; line-height: 1; margin: 0; }
+    .stat-sub { font-size: 1rem; color: #64748b; font-weight: 600; }
+    .progress { height: 25px; background-color: #334155; border-radius: 8px; }
+    .progress-bar { font-weight: bold; font-size: 1rem; }
+    .border-left-primary { border-left: 5px solid #3b82f6; }
+    .border-left-success { border-left: 5px solid #22c55e; }
+    .border-left-warning { border-left: 5px solid #eab308; }
+    .border-left-danger { border-left: 5px solid #ef4444; }
   </style>
 </head>
-<body class="p-5">
-  <div class="d-flex justify-content-between align-items-center mb-5 border-bottom border-secondary pb-3">
-    <h2><i class="bi bi-display"></i> Live Monitoring Tes Fisik PMB</h2>
-    <span class="badge bg-success" id="indicator">Live (Updating 10s)</span>
+<body>
+
+  <div class="header-panel d-flex justify-content-between align-items-center mb-4">
+    <h3 class="m-0 fw-bold"><i class="bi bi-activity text-primary me-2"></i>Executive Monitor PMB</h3>
+    <div class="d-flex align-items-center">
+      <div class="spinner-grow text-success spinner-grow-sm me-2" role="status" id="spinner"></div>
+      <span class="badge bg-success fs-6" id="indicator">Live (Update 10s)</span>
+    </div>
   </div>
 
-  <div class="row g-4 text-center">
-    <div class="col-md-3">
-      <div class="stat-card" style="border-color:#94a3b8;"><p class="text-muted fw-bold mb-1">TOTAL PESERTA</p><p class="stat-val" id="d-total">-</p></div>
+  <div class="container-fluid px-4">
+    
+    <div class="stat-card mb-4 border-left-primary">
+      <div class="d-flex justify-content-between align-items-end mb-2">
+        <div class="stat-title mb-0">Progress Kehadiran Peserta Total</div>
+        <div class="fw-bold fs-4 text-primary"><span id="d-persen">0</span>%</div>
+      </div>
+      <div class="progress">
+        <div id="bar-hadir" class="progress-bar bg-primary" role="progressbar" style="width: 0%"></div>
+      </div>
+      <div class="mt-2 text-end small text-muted"><span id="d-hadir">0</span> dari <span id="d-total">0</span> Peserta telah Check-in</div>
     </div>
-    <div class="col-md-3">
-      <div class="stat-card" style="border-color:#eab308;"><p class="text-muted fw-bold mb-1">CHECK-IN HADIR</p><p class="stat-val text-warning" id="d-hadir">-</p></div>
-    </div>
-    <div class="col-md-3">
-      <div class="stat-card" style="border-color:#3b82f6;"><p class="text-muted fw-bold mb-1">LOLOS VERIFIKASI</p><p class="stat-val text-primary" id="d-verif">-</p></div>
-    </div>
-    <div class="col-md-3">
-      <div class="stat-card" style="border-color:#22c55e;"><p class="text-muted fw-bold mb-1">DIPERIKSA MEDIS</p><p class="stat-val text-success" id="d-medis">-</p></div>
+
+    <div class="row g-4 mb-4">
+      
+      <div class="col-md-4">
+        <div class="stat-card border-left-warning text-center">
+          <div class="stat-title"><i class="bi bi-person-bounding-box fs-5 d-block mb-2 text-warning"></i>Meja Verifikasi Administrasi</div>
+          <p class="stat-val text-warning" id="d-verif">0</p>
+          <p class="stat-sub mt-2">Telah Lolos Verifikasi</p>
+          <hr class="border-secondary">
+          <div class="d-flex justify-content-between text-muted small fw-bold">
+            <span class="text-danger"><i class="bi bi-x-circle me-1"></i> <span id="d-gagal">0</span> Gagal</span>
+            <span>Antrean: <span id="d-antre-verif">0</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="stat-card border-left-success text-center">
+          <div class="stat-title"><i class="bi bi-stopwatch fs-5 d-block mb-2 text-success"></i>Pos Tes Fisik (Lari/Tinggi/Sempit)</div>
+          <p class="stat-val text-success" id="d-fisik">0</p>
+          <p class="stat-sub mt-2">Sedang / Selesai Diuji</p>
+          <hr class="border-secondary">
+          <div class="text-center text-muted small fw-bold">
+            <span>Antrean dari Verifikasi: <span id="d-antre-fisik">0</span> Peserta</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="stat-card border-left-primary text-center">
+          <div class="stat-title"><i class="bi bi-heart-pulse fs-5 d-block mb-2 text-primary"></i>Pos Pemeriksaan Medis</div>
+          <p class="stat-val text-white" id="d-medis">0</p>
+          <p class="stat-sub mt-2">Telah Selesai Diperiksa</p>
+          <hr class="border-secondary">
+          <div class="text-center text-muted small fw-bold">
+            <span>Menunggu Medis: <span id="d-antre-medis">0</span> Peserta</span>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbzJQjxT6QKsyuNMn4KCxsFuRAD5MPItgHdqPVdAvintroDIf9dAeMxhCWyyaX4LkfeW/exec";
+    const API_URL = "URL_APPS_SCRIPT_ANDA_DISINI";
 
     async function fetchStats() {
-      document.getElementById("indicator").className = "badge bg-warning text-dark";
-      document.getElementById("indicator").innerText = "Menarik Data...";
+      const ind = document.getElementById("indicator");
+      const spin = document.getElementById("spinner");
+      ind.className = "badge bg-warning text-dark fs-6"; ind.innerText = "Sinkronisasi..."; spin.classList.remove("text-success"); spin.classList.add("text-warning");
+      
       try {
         let res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getDashboard" }) }).then(r=>r.json());
         if(res.success) {
-          document.getElementById("d-total").innerText = res.data.total;
-          document.getElementById("d-hadir").innerText = res.data.hadir;
-          document.getElementById("d-verif").innerText = res.data.lolosVerif;
-          document.getElementById("d-medis").innerText = res.data.lolosKesehatan;
+          let d = res.data;
+          
+          // Master Data
+          document.getElementById("d-total").innerText = d.total;
+          document.getElementById("d-hadir").innerText = d.hadir;
+          document.getElementById("d-persen").innerText = d.persentaseHadir;
+          document.getElementById("bar-hadir").style.width = d.persentaseHadir + "%";
+          document.getElementById("bar-hadir").innerText = d.persentaseHadir + "%";
+
+          // Funnel Data
+          document.getElementById("d-verif").innerText = d.lolosVerif;
+          document.getElementById("d-gagal").innerText = d.gagalVerif;
+          document.getElementById("d-fisik").innerText = d.sudahFisik;
+          document.getElementById("d-medis").innerText = d.sudahMedis;
+
+          // Kalkulasi Antrean (Bottleneck Analytics)
+          document.getElementById("d-antre-verif").innerText = d.hadir - (d.lolosVerif + d.gagalVerif); // Hadir tapi belum diapa-apain
+          document.getElementById("d-antre-fisik").innerText = d.lolosVerif - d.sudahFisik; // Lolos verif tapi belum tes fisik
+          document.getElementById("d-antre-medis").innerText = d.sudahFisik - d.sudahMedis; // Sudah fisik tapi belum medis
         }
-      } catch(e) {}
-      document.getElementById("indicator").className = "badge bg-success";
-      document.getElementById("indicator").innerText = "Live (Updating 10s)";
+      } catch(e) {
+        ind.className = "badge bg-danger fs-6"; ind.innerText = "Koneksi Terputus"; spin.classList.remove("text-warning"); spin.classList.add("text-danger");
+      }
+      
+      setTimeout(() => {
+        if(ind.innerText !== "Koneksi Terputus") {
+          ind.className = "badge bg-success fs-6"; ind.innerText = "Live (Update 10s)"; spin.classList.remove("text-warning"); spin.classList.add("text-success");
+        }
+      }, 1000);
     }
 
     fetchStats();
-    setInterval(fetchStats, 10000); // Tarik data setiap 10 detik
+    setInterval(fetchStats, 10000); // Auto update tiap 10 detik
   </script>
 </body>
 </html>
