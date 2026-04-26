@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Tes Fisik PMB Politeknik Industri Petrokimia Banten</title>
+  <title>Executive Dashboard PMB</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <style>
@@ -21,14 +21,13 @@
     .border-left-danger { border-left: 5px solid #ef4444; }
     hr.border-secondary { border-color: #e2e8f0 !important; }
     
-    /* Mencegah teks indikator loncat-loncat saat angka berubah */
     #indicator { min-width: 155px; display: inline-block; text-align: center; }
   </style>
 </head>
 <body>
 
   <div class="header-panel d-flex justify-content-between align-items-center mb-4">
-    <h3 class="m-0 fw-bold"><i class="bi bi-activity text-primary me-2"></i>Dashboard Tes Fisik PMB PIPB</h3>
+    <h3 class="m-0 fw-bold"><i class="bi bi-activity text-primary me-2"></i>Executive Monitor PMB</h3>
     <div class="d-flex align-items-center">
       <div class="spinner-grow text-success spinner-grow-sm me-2" role="status" id="spinner"></div>
       <span class="badge bg-success fs-6" id="indicator">Live (Update dalam 10s)</span>
@@ -76,13 +75,13 @@
       </div>
 
       <div class="col-md-4">
-        <div class="stat-card border-left-primary text-center">
-          <div class="stat-title"><i class="bi bi-heart-pulse fs-5 d-block mb-2 text-primary"></i>Pos Pemeriksaan Medis</div>
-          <p class="stat-val text-dark" id="d-medis">0</p>
-          <p class="stat-sub mt-2">Telah Selesai Diperiksa</p>
+        <div class="stat-card border-left-danger text-center bg-light">
+          <div class="stat-title text-danger"><i class="bi bi-heart-pulse fs-5 d-block mb-2 text-danger"></i>Laporan Insiden Medis</div>
+          <p class="stat-val text-danger" id="d-medis">0</p>
+          <p class="stat-sub mt-2">Peserta Butuh Penanganan P3K</p>
           <hr class="border-secondary">
           <div class="text-center text-muted small fw-bold">
-            <span class="text-secondary">Menunggu Medis: <span id="d-antre-medis" class="text-dark">0</span> Peserta</span>
+            <span class="text-secondary"><i class="bi bi-info-circle me-1"></i>Berdasarkan log petugas kesehatan</span>
           </div>
         </div>
       </div>
@@ -93,13 +92,12 @@
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzJQjxT6QKsyuNMn4KCxsFuRAD5MPItgHdqPVdAvintroDIf9dAeMxhCWyyaX4LkfeW/exec"; // PASTIKAN MENGISI URL INI
 
-    let countdown = 10; // Mulai hitung mundur dari 10 detik
+    let countdown = 10;
 
     async function fetchStats() {
       const ind = document.getElementById("indicator");
       const spin = document.getElementById("spinner");
       
-      // Ubah UI jadi mode loading
       ind.className = "badge bg-warning text-dark fs-6"; 
       ind.innerText = "Sinkronisasi..."; 
       spin.classList.remove("text-success", "text-danger"); 
@@ -110,23 +108,24 @@
         if(res.success) {
           let d = res.data;
           
+          // Master Data
           document.getElementById("d-total").innerText = d.total;
           document.getElementById("d-hadir").innerText = d.hadir;
           document.getElementById("d-persen").innerText = d.persentaseHadir;
           document.getElementById("bar-hadir").style.width = d.persentaseHadir + "%";
           document.getElementById("bar-hadir").innerText = d.persentaseHadir + "%";
 
+          // Funnel & Alert
           document.getElementById("d-verif").innerText = d.lolosVerif;
           document.getElementById("d-gagal").innerText = d.gagalVerif;
           document.getElementById("d-fisik").innerText = d.sudahFisik;
-          document.getElementById("d-medis").innerText = d.sudahMedis;
+          document.getElementById("d-medis").innerText = d.insidenMedis; // Menampilkan jumlah insiden medis
 
+          // Kalkulasi Antrean (Hanya untuk Verifikasi dan Fisik)
           document.getElementById("d-antre-verif").innerText = d.hadir - (d.lolosVerif + d.gagalVerif);
           document.getElementById("d-antre-fisik").innerText = d.lolosVerif - d.sudahFisik;
-          document.getElementById("d-antre-medis").innerText = d.sudahFisik - d.sudahMedis;
         }
         
-        // Kembalikan UI ke mode normal setelah sukses
         spin.classList.remove("text-warning", "text-danger"); 
         spin.classList.add("text-success");
         ind.className = "badge bg-success fs-6"; 
@@ -138,27 +137,22 @@
         spin.classList.add("text-danger");
       }
       
-      // Reset hitungan ke 10 setiap kali selesai tarik data
       countdown = 10; 
     }
 
-    // Interval berdetak setiap 1 detik
     setInterval(() => {
       const ind = document.getElementById("indicator");
-      
-      // Jangan kurangi detik jika sedang "Sinkronisasi..." atau "Koneksi Terputus"
       if(ind.innerText === "Sinkronisasi..." || ind.innerText === "Koneksi Terputus") return;
       
       countdown--;
       
       if(countdown <= 0) {
-        fetchStats(); // Jika detik 0, tarik data
+        fetchStats();
       } else {
-        ind.innerText = `Live (Update dalam ${countdown}s)`; // Update angka di layar
+        ind.innerText = `Live (Update dalam ${countdown}s)`;
       }
     }, 1000);
 
-    // Tarikan data pertama kali saat web dibuka
     fetchStats();
   </script>
 </body>
