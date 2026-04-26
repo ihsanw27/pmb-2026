@@ -1,205 +1,256 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Tes Fisik PMB PIPB</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Monitor Tes Fisik PMB PIPB</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
-    /* SOFT PASTEL THEME */
     :root { 
-      --bg-page: #e8eef2; 
-      --bg-card: #fdfdfd; 
-      --text-main: #334155; 
-      --text-muted: #64748b; 
-      --accent: #5b7cfa; 
-      --success-soft: #38d9a9; 
-      --warning-soft: #fcc419; 
-      --danger-soft: #ff8787; 
-      --border-soft: #dce4ec;
+      --bg-page: #e8eef2; --bg-card: #fdfdfd; --text-main: #334155; 
+      --text-muted: #64748b; --accent: #5b7cfa; --accent-soft: #edf2ff; 
+      --success: #38d9a9; --danger: #ff8787; --warning: #fcc419; --border-soft: #dce4ec; 
     }
+    body { background: var(--bg-page); color: var(--text-main); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; min-height: 100vh; display: flex; flex-direction: column; }
     
-    body { background-color: var(--bg-page); color: var(--text-main); font-family: 'Inter', sans-serif; }
+    .login-wrapper { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+    .card-login { background: var(--bg-card); border-radius: 24px; box-shadow: 0 10px 25px -5px rgba(100,116,139,0.06); padding: 40px 30px; border: 1px solid #ffffff; width: 100%; max-width: 420px; }
+    .campus-logo { max-height: 60px; width: auto; margin: 0 auto 25px auto; display: block; object-fit: contain; }
+    .form-control { border-radius: 14px; padding: 14px 18px; border: 1.5px solid var(--border-soft); font-weight: 500; background: #f4f7f9; }
+    .form-control:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(91, 124, 250, 0.15); outline: none; background: #ffffff; }
+    .input-group-text { border-radius: 14px; border: 1.5px solid var(--border-soft); background: #f4f7f9; color: var(--text-muted); }
+    .input-group:focus-within .input-group-text { border-color: var(--accent); color: var(--accent); background: #ffffff; }
+    .btn-custom { border-radius: 14px; padding: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
+    .btn-accent { background: var(--accent); color: white; border: none; box-shadow: 0 6px 15px rgba(91, 124, 250, 0.2); }
+    .btn-accent:active { transform: translateY(2px); box-shadow: none; }
     
-    .header-panel { background: var(--bg-card); padding: 20px 40px; border-bottom: 1px solid var(--border-soft); position: sticky; top: 0; z-index: 10; box-shadow: 0 10px 30px -10px rgba(100,116,139,0.05); }
-    .campus-logo-header { max-height: 45px; width: auto; object-fit: contain; }
+    .dashboard-wrapper { flex-grow: 1; padding: 20px; }
+    .navbar-custom { background: var(--bg-card); border-radius: 20px; padding: 15px 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #ffffff; }
+    .stat-card { background: var(--bg-card); border-radius: 20px; padding: 20px; border: 1px solid #ffffff; box-shadow: 0 4px 15px rgba(0,0,0,0.03); display: flex; align-items: center; gap: 15px; }
+    .stat-icon { width: 50px; height: 50px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+    .table-container { background: var(--bg-card); border-radius: 20px; padding: 25px; border: 1px solid #ffffff; box-shadow: 0 4px 15px rgba(0,0,0,0.03); overflow-x: auto; }
+    .table { margin-bottom: 0; }
+    .table th { background-color: #f8fafc; color: var(--text-muted); font-weight: 600; font-size: 0.85rem; letter-spacing: 0.5px; border-bottom: 2px solid var(--border-soft); padding: 15px; }
+    .table td { padding: 15px; vertical-align: middle; border-bottom: 1px solid var(--border-soft); font-size: 0.9rem; font-weight: 500; }
     
-    .stat-card { background: var(--bg-card); border-radius: 20px; padding: 25px; height: 100%; border: 1px solid #ffffff; box-shadow: 0 10px 25px -5px rgba(100,116,139,0.05); display: flex; flex-direction: column; }
-    .stat-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.2px; color: var(--text-muted); font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
-    .stat-val { font-size: 3.5rem; font-weight: 800; line-height: 1; margin: 0; font-variant-numeric: tabular-nums; letter-spacing: -1px; color: var(--text-main); }
-    
-    .progress { background-color: #edf2f7; border-radius: 50rem; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.02); }
-    .progress-bar { font-weight: 600; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
-    
-    /* OVERRIDE BOOTSTRAP DENGAN PASTEL */
-    .bg-primary { background-color: var(--accent) !important; } .text-primary { color: var(--accent) !important; }
-    .bg-emerald { background-color: var(--success-soft) !important; } .text-emerald { color: #20c997 !important; }
-    .bg-amber { background-color: var(--warning-soft) !important; } .text-amber { color: #f59f00 !important; }
-    .bg-rose { background-color: var(--danger-soft) !important; } .text-rose { color: #fa5252 !important; }
-    
-    .micro-label { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
-    .badge-live { background: #e6fcf5; color: #0ca678; border: 1px solid #c3fae8; font-weight: 600; padding: 8px 16px; border-radius: 50rem; }
+    .hidden { display: none !important; }
+    .fade-in { animation: fadeIn 0.4s ease forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .cursor-pointer { cursor: pointer; }
   </style>
 </head>
 <body>
 
-  <div class="header-panel d-flex justify-content-between align-items-center mb-4">
-    <div class="d-flex align-items-center gap-3">
-      <img src="https://i.ibb.co.com/TDsSQQ6B/IMG-1501-removebg-preview.png" alt="Logo Kampus" class="campus-logo-header border-end pe-3" style="border-color: var(--border-soft) !important;">
-      <h4 class="m-0 fw-bold" style="color: var(--text-main);">Dashboard Tes Fisik PMB PIPB</h4>
-    </div>
-    
-    <div class="d-flex align-items-center gap-2 badge-live" id="indicator-wrap">
-      <div class="spinner-grow spinner-grow-sm" role="status" id="spinner" style="width: 12px; height: 12px;"></div>
-      <span id="indicator" class="fs-7">Live (60s)</span>
+  <div id="view-login" class="login-wrapper fade-in">
+    <div class="card-login text-center">
+      <img src="https://i.ibb.co.com/TDsSQQ6B/IMG-1501-removebg-preview.png" alt="Logo Kampus" class="campus-logo">
+      <h4 class="fw-bold mb-1">Portal Dashboard</h4>
+      <p class="small mb-4 fw-medium text-muted">Akses khusus panitia untuk memantau data</p>
+      
+      <div class="input-group mb-3"><span class="input-group-text"><i class="bi bi-envelope"></i></span><input type="email" id="email" class="form-control border-start-0" placeholder="Email Panitia"></div>
+      <div class="input-group mb-4"><span class="input-group-text"><i class="bi bi-key"></i></span><input type="password" id="kode" class="form-control border-start-0 border-end-0" placeholder="Kode Keamanan"><span class="input-group-text bg-transparent border-start-0 cursor-pointer" onclick="togglePwd()"><i class="bi bi-eye-slash" id="icon-mata"></i></span></div>
+      
+      <button onclick="login()" class="btn btn-custom btn-accent w-100" id="btn-login"><i class="bi bi-shield-lock" id="l-icon"></i> <span id="l-text">MASUK DASHBOARD</span></button>
     </div>
   </div>
 
-  <div class="container-fluid px-4 pb-5">
-    <div class="row mb-4">
-      <div class="col-12">
-        <div class="stat-card" style="padding: 30px;">
-          <div class="d-flex justify-content-between align-items-end mb-3">
-            <div>
-              <div class="stat-title mb-1"><i class="bi bi-people-fill fs-5 text-primary"></i> Total Check-in Kehadiran</div>
-              <div class="small fw-medium" style="color: var(--text-muted);"><span id="d-hadir" class="fw-bold fs-6" style="color: var(--text-main);">0</span> dari <span id="d-total">0</span> Peserta</div>
-            </div>
-            <div class="fw-bold fs-2 text-primary"><span id="d-persen">0</span>%</div>
+  <div id="view-dashboard" class="dashboard-wrapper hidden fade-in">
+    
+    <div class="navbar-custom container-fluid">
+      <div class="d-flex align-items-center gap-3">
+        <img src="https://i.ibb.co.com/TDsSQQ6B/IMG-1501-removebg-preview.png" alt="Logo" style="height: 40px; object-fit: contain;">
+        <div class="border-start ps-3 border-2" style="border-color: var(--border-soft) !important;">
+          <h5 class="mb-0 fw-bold" style="color: var(--text-main);">Monitor Tes Fisik PMB</h5>
+          <small class="text-muted fw-medium">Real-time Data Terpusat</small>
+        </div>
+      </div>
+      <div class="d-flex align-items-center gap-3">
+        <div class="text-end d-none d-md-block">
+          <small class="text-muted d-block" style="font-size: 0.7rem;">LOGIN SEBAGAI</small>
+          <strong id="admin-nama" class="fs-6" style="color: var(--accent);">Nama Panitia</strong>
+        </div>
+        <button onclick="loadData()" id="btn-refresh" class="btn btn-light rounded-circle border p-2" style="width: 42px; height: 42px; color: var(--accent); background: #f8fafc;"><i class="bi bi-arrow-clockwise fs-5"></i></button>
+        <button onclick="logout()" class="btn btn-light rounded-circle border p-2" title="Keluar" style="width: 42px; height: 42px; color: var(--danger); background: #fff5f5; border-color: #ffe3e3 !important;"><i class="bi bi-power fs-5"></i></button>
+      </div>
+    </div>
+
+    <div class="container-fluid mb-4">
+      <div class="row g-3">
+        <div class="col-md-3">
+          <div class="stat-card">
+            <div class="stat-icon" style="background: #eef2ff; color: var(--accent);"><i class="bi bi-people-fill"></i></div>
+            <div><small class="text-muted fw-bold d-block">Total Peserta Ujian</small><h4 class="mb-0 fw-bold" id="stat-total">-</h4></div>
           </div>
-          <div class="progress" style="height: 16px;"><div id="bar-hadir" class="progress-bar bg-primary" style="width: 0%"></div></div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card">
+            <div class="stat-icon" style="background: #e6fcf5; color: var(--success);"><i class="bi bi-upc-scan"></i></div>
+            <div><small class="text-muted fw-bold d-block">Hadir (Check-In)</small><h4 class="mb-0 fw-bold" id="stat-hadir">-</h4></div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card">
+            <div class="stat-icon" style="background: #fff8e6; color: #f59f00;"><i class="bi bi-bandaid-fill"></i></div>
+            <div><small class="text-muted fw-bold d-block">Insiden P3K (Medis)</small><h4 class="mb-0 fw-bold" id="stat-insiden-medis">-</h4></div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card">
+            <div class="stat-icon" style="background: #fff5f5; color: var(--danger);"><i class="bi bi-stopwatch-fill"></i></div>
+            <div><small class="text-muted fw-bold d-block">Belum Selesai Lari</small><h4 class="mb-0 fw-bold" id="stat-pending-lari">-</h4></div>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="row g-4">
-      <div class="col-md-4">
-        <div class="stat-card">
-          <div class="stat-title"><i class="bi bi-shield-check fs-5 text-amber"></i> Pos Verifikasi</div>
-          <div class="mt-2 mb-4">
-            <div class="d-flex justify-content-between micro-label"><span>Progress Antrean Depan</span><span><span id="d-sudah-verif">0</span>/<span class="d-hadir-val">0</span> (<span id="p-proses-verif">0</span>%)</span></div>
-            <div class="progress" style="height: 10px;"><div id="bar-proses-verif" class="progress-bar bg-amber" style="width: 0%"></div></div>
-          </div>
-          <div class="mb-4">
-            <div class="d-flex justify-content-between micro-label"><span class="text-emerald"><i class="bi bi-check-circle-fill"></i> Lolos Administrasi</span><span class="text-emerald"><span id="d-lolos-verif">0</span>/<span class="d-hadir-val">0</span> (<span id="p-lolos-verif">0</span>%)</span></div>
-            <div class="progress" style="height: 10px;"><div id="bar-lolos-verif" class="progress-bar bg-emerald" style="width: 0%"></div></div>
-          </div>
-          <div class="mt-auto pt-3 border-top d-flex justify-content-between small fw-bold" style="border-color: var(--border-soft) !important; color: var(--text-muted);">
-            <span class="text-rose"><i class="bi bi-x-circle me-1"></i> <span id="d-gagal-verif">0</span> Gagal</span><span>Sisa Antre: <span id="d-antre-verif" style="color: var(--text-main);">0</span></span>
-          </div>
+    <div class="container-fluid">
+      <div class="table-container">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold mb-0">Live Rekapitulasi Peserta</h5>
+          <span class="badge bg-light text-muted border border-secondary">Auto-refresh aktif</span>
         </div>
-      </div>
-
-      <div class="col-md-4">
-        <div class="stat-card">
-          <div class="stat-title"><i class="bi bi-stopwatch fs-5 text-emerald"></i> Pos Tes Fisik</div>
-          <p class="small mb-3 fw-medium rounded px-2 py-1 text-center" style="background:#edf2ff; color: var(--text-muted);">Peserta Uji: <strong style="color: var(--accent);"><span id="d-base-fisik">0</span></strong></p>
-          <div class="mb-3"><div class="d-flex justify-content-between micro-label"><span>Pos Lari</span><span><span id="d-lari">0</span> (<span id="p-lari">0</span>%)</span></div><div class="progress" style="height: 8px;"><div id="bar-lari" class="progress-bar bg-emerald" style="width: 0%"></div></div></div>
-          <div class="mb-3"><div class="d-flex justify-content-between micro-label"><span>Pos Ketinggian</span><span><span id="d-tinggi">0</span> (<span id="p-tinggi">0</span>%)</span></div><div class="progress" style="height: 8px;"><div id="bar-tinggi" class="progress-bar bg-emerald" style="width: 0%"></div></div></div>
-          <div class="mb-2"><div class="d-flex justify-content-between micro-label"><span>Pos Ruang Sempit</span><span><span id="d-sempit">0</span> (<span id="p-sempit">0</span>%)</span></div><div class="progress" style="height: 8px;"><div id="bar-sempit" class="progress-bar bg-emerald" style="width: 0%"></div></div></div>
-        </div>
-      </div>
-
-      <div class="col-md-4">
-        <div class="stat-card text-center justify-content-center" style="background: linear-gradient(145deg, #fff5f5 0%, #ffffff 100%); border-color: #ffe3e3;">
-          <div class="stat-title justify-content-center text-rose"><i class="bi bi-heart-pulse-fill fs-5"></i> Laporan Insiden P3K</div>
-          <p class="stat-val text-rose my-2" id="d-medis">0</p>
-          <p class="small fw-semibold text-rose opacity-75">Peserta Ditangani Medis</p>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle" id="table-peserta">
+            <thead>
+              <tr>
+                <th>NO PESERTA</th>
+                <th>NAMA LENGKAP</th>
+                <th>JALUR</th>
+                <th>STATUS HADIR</th>
+                <th>VERIF ADM</th>
+                <th>TES LARI</th>
+                <th>KONDISI (P3K)</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-peserta">
+              <tr><td colspan="7" class="text-center text-muted py-4">Memuat data peserta...</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
+
   </div>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzJQjxT6QKsyuNMn4KCxsFuRAD5MPItgHdqPVdAvintroDIf9dAeMxhCWyyaX4LkfeW/exec"; 
-    let countdown = 60;
-    let isFetching = false; // Penanda agar tidak bentrok
+    
+    let intervalRefresh;
 
-    async function fetchStats() {
-      if (isFetching) return;
-      isFetching = true;
-      
-      const ind = document.getElementById("indicator");
-      const wrap = document.getElementById("indicator-wrap");
-      
-      // Ubah visual ke mode Loading
-      wrap.style.background = "#fff3bf"; 
-      wrap.style.color = "#e67700"; 
-      wrap.style.borderColor = "#ffec99"; 
-      ind.innerText = "Sinkronisasi..."; 
-      
-      try {
-        let res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getDashboard" }) }).then(r=>r.json());
-        if(res.success) {
-          let d = res.data;
-          
-          document.getElementById("d-total").innerText = d.total; 
-          document.getElementById("d-hadir").innerText = d.hadir;
-          document.getElementById("d-persen").innerText = d.persentaseHadir; 
-          document.getElementById("bar-hadir").style.width = d.persentaseHadir + "%";
+    window.onload = () => { if(localStorage.getItem("dashSess")) restoreSession(); };
 
-          document.querySelectorAll(".d-hadir-val").forEach(el => el.innerText = d.hadir); 
-          document.getElementById("d-base-fisik").innerText = d.lolosVerif;
-
-          document.getElementById("d-sudah-verif").innerText = d.sudahVerif; 
-          document.getElementById("d-lolos-verif").innerText = d.lolosVerif;
-          document.getElementById("d-gagal-verif").innerText = d.gagalVerif; 
-          document.getElementById("d-antre-verif").innerText = d.hadir - d.sudahVerif;
-          
-          let pProsesVerif = d.hadir > 0 ? Math.round((d.sudahVerif / d.hadir) * 100) : 0; 
-          let pLolosVerif = d.hadir > 0 ? Math.round((d.lolosVerif / d.hadir) * 100) : 0;
-          document.getElementById("p-proses-verif").innerText = pProsesVerif; 
-          document.getElementById("bar-proses-verif").style.width = pProsesVerif + "%";
-          document.getElementById("p-lolos-verif").innerText = pLolosVerif; 
-          document.getElementById("bar-lolos-verif").style.width = pLolosVerif + "%";
-
-          document.getElementById("d-lari").innerText = d.sudahLari; 
-          document.getElementById("d-tinggi").innerText = d.sudahKetinggian; 
-          document.getElementById("d-sempit").innerText = d.sudahSempit;
-          
-          let pLari = d.lolosVerif > 0 ? Math.round((d.sudahLari / d.lolosVerif) * 100) : 0; 
-          let pTinggi = d.lolosVerif > 0 ? Math.round((d.sudahKetinggian / d.lolosVerif) * 100) : 0; 
-          let pSempit = d.lolosVerif > 0 ? Math.round((d.sudahSempit / d.lolosVerif) * 100) : 0;
-          document.getElementById("p-lari").innerText = pLari; document.getElementById("bar-lari").style.width = pLari + "%";
-          document.getElementById("p-tinggi").innerText = pTinggi; document.getElementById("bar-tinggi").style.width = pTinggi + "%";
-          document.getElementById("p-sempit").innerText = pSempit; document.getElementById("bar-sempit").style.width = pSempit + "%";
-          
-          document.getElementById("d-medis").innerText = d.insidenMedis;
-        }
-        
-        // Kembalikan visual ke mode Live Normal
-        wrap.style.background = "#e6fcf5"; 
-        wrap.style.color = "#0ca678"; 
-        wrap.style.borderColor = "#c3fae8";
-        
-      } catch(e) {
-        // Kembalikan visual ke mode Error (Namun timer tetap akan jalan untuk Auto-Retry)
-        wrap.style.background = "#fff5f5"; 
-        wrap.style.color = "#fa5252"; 
-        wrap.style.borderColor = "#ffe3e3"; 
-      }
-      
-      // RESET TIMER & LEPASKAN KUNCI LOADING
-      countdown = 60; 
-      isFetching = false;
-      ind.innerText = `Live (${countdown}s)`;
+    function togglePwd() { 
+      let i = document.getElementById("kode"), ic = document.getElementById("icon-mata"); 
+      i.type = i.type === "password" ? "text" : "password"; 
+      ic.className = i.type === "password" ? "bi bi-eye-slash" : "bi bi-eye"; 
+      ic.style.color = i.type === "password" ? "var(--text-muted)" : "var(--accent)"; 
     }
 
-    // Interval Timer Mutlak (Pasti berkurang setiap detik)
-    setInterval(() => {
-      if (isFetching) return; // Jangan kurangi angka jika sedang loading
+    async function api(payload) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); 
+      try { 
+        let res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), signal: controller.signal }); 
+        clearTimeout(timeoutId); return JSON.parse(await res.text()); 
+      } catch(e) { clearTimeout(timeoutId); return { success: false, message: "Koneksi terputus atau server sibuk." }; }
+    }
+
+    async function login() {
+      let email = document.getElementById("email").value, kode = document.getElementById("kode").value;
+      if(!email || !kode) return Swal.fire('Data Belum Lengkap', 'Masukkan Email dan Kode Keamanan!', 'warning'); 
       
-      countdown--;
+      let btn = document.getElementById("btn-login"), ic = document.getElementById("l-icon"), tx = document.getElementById("l-text");
+      btn.disabled = true; ic.className = "spinner-border spinner-border-sm"; tx.innerText = "Memverifikasi...";
       
-      if (countdown <= 0) {
-        fetchStats();
-      } else {
-        document.getElementById("indicator").innerText = `Live (${countdown}s)`;
+      let res = await api({ action: "login", email: email, kodeLogin: kode });
+      if(res.success) { 
+        localStorage.setItem("dashSess", JSON.stringify({ nama: res.nama, jabatan: res.kategoriList.join(", ") })); 
+        restoreSession(); 
+      } else { 
+        Swal.fire({icon:'error', title:'Akses Ditolak', text:res.message, confirmButtonColor:'#5b7cfa'}); 
       }
-    }, 1000);
-    
-    // Panggilan pertama kali saat halaman dimuat
-    fetchStats();
+      btn.disabled = false; ic.className = "bi bi-shield-lock"; tx.innerText = "MASUK DASHBOARD";
+    }
+
+    function restoreSession() {
+      let sess = JSON.parse(localStorage.getItem("dashSess"));
+      document.getElementById("view-login").classList.add("hidden"); document.getElementById("view-dashboard").classList.remove("hidden");
+      document.getElementById("admin-nama").innerText = sess.nama;
+      
+      loadData();
+      if(intervalRefresh) clearInterval(intervalRefresh);
+      intervalRefresh = setInterval(() => { loadData(false) }, 30000); // Tarik data setiap 30 detik
+    }
+
+    function logout() {
+      Swal.fire({ title: 'Keluar Dashboard?', icon: 'question', showCancelButton: true, confirmButtonColor: '#ff8787', confirmButtonText: 'Ya, Keluar', cancelButtonText: 'Batal' })
+      .then((result) => { if (result.isConfirmed) { localStorage.removeItem("dashSess"); clearInterval(intervalRefresh); location.reload(); } });
+    }
+
+    // FUNGSI LOAD DATA DASHBOARD BARU (Mengambil Stats & Tabel sekaligus)
+    async function loadData(showToast = true) {
+      let btn = document.getElementById("btn-refresh"), icon = btn.querySelector("i");
+      btn.disabled = true; icon.classList.add("spinner-border", "spinner-border-sm"); icon.classList.remove("bi-arrow-clockwise");
+
+      let res = await api({ action: "getDashboard" }); 
+
+      if (res.success) {
+        // Render Angka di Kartu Statistik
+        document.getElementById("stat-total").innerText = res.stats.total;
+        document.getElementById("stat-hadir").innerText = res.stats.hadir;
+        document.getElementById("stat-insiden-medis").innerText = res.stats.insidenMedis;
+        
+        // Menghitung berapa peserta lolos verifikasi yang belum lari
+        let sisaLari = res.stats.lolosVerif - res.stats.sudahLari;
+        document.getElementById("stat-pending-lari").innerText = sisaLari >= 0 ? sisaLari : 0;
+
+        // Render isi Tabel
+        renderTable(res.data);
+
+        if(showToast) Swal.fire({title: 'Data Sinkron!', timer: 1000, toast: true, position: 'top-end', showConfirmButton: false, icon: 'success'});
+      } else {
+        if(showToast) Swal.fire('Gagal Refresh', 'Cek koneksi internet Anda.', 'error');
+      }
+
+      btn.disabled = false; icon.classList.remove("spinner-border", "spinner-border-sm"); icon.classList.add("bi-arrow-clockwise");
+    }
+
+    function renderTable(dataPeserta) {
+      let tbody = document.getElementById("tbody-peserta");
+      tbody.innerHTML = "";
+
+      if(dataPeserta.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-4">Belum ada peserta yang melakukan Check-In</td></tr>`;
+        return;
+      }
+
+      dataPeserta.forEach(p => {
+        // LOGIKA BADGE VERIFIKASI
+        let badgeVerif = p.verif.toLowerCase() === 'lolos' 
+          ? `<span class="badge bg-success bg-opacity-10 text-success border border-success">Lolos</span>` 
+          : (p.verif === '-' || p.verif === '' ? `<span class="badge bg-secondary">Pending</span>` : `<span class="badge bg-danger">Tidak Lolos</span>`);
+        
+        // LOGIKA BADGE P3K (AMAN vs ADA INSIDEN)
+        let badgeMedis = p.medis !== "" 
+          ? `<span class="badge" style="background:#fff8e6; color:#f59f00; border: 1px solid #fcc419;" title="Catatan Medis: ${p.medis}"><i class="bi bi-bandaid"></i> Ditangani P3K</span>` 
+          : `<span class="badge bg-success bg-opacity-10 text-success border border-success"><i class="bi bi-shield-check"></i> Aman</span>`;
+
+        tbody.innerHTML += `
+          <tr>
+            <td class="fw-bold text-muted">${p.no}</td>
+            <td class="fw-bold">${p.nama}</td>
+            <td><span class="badge bg-light text-dark border">${p.jalur}</span></td>
+            <td><span class="badge bg-primary bg-opacity-10 text-primary border border-primary">Hadir (Checked In)</span></td>
+            <td>${badgeVerif}</td>
+            <td class="fw-bold text-center">${p.lari !== '' ? p.lari + ' Lap' : '<span class="text-muted small">Pending</span>'}</td>
+            <td>${badgeMedis}</td>
+          </tr>
+        `;
+      });
+    }
   </script>
 </body>
 </html>
