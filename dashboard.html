@@ -52,7 +52,7 @@
     
     <div class="d-flex align-items-center gap-2 badge-live" id="indicator-wrap">
       <div class="spinner-grow spinner-grow-sm" role="status" id="spinner" style="width: 12px; height: 12px;"></div>
-      <span id="indicator" class="fs-7">Live (30s)</span>
+      <span id="indicator" class="fs-7">Live (60s)</span>
     </div>
   </div>
 
@@ -112,7 +112,7 @@
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzJQjxT6QKsyuNMn4KCxsFuRAD5MPItgHdqPVdAvintroDIf9dAeMxhCWyyaX4LkfeW/exec"; 
-    let countdown = 30;
+    let countdown = 60; // DIUBAH MENJADI 60 DETIK
 
     async function fetchStats() {
       const ind = document.getElementById("indicator"), wrap = document.getElementById("indicator-wrap");
@@ -142,7 +142,7 @@
         }
         wrap.style.background = "#e6fcf5"; wrap.style.color = "#0ca678"; wrap.style.borderColor = "#c3fae8";
       } catch(e) { wrap.style.background = "#fff5f5"; wrap.style.color = "#fa5252"; wrap.style.borderColor = "#ffe3e3"; ind.innerText = "Terputus"; }
-      countdown = 30; 
+      countdown = 60; // DIUBAH MENJADI 60 DETIK
     }
 
     setInterval(() => {
@@ -151,6 +151,7 @@
       countdown--;
       if(countdown <= 0) fetchStats(); else ind.innerText = `Live (${countdown}s)`;
     }, 1000);
+    
     fetchStats();
   </script>
 </body>
