@@ -23,18 +23,18 @@
     .form-check-input { width: 3.5em !important; height: 1.8em !important; cursor: pointer; }
     .form-check-input:checked { background-color: var(--success); border-color: var(--success); }
     .hidden { display: none !important; }
+    .campus-logo { max-width: 90px; height: auto; margin: 0 auto 15px auto; display: block; }
   </style>
 </head>
 <body>
   <div class="app-container">
     
     <div id="view-login" class="card-custom text-center my-auto">
-      <div style="width: 70px; height: 70px; background: #e0f2fe; color: var(--accent); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto; font-size: 2rem;"><i class="bi bi-shield-lock-fill"></i></div>
-      <h4 class="fw-bold mb-1">Akses Petugas</h4>
+      <img src="https://via.placeholder.com/90x90.png?text=LOGO" alt="Logo Kampus" class="campus-logo"> <h4 class="fw-bold mb-1">Akses Petugas</h4>
       <p class="text-muted small mb-4">Masuk untuk memindai data peserta.</p>
       
-      <div class="input-group mb-3"><span class="input-group-text"><i class="bi bi-envelope"></i></span><input type="email" id="email" class="form-control" placeholder="Email Terdaftar"></div>
-      <div class="input-group mb-4"><span class="input-group-text"><i class="bi bi-key"></i></span><input type="password" id="kode" class="form-control" placeholder="Kode Keamanan"><span class="input-group-text cursor-pointer" onclick="togglePwd()"><i class="bi bi-eye-slash" id="icon-mata"></i></span></div>
+      <div class="input-group mb-3"><span class="input-group-text"><i class="bi bi-envelope"></i></span><input type="email" id="email" class="form-control border-start-0" placeholder="Email Terdaftar"></div>
+      <div class="input-group mb-4"><span class="input-group-text"><i class="bi bi-key"></i></span><input type="password" id="kode" class="form-control border-start-0 border-end-0" placeholder="Kode Keamanan"><span class="input-group-text bg-white border-start-0 cursor-pointer" onclick="togglePwd()"><i class="bi bi-eye-slash" id="icon-mata"></i></span></div>
       <button onclick="login()" class="btn btn-custom btn-accent w-100" id="btn-login"><i class="bi bi-box-arrow-in-right" id="l-icon"></i> <span id="l-text">MASUK SISTEM</span></button>
     </div>
 
@@ -127,7 +127,7 @@
 
     function resetUI() {
       let t = document.getElementById("pilih-tugas").value.toLowerCase();
-      let isLari = t.includes("lari"), isKesehatan = t.includes("kesehatan");
+      let isLari = t.includes("lari"), isKesehatan = t.includes("kesehatan") || t.includes("medis");
       document.getElementById("wrap-lari").classList.toggle("hidden", !isLari);
       document.getElementById("wrap-check").classList.toggle("hidden", isLari || isKesehatan); 
       document.getElementById("val-catatan").placeholder = isKesehatan ? "Detail keluhan medis..." : "Catatan tambahan...";
@@ -150,11 +150,11 @@
         let teksScan = txt.toString().trim().toLowerCase();
         let p = pesertaList.find(x => x.no.toString().trim().toLowerCase() === teksScan);
         
-        if(!p) return Swal.fire('DITOLAK!', 'Peserta belum Check-In di depan atau Nomor tidak valid.', 'error').then(batal);
+        if(!p) return Swal.fire('DITOLAK!', 'Peserta belum Check-In di depan.', 'error').then(batal);
         
         let t = document.getElementById("pilih-tugas").value.toLowerCase();
         if (!t.includes("kesehatan") && (t.includes("lari") || t.includes("sempit") || t.includes("ketinggian")) && p.verif.toLowerCase() !== "lolos") {
-          return Swal.fire('Ditolak!', `Peserta ${p.nama} Belum Lolos Verifikasi!`, 'error').then(batal);
+          return Swal.fire('Ditolak!', `Peserta Belum Lolos Verifikasi!`, 'error').then(batal);
         }
 
         activeNo = txt; document.getElementById("nama-peserta").innerText = `${p.nama} (${txt})`;
@@ -167,7 +167,7 @@
 
     async function simpan() {
       let t = document.getElementById("pilih-tugas").value;
-      let val = t.toLowerCase().includes("lari") ? document.getElementById("val-lari").value : (t.toLowerCase().includes("kesehatan") ? "" : (document.getElementById("val-check").checked ? "Lolos" : "Tidak Lolos"));
+      let val = t.toLowerCase().includes("lari") ? document.getElementById("val-lari").value : (t.toLowerCase().includes("kesehatan") || t.toLowerCase().includes("medis") ? "" : (document.getElementById("val-check").checked ? "Lolos" : "Tidak Lolos"));
       if(t.toLowerCase().includes("lari") && !val) return Swal.fire('Kosong', 'Isi angka hasil lari!', 'warning');
       
       let btn = document.getElementById("btn-simpan"), ic = document.getElementById("simpan-icon"), tx = document.getElementById("simpan-text");
