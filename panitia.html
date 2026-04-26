@@ -40,7 +40,7 @@
     <div id="view-login" class="card-custom text-center my-auto fade-in">
       <img src="https://i.ibb.co.com/TDsSQQ6B/IMG-1501-removebg-preview.png" alt="Logo Kampus" class="campus-logo">
       <h4 class="fw-bold mb-1">Akses Panitia</h4>
-      <p class="small mb-4 fw-medium text-muted">Masuk untuk memindai peserta tes.</p>
+      <p class="small mb-4 fw-medium text-muted">Masuk untuk memindai peserta tes</p>
       <div class="input-group mb-3"><span class="input-group-text"><i class="bi bi-envelope"></i></span><input type="email" id="email" class="form-control border-start-0" placeholder="Email Terdaftar"></div>
       <div class="input-group mb-4"><span class="input-group-text"><i class="bi bi-key"></i></span><input type="password" id="kode" class="form-control border-start-0 border-end-0" placeholder="Kode Keamanan"><span class="input-group-text bg-transparent border-start-0 cursor-pointer" onclick="togglePwd()"><i class="bi bi-eye-slash" id="icon-mata"></i></span></div>
       <button onclick="login()" class="btn btn-custom btn-accent w-100" id="btn-login"><i class="bi bi-box-arrow-in-right" id="l-icon"></i> <span id="l-text">MASUK SISTEM</span></button>
@@ -58,7 +58,7 @@
       <div class="card-custom flex-grow-1 d-flex flex-column p-3">
         <div class="mb-3">
           <label class="form-label small fw-bold ps-1 text-muted">KATEGORI TUGAS:</label>
-          <select id="pilih-tugas" class="form-select fw-bold" onchange="resetUI()"></select>
+          <select id="pilih-tugas" class="form-select fw-bold" onchange="gantiTugas()"></select>
         </div>
         
         <div id="area-scanner">
@@ -127,10 +127,10 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbzJQjxT6QKsyuNMn4KCxsFuRAD5MPItgHdqPVdAvintroDIf9dAeMxhCWyyaX4LkfeW/exec"; 
     let qrScanner, activeNo = "", pesertaList = [], intervalSync;
     
-    // VARIABEL UNTUK MODE BULK
     let isBulkMode = false;
     let bulkQueue = [];
     let isScanningPaused = false; 
+    let currentRole = ""; // Pengunci multi-role
 
     window.onload = () => { if(localStorage.getItem("pmbSess")) restoreSess(); };
 
@@ -153,7 +153,6 @@
       
       let res = await api({ action: "login", email: email, kodeLogin: kode });
       if(res.success) { 
-        // SIMPAN SESSION DENGAN DEFAULT BULK MODE = FALSE
         localStorage.setItem("pmbSess", JSON.stringify({ nama: res.nama, roles: res.kategoriList, bulkMode: false })); 
         restoreSess(); 
       } else { 
@@ -166,10 +165,11 @@
       let sess = JSON.parse(localStorage.getItem("pmbSess"));
       document.getElementById("view-login").classList.add("hidden"); document.getElementById("view-dashboard").classList.remove("hidden");
       document.getElementById("nama-panitia").innerText = sess.nama;
+      
       let sel = document.getElementById("pilih-tugas"); sel.innerHTML = "";
       sess.roles.forEach(r => sel.innerHTML += `<option value="${r}">${r}</option>`);
+      currentRole = sel.value; 
       
-      // KEMBALIKAN PREFERENSI BULK MODE
       if(sess.bulkMode === true) {
          document.getElementById("mode-bulk").checked = true;
          isBulkMode = true;
@@ -193,17 +193,38 @@
       if(btn) btn.disabled = false; if(ic) ic.className = "bi bi-arrow-repeat";
     }
 
-    // FUNGSI TOGGLE BULK MODE & SIMPAN PREFERENSI
+    // FUNGSI GANTI POS TUGAS (MELINDUNGI DATA MULTI-ROLE)
+    function gantiTugas() {
+      let newRole = document.getElementById("pilih-tugas").value;
+      
+      if (isBulkMode && bulkQueue.length > 0) {
+        Swal.fire({
+          title: 'Ganti Pos Tugas?',
+          text: 'Terdapat antrean yang belum disimpan. Ganti pos akan menghapus antrean tersebut.',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#ff8787',
+          confirmButtonText: 'Hapus & Ganti',
+          cancelButtonText: 'Batal'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            bulkQueue = []; renderBulkUI();
+            currentRole = newRole; resetUI();
+            Swal.fire({toast: true, position: 'top', icon: 'info', title: `Pos aktif: ${currentRole}`, showConfirmButton: false, timer: 1500});
+          } else {
+            document.getElementById("pilih-tugas").value = currentRole; // Kembalikan ke pilihan sebelumnya
+          }
+        });
+      } else {
+        currentRole = newRole; resetUI();
+        Swal.fire({toast: true, position: 'top', icon: 'info', title: `Pos aktif: ${currentRole}`, showConfirmButton: false, timer: 1500});
+      }
+    }
+
     function toggleBulk() {
       isBulkMode = document.getElementById("mode-bulk").checked;
-      
-      // Simpan preferensi ke LocalStorage agar tidak hilang saat reload
       let sess = JSON.parse(localStorage.getItem("pmbSess"));
-      if(sess) {
-        sess.bulkMode = isBulkMode;
-        localStorage.setItem("pmbSess", JSON.stringify(sess));
-      }
-
+      if(sess) { sess.bulkMode = isBulkMode; localStorage.setItem("pmbSess", JSON.stringify(sess)); }
       document.getElementById("bulk-info").classList.toggle("hidden", !isBulkMode);
       if(!isBulkMode) { bulkQueue = []; renderBulkUI(); } 
     }
