@@ -1,0 +1,12 @@
+body { font-family: 'Poppins', sans-serif; background-color: #f8fafc; color: #334155; }
+.navbar-custom { background: linear-gradient(135deg, #0f766e 0%, #059669 100%); }
+.card-custom {
+  background: white; border: none; border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); padding: 30px;
+  margin: 20px auto; max-width: 400px; text-align: center;
+}
+.btn-custom { border-radius: 10px; padding: 12px; font-weight: 600; background-color: #059669; color: white; border: none; width: 100%; transition: 0.3s; }
+.btn-custom:hover { background-color: #047857; color: white; transform: translateY(-2px); }
+.qr-box { background: #f1f5f9; padding: 20px; border-radius: 16px; display: inline-block; margin-bottom: 20px; border: 2px dashed #cbd5e1; }
+.hidden { display: none !important; }
+.icon-hero { font-size: 3.5rem; }

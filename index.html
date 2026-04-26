@@ -4,25 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portal Peserta Tes Fisik PMB Politeknik Industri Petrokimia Banten</title>
-  
+
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="stylesheet" href="assets/css/styles.css">
 
-  <style>
-    body { font-family: 'Poppins', sans-serif; background-color: #f8fafc; color: #334155; }
-    .navbar-custom { background: linear-gradient(135deg, #0f766e 0%, #059669 100%); }
-    .card-custom {
-      background: white; border: none; border-radius: 16px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); padding: 30px;
-      margin: 20px auto; max-width: 400px; text-align: center;
-    }
-    .btn-custom { border-radius: 10px; padding: 12px; font-weight: 600; background-color: #059669; color: white; border: none; width: 100%; transition: 0.3s;}
-    .btn-custom:hover { background-color: #047857; color: white; transform: translateY(-2px); }
-    .qr-box { background: #f1f5f9; padding: 20px; border-radius: 16px; display: inline-block; margin-bottom: 20px; border: 2px dashed #cbd5e1; }
-    .hidden { display: none !important; }
-  </style>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 
@@ -33,16 +21,28 @@
   </nav>
 
   <div class="container">
-    
+
     <div id="view-login" class="card-custom">
-      <div class="mb-3 text-success" style="font-size: 3.5rem;">
+      <div class="mb-3 text-success icon-hero">
         <i class="bi bi-person-bounding-box"></i>
       </div>
       <h4 class="fw-bold mb-1">Cek Kartu Ujian</h4>
       <p class="text-muted small mb-4">Masukkan Nomor Pendaftaran Anda</p>
-      
-      <input type="text" id="no-peserta" class="form-control form-control-lg mb-4 text-center fw-bold" placeholder="Contoh: 2026100001">
-             
+
+      <label for="no-peserta" class="form-label fw-semibold">Nomor Pendaftaran</label>
+      <input
+        type="text"
+        id="no-peserta"
+        class="form-control form-control-lg mb-4 text-center fw-bold"
+        placeholder="Contoh: 2026100001"
+        inputmode="numeric"
+        autocomplete="off"
+        maxlength="10"
+        pattern="[0-9]{10}"
+        aria-describedby="no-peserta-hint"
+      >
+      <div id="no-peserta-hint" class="visually-hidden">Masukkan 10 digit angka nomor pendaftaran Anda</div>
+
       <button onclick="loginPeserta()" class="btn btn-custom" id="btn-login">
         TAMPILKAN QR CODE <i class="bi bi-qr-code ms-1"></i>
       </button>
@@ -56,7 +56,7 @@
       </div>
 
       <div class="qr-box shadow-sm">
-        <img id="qr-image" src="" alt="QR Code Peserta" style="width: 200px; height: 200px;">
+        <img id="qr-image" src="" alt="QR Code Peserta" width="200" height="200">
       </div>
 
       <p class="small text-muted mb-4">
@@ -70,54 +70,6 @@
 
   </div>
 
-  <script>
-    // ==========================================
-    // MASUKKAN URL API GOOGLE SCRIPT YANG SAMA!
-    // ==========================================
-    const API_URL = "https://script.google.com/macros/s/AKfycbzJQjxT6QKsyuNMn4KCxsFuRAD5MPItgHdqPVdAvintroDIf9dAeMxhCWyyaX4LkfeW/exec";
-
-    async function loginPeserta() {
-      let no = document.getElementById("no-peserta").value;
-      if(!no) return Swal.fire('Data Kosong', 'Masukkan Nomor Pendaftaran!', 'warning');
-      
-      let btn = document.getElementById("btn-login");
-      btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Mencari...`;
-      btn.disabled = true;
-
-      try {
-        let res = await fetch(API_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: "loginPeserta", noPeserta: no })
-        }).then(r => r.json());
-
-        if(res && res.success) {
-          // Isi data text
-          document.getElementById("nama-peserta").innerText = res.nama;
-          document.getElementById("nomor-peserta").innerText = res.no_peserta;
-          
-          // Generate QR Code otomatis pakai API luar
-          let qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(res.no_peserta)}`;
-          document.getElementById("qr-image").src = qrUrl;
-
-          // Pindah Halaman
-          document.getElementById("view-login").classList.add("hidden");
-          document.getElementById("view-kartu").classList.remove("hidden");
-        } else {
-          Swal.fire('Tidak Ditemukan', res.message, 'error');
-        }
-      } catch(e) {
-        Swal.fire('Koneksi Gagal', 'Pastikan internet Anda stabil.', 'error');
-      }
-
-      btn.innerHTML = `TAMPILKAN QR CODE <i class="bi bi-qr-code ms-1"></i>`;
-      btn.disabled = false;
-    }
-
-    function keluar() {
-      document.getElementById("no-peserta").value = "";
-      document.getElementById("view-kartu").classList.add("hidden");
-      document.getElementById("view-login").classList.remove("hidden");
-    }
-  </script>
+  <script src="assets/js/app.js"></script>
 </body>
 </html>
