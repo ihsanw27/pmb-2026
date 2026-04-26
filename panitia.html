@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Portal Panitia Lapangan Tes Fisik PMB PIPB</title>
+  <title>Portal Panitia Tes Fisik PMB PIPB</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -95,7 +95,7 @@
         <div id="area-scanner">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="small fw-bold ps-1" style="color: var(--text-muted);">KAMERA PEMINDAI</span>
-            <button onclick="syncData()" id="btn-sync" class="btn btn-sm fw-bold px-3 d-flex align-items-center gap-1" style="background: var(--accent-soft); color: var(--accent); border-radius: 20px;"><i class="bi bi-arrow-repeat" id="s-icon"></i> <span id="s-text">Sync</span></button>
+            <span class="badge" style="background: #e6fcf5; color: #0ca678; border: 1px solid #c3fae8;">Real-time Mode</span>
           </div>
           <div id="reader" class="mb-3"></div>
           <button onclick="initCam()" class="btn btn-light btn-custom w-100 border hidden" id="btn-cam" style="color: var(--text-muted);">Nyalakan Kamera Ulang</button>
@@ -105,7 +105,7 @@
           <div class="alert d-flex align-items-center mb-3 py-2 rounded-4 border-0" style="background: #e6fcf5;">
             <i class="bi bi-check-circle-fill fs-2 me-3" style="color: var(--success);"></i>
             <div>
-              <small class="d-block fw-bold" style="font-size:0.7rem; color: #2b8a6e;">PESERTA TERIDENTIFIKASI</small>
+              <small class="d-block fw-bold" style="font-size:0.7rem; color: #2b8a6e;">DATA TERVERIFIKASI</small>
               <h6 id="nama-peserta" class="fw-bold mb-0" style="color: var(--text-main);"></h6>
             </div>
           </div>
@@ -143,7 +143,7 @@
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzJQjxT6QKsyuNMn4KCxsFuRAD5MPItgHdqPVdAvintroDIf9dAeMxhCWyyaX4LkfeW/exec"; 
-    let qrScanner, activeNo = "", pesertaList = [], intervalSync;
+    let qrScanner, activeNo = "";
 
     window.onload = () => { if(localStorage.getItem("pmbSess")) restoreSess(); };
 
@@ -166,27 +166,21 @@
       btn.disabled = false; ic.className = "bi bi-box-arrow-in-right"; tx.innerText = "MASUK SISTEM";
     }
 
-    async function restoreSess() {
+    function restoreSess() {
       let sess = JSON.parse(localStorage.getItem("pmbSess"));
-      document.getElementById("view-login").classList.add("hidden"); document.getElementById("view-dashboard").classList.remove("hidden");
+      document.getElementById("view-login").classList.add("hidden"); 
+      document.getElementById("view-dashboard").classList.remove("hidden");
       document.getElementById("nama-panitia").innerText = sess.nama;
       let sel = document.getElementById("pilih-tugas"); sel.innerHTML = "";
       sess.roles.forEach(r => sel.innerHTML += `<option value="${r}">${r}</option>`);
       
-      resetUI(); await syncData(false); qrScanner = new Html5Qrcode("reader"); initCam();
-      if(intervalSync) clearInterval(intervalSync);
-      intervalSync = setInterval(() => { if (!document.getElementById("view-dashboard").classList.contains("hidden")) syncData(false); }, 30000);
+      resetUI(); 
+      qrScanner = new Html5Qrcode("reader"); 
+      initCam();
+      // TIDAK ADA LAGI BACKGROUND SYNC DI SINI (Server Aman!)
     }
 
-    function logout() { localStorage.removeItem("pmbSess"); clearInterval(intervalSync); location.reload(); }
-
-    async function syncData(toast=true) {
-      let ic = document.getElementById("s-icon"), btn = document.getElementById("btn-sync");
-      btn.disabled = true; ic.className = "spinner-border spinner-border-sm";
-      let res = await api({ action: "getHadir" });
-      if(res.success) { pesertaList = res.data; if(toast) Swal.fire({title:'Terupdate', timer:1000, showConfirmButton:false, toast:true, position:'top', icon:'success'}); }
-      btn.disabled = false; ic.className = "bi bi-arrow-repeat";
-    }
+    function logout() { localStorage.removeItem("pmbSess"); location.reload(); }
 
     function resetUI() {
       let t = document.getElementById("pilih-tugas").value.toLowerCase();
@@ -215,21 +209,40 @@
       qrScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } }, onScan, ()=>{}).catch(()=>{ document.getElementById("btn-cam").classList.remove("hidden"); });
     }
 
+    // FUNGSI BARU: CEK KE SERVER HANYA SAAT BERHASIL SCAN QR
     function onScan(txt) {
-      qrScanner.stop().then(() => {
-        let teksScan = txt.toString().trim().toLowerCase();
-        let p = pesertaList.find(x => x.no.toString().trim().toLowerCase() === teksScan);
+      qrScanner.stop().then(async () => {
+        let kategoriAktif = document.getElementById("pilih-tugas").value;
         
-        if(!p) return Swal.fire({icon:'error', title:'DITOLAK!', text:'Peserta belum Check-In di depan.', confirmButtonColor:'#5b7cfa'}).then(batal);
-        
-        let t = document.getElementById("pilih-tugas").value.toLowerCase();
-        if (!t.includes("kesehatan") && (t.includes("lari") || t.includes("sempit") || t.includes("ketinggian")) && p.verif.toLowerCase() !== "lolos") {
-          return Swal.fire({icon:'error', title:'Ditolak!', text:`Peserta Belum Lolos Verifikasi!`, confirmButtonColor:'#5b7cfa'}).then(batal);
-        }
+        // Memunculkan Loading di Layar
+        Swal.fire({
+          title: 'Memeriksa Data...',
+          text: 'Menghubungkan ke Server',
+          allowOutsideClick: false,
+          didOpen: () => { Swal.showLoading() }
+        });
 
-        activeNo = txt; document.getElementById("nama-peserta").innerText = `${p.nama} (${txt})`;
-        document.getElementById("val-lari").value = ""; document.getElementById("val-catatan").value = ""; resetUI();
-        document.getElementById("area-scanner").classList.add("hidden"); document.getElementById("form-nilai").classList.remove("hidden");
+        // Tembak Server untuk cek 1 data ini saja
+        let res = await api({ action: "cekPeserta", noPeserta: txt, kategori: kategoriAktif });
+        
+        if(res.success) {
+          Swal.close();
+          activeNo = res.no; 
+          document.getElementById("nama-peserta").innerText = `${res.nama} (${res.no})`;
+          document.getElementById("val-lari").value = ""; 
+          document.getElementById("val-catatan").value = ""; 
+          resetUI();
+          
+          document.getElementById("area-scanner").classList.add("hidden"); 
+          document.getElementById("form-nilai").classList.remove("hidden");
+        } else {
+          Swal.fire({
+            icon: 'error', 
+            title: 'DITOLAK!', 
+            text: res.message, 
+            confirmButtonColor: '#5b7cfa'
+          }).then(batal);
+        }
       });
     }
 
