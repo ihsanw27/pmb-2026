@@ -3,220 +3,308 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portal Panitia PMB</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <title>Portal Panitia Tes Fisik PMB Politeknik Industri Petrokimia Banten</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://unpkg.com/html5-qrcode"></script>
 
   <style>
-    body { font-family: 'Poppins', sans-serif; background-color: #f8fafc; color: #1e293b; }
-    .card-custom { background: white; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); padding: 30px; margin: 20px auto; max-width: 450px; }
+    body { font-family: 'Poppins', sans-serif; background-color: #f0f4f8; color: #334155; }
+    .navbar-custom { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); }
+    .card-custom { background: white; border: none; border-radius: 16px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); padding: 30px; margin: 20px auto; max-width: 450px; }
+    .form-control, .form-select { border-radius: 10px; padding: 12px 15px; border: 1px solid #cbd5e1; }
+    .btn-custom { border-radius: 10px; padding: 12px; font-weight: 600; transition: all 0.3s ease; }
+    .btn-primary-custom { background-color: #2563eb; color: white; border: none; }
+    .btn-primary-custom:hover { background-color: #1d4ed8; color: white; }
     
-    .btn-primary-custom { 
-      background-color: #1e40af; color: white; border: none; border-radius: 10px; 
-      padding: 12px; font-weight: 600; transition: all 0.2s; 
-    }
-    .btn-primary-custom:hover { 
-      background-color: #1e3a8a !important; color: white !important;
-      transform: translateY(-1px); box-shadow: 0 5px 15px rgba(30,64,175,0.4);
-    }
-    .btn-primary-custom:active { transform: translateY(0); }
-
-    #reader { width: 100%; border-radius: 12px; overflow: hidden; background: #000; min-height: 250px; }
+    #reader { width: 100%; border-radius: 16px; overflow: hidden; border: 3px dashed #cbd5e1; background-color: #f8fafc; min-height: 250px; position: relative; }
+    #reader video { object-fit: cover; border-radius: 16px; }
     .hidden { display: none !important; }
-    .badge-user { background: #dbeafe; color: #1e40af; padding: 12px; border-radius: 10px; margin-bottom: 20px; }
+    .info-badge { background-color: #e0f2fe; color: #0369a1; border-radius: 8px; padding: 15px; }
     
-    /* Agar teks sejajar dengan sakelar */
-    .form-check-label { vertical-align: middle; padding-top: 2px; font-size: 1.1rem; }
+    /* Perbaikan agar teks sejajar dengan sakelar besar */
+    .form-check-label { vertical-align: middle; padding-top: 2px; }
   </style>
 </head>
 <body>
 
+  <nav class="navbar navbar-dark navbar-custom shadow-sm py-3">
+    <div class="container-fluid justify-content-center">
+      <span class="navbar-brand mb-0 h1 fw-bold"><i class="bi bi-shield-check me-2"></i>Portal Panitia Tes Fisik PMB Politeknik Industri Petrokimia Banten</span>
+    </div>
+  </nav>
+
   <div class="container">
-    <div id="view-login" class="card-custom text-center mt-5">
-      <h3 class="fw-bold mb-4">Login Panitia</h3>
-      <div class="text-start mb-3">
-        <label class="small fw-bold text-muted">Email Terdaftar</label>
-        <input type="email" id="email" class="form-control" placeholder="user@poltek.ac.id">
+    
+    <div id="view-login" class="card-custom text-center">
+      <div class="mb-4 text-primary" style="font-size: 3rem;"><i class="bi bi-person-badge"></i></div>
+      <h4 class="fw-bold mb-1">Login Petugas</h4>
+      <p class="text-muted small mb-4">Masuk dengan Email & Kode Anda</p>
+      
+      <div class="input-group mb-3 text-start">
+        <span class="input-group-text bg-white border-end-0"><i class="bi bi-envelope text-muted"></i></span>
+        <input type="email" id="email-login" class="form-control border-start-0" placeholder="Alamat Email" required>
       </div>
-      <div class="text-start mb-4">
-        <label class="small fw-bold text-muted">Kode Akses</label>
-        <input type="password" id="kode" class="form-control" placeholder="••••••">
+      
+      <div class="input-group mb-4 text-start">
+        <span class="input-group-text bg-white border-end-0"><i class="bi bi-key text-muted"></i></span>
+        <input type="password" id="kodeLogin" class="form-control border-start-0" placeholder="Kode Login (Case Sensitive)">
       </div>
-      <button onclick="doLogin()" id="btn-login" class="btn btn-primary-custom w-100">MASUK KE SISTEM</button>
+             
+      <button onclick="login()" class="btn btn-primary-custom btn-custom w-100" id="btn-login">MASUK SISTEM</button>
     </div>
 
     <div id="view-dashboard" class="hidden">
-      <div class="card-custom">
-        <div class="badge-user">
-          <small class="d-block opacity-75">Selamat Bertugas,</small>
-          <strong id="display-nama">Nama Panitia</strong>
+      <div class="card-custom pt-3 pb-4">
+        
+        <div class="info-badge mb-4 d-flex justify-content-between align-items-center">
+          <div>
+            <p class="mb-0 small text-uppercase fw-bold opacity-75">Petugas Aktif</p>
+            <h5 id="nama-panitia" class="mb-0 fw-bold">Memuat...</h5>
+          </div>
         </div>
 
         <div class="mb-4">
-          <label class="small fw-bold text-muted">Pilih Kategori Tugas:</label>
-          <select id="pilih-tugas" class="form-select border-primary fw-bold" onchange="updateUI()"></select>
+          <label class="form-label small fw-bold text-muted">Kategori Tugas Anda:</label>
+          <select id="pilih-tugas" class="form-select border-primary fw-bold text-primary shadow-sm"></select>
         </div>
 
-        <div id="scanner-box">
+        <div id="area-scanner">
+          <h6 class="text-center fw-bold mb-3"><i class="bi bi-qr-code-scan me-2"></i>Arahkan ke QR Peserta</h6>
           <div id="reader"></div>
-          <button id="btn-retry" class="btn btn-outline-primary w-100 mt-3 hidden" onclick="startScan()">Buka Kamera</button>
+          <button onclick="nyalakanKamera()" class="btn btn-outline-primary btn-custom w-100 mt-3 hidden" id="btn-restart-cam">
+            Nyalakan Ulang Kamera
+          </button>
         </div>
 
-        <div id="form-nilai" class="hidden">
-          <div class="alert alert-info py-2">
-            <small>Peserta:</small><br><strong id="nama-peserta">Nama</strong>
-          </div>
-
-          <div id="ui-input-lari" class="hidden mb-3">
-            <label class="small fw-bold">Waktu Lari (Angka):</label>
-            <input type="number" id="val-lari" class="form-control form-control-lg" placeholder="Contoh: 12">
-          </div>
-
-          <div id="ui-input-check" class="hidden mb-3 text-center">
-            <div class="form-check form-switch d-inline-block text-start">
-              <input class="form-check-input" type="checkbox" id="val-check" style="width: 50px; height: 25px;" onchange="toggleLabel()">
-              <label class="form-check-label ms-2 fw-bold text-danger" id="label-check" for="val-check">TIDAK LOLOS</label>
+        <div id="form-nilai" class="hidden mt-2">
+          <div class="alert alert-success border-0 shadow-sm d-flex align-items-center mb-4">
+            <i class="bi bi-check-circle-fill fs-3 me-3"></i>
+            <div>
+              <small class="d-block opacity-75">Scan Berhasil!</small>
+              <h5 id="nama-peserta" class="fw-bold mb-0 text-dark"></h5>
             </div>
           </div>
+          
+          <div class="mb-3 p-3 bg-light rounded border">
+            <label class="form-label small fw-bold text-muted" id="label-input">Input Penilaian:</label>
+            
+            <div id="wrapper-lari" class="hidden">
+              <input type="number" id="input-lari" class="form-control form-control-lg" placeholder="Masukkan Angka">
+            </div>
 
-          <div class="mb-4">
-            <label class="small fw-bold">Catatan Petugas:</label>
-            <textarea id="val-catatan" class="form-control" rows="2"></textarea>
+            <div id="wrapper-checklist" class="hidden py-2 text-center">
+              <div class="form-check form-switch d-inline-block text-start" style="transform: scale(1.3); transform-origin: left center;">
+                <input class="form-check-input" type="checkbox" id="input-check-lolos" onchange="toggleLabel()">
+                <label class="form-check-label ms-2 fw-bold text-danger" id="label-check" for="input-check-lolos">TIDAK LOLOS</label>
+              </div>
+            </div>
           </div>
-
+          
+          <div class="mb-4">
+            <label class="form-label small fw-bold text-muted">Catatan (Opsional):</label>
+            <textarea id="input-catatan" class="form-control" rows="2" placeholder="Catatan..."></textarea>
+          </div>
+          
           <div class="row g-2">
-            <div class="col-4"><button class="btn btn-light border w-100" onclick="cancelInput()">Batal</button></div>
-            <div class="col-8"><button class="btn btn-success fw-bold w-100" onclick="submitNilai()" id="btn-simpan">SIMPAN DATA</button></div>
+            <div class="col-4">
+              <button onclick="batal()" class="btn btn-light btn-custom w-100 border text-muted">Batal</button>
+            </div>
+            <div class="col-8">
+              <button onclick="simpan()" class="btn btn-success btn-custom w-100" id="btn-simpan">SIMPAN</button>
+            </div>
           </div>
         </div>
+
       </div>
     </div>
   </div>
 
   <script>
     // ==========================================
-    // MASUKKAN URL WEB APP ANDA DI SINI
+    // DEPLOY BARU LALU PASTE URL DI SINI!
     // ==========================================
-    const API_URL = "https://script.google.com/macros/s/AKfycbzJQjxT6QKsyuNMn4KCxsFuRAD5MPItgHdqPVdAvintroDIf9dAeMxhCWyyaX4LkfeW/exec"; 
+    const API_URL = "https://script.google.com/macros/s/AKfycbzJQjxT6QKsyuNMn4KCxsFuRAD5MPItgHdqPVdAvintroDIf9dAeMxhCWyyaX4LkfeW/exec";
     
-    let scanner;
-    let pesertaNo = "";
-    let dataHadir = [];
+    let html5QrCode;
+    let pesertaSedangDinilai = "";
+    let dataHadir = []; 
 
-    async function doLogin() {
-      const email = document.getElementById('email').value;
-      const kode = document.getElementById('kode').value;
-      const btn = document.getElementById('btn-login');
-      if(!email || !kode) return;
-
-      btn.disabled = true;
-      btn.innerText = "Memverifikasi...";
-
+    async function kirimKeExcel(data) {
       try {
-        const resp = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action:"login", email, kodeLogin:kode })});
-        const res = await resp.json();
-        if(res.success) {
-          document.getElementById('view-login').classList.add('hidden');
-          document.getElementById('view-dashboard').classList.remove('hidden');
-          document.getElementById('display-nama').innerText = res.nama;
-          
-          const sel = document.getElementById('pilih-tugas');
-          sel.innerHTML = "";
-          res.kategoriList.forEach(k => sel.innerHTML += `<option value="${k}">${k}</option>`);
-          
-          updateUI();
-          loadPeserta();
-        } else {
-          Swal.fire("Gagal", res.message, "error");
-        }
-      } catch(e) { Swal.fire("Error", "Gagal menyambung ke server", "error"); }
-      btn.disabled = false; btn.innerText = "MASUK KE SISTEM";
+        const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify(data) });
+        return await response.json();
+      } catch (e) {
+        Swal.fire('Error', 'Internet terputus!', 'error');
+        return null;
+      }
     }
 
-    // Fungsi Untuk Mengubah Teks Label Lolos/Tidak Lolos
+    async function login() {
+      let email = document.getElementById("email-login").value;
+      let kode = document.getElementById("kodeLogin").value;
+      let btn = document.getElementById("btn-login");
+      
+      if(!email || !kode) return Swal.fire('Oops', 'Isi Email dan Kode!', 'warning');
+      
+      btn.innerHTML = `Memuat...`;
+      btn.disabled = true;
+      
+      let res = await kirimKeExcel({ action: "login", email: email, kodeLogin: kode });
+      
+      if(res && res.success) {
+        document.getElementById("view-login").classList.add("hidden");
+        document.getElementById("view-dashboard").classList.remove("hidden");
+        document.getElementById("nama-panitia").innerText = res.nama;
+        
+        // Memasukkan list multi-role ke dropdown
+        let select = document.getElementById("pilih-tugas");
+        select.innerHTML = "";
+        res.kategoriList.forEach(t => select.innerHTML += `<option value="${t}">${t}</option>`);
+        
+        sesuaikanInput();
+
+        let resHadir = await kirimKeExcel({ action: "getHadir" });
+        if(resHadir && resHadir.success) {
+          dataHadir = resHadir.data;
+          html5QrCode = new Html5Qrcode("reader");
+          nyalakanKamera();
+        }
+      } else {
+        Swal.fire('Gagal Login', res.message, 'error');
+        btn.innerHTML = `MASUK SISTEM`;
+        btn.disabled = false;
+      }
+    }
+
+    // Mengubah warna dan teks Lolos/Tidak Lolos
     function toggleLabel() {
-      const check = document.getElementById('val-check');
+      const check = document.getElementById('input-check-lolos');
       const label = document.getElementById('label-check');
       if(check.checked) {
         label.innerText = "LOLOS TES";
-        label.className = "form-check-label ms-2 fw-bold text-success"; // Warna Hijau
+        label.className = "form-check-label ms-2 fw-bold text-success";
       } else {
         label.innerText = "TIDAK LOLOS";
-        label.className = "form-check-label ms-2 fw-bold text-danger"; // Warna Merah
+        label.className = "form-check-label ms-2 fw-bold text-danger";
       }
     }
 
-    function updateUI() {
-      const tugas = document.getElementById('pilih-tugas').value;
-      document.getElementById('ui-input-lari').classList.toggle('hidden', !tugas.includes("Lari"));
-      document.getElementById('ui-input-check').classList.toggle('hidden', tugas.includes("Lari") || tugas.includes("Kesehatan"));
+    // Mengubah tampilan berdasarkan tugas ("Tes Lari" vs "Verifikasi Administrasi" dll)
+    function sesuaikanInput() {
+      const tugas = document.getElementById("pilih-tugas").value.toLowerCase();
+      const wrapLari = document.getElementById("wrapper-lari");
+      const wrapCheck = document.getElementById("wrapper-checklist");
+      const label = document.getElementById("label-input");
+
+      if (tugas.includes("lari")) {
+        wrapLari.classList.remove("hidden");
+        wrapCheck.classList.add("hidden");
+        label.innerText = "Input Hasil Lari (Angka):";
+      } else if (tugas.includes("kesehatan")) {
+        wrapLari.classList.add("hidden");
+        wrapCheck.classList.add("hidden");
+        label.innerText = "Silakan isi Catatan Medis di bawah:";
+      } else {
+        wrapLari.classList.add("hidden");
+        wrapCheck.classList.remove("hidden");
+        label.innerText = "Status Kelulusan:";
+        
+        // Reset sakelar saat berganti tugas
+        document.getElementById("input-check-lolos").checked = false;
+        toggleLabel();
+      }
     }
 
-    async function loadPeserta() {
-      const resp = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action:"getHadir" })});
-      const res = await resp.json();
-      dataHadir = res.data;
-      scanner = new Html5Qrcode("reader");
-      startScan();
+    document.getElementById("pilih-tugas").addEventListener("change", sesuaikanInput);
+
+    function nyalakanKamera() {
+      document.getElementById("btn-restart-cam").classList.add("hidden");
+      html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 },
+        onScanSuccess, () => {}
+      ).catch(() => {
+        Swal.fire('Kamera Error', 'Izinkan penggunaan kamera di browser.', 'warning');
+        document.getElementById("btn-restart-cam").classList.remove("hidden");
+      });
     }
 
-    function startScan() {
-      document.getElementById('btn-retry').classList.add('hidden');
-      scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (txt) => {
-        const p = dataHadir.find(x => x.no_peserta.toString() === txt.toString());
-        if(p) {
-          scanner.stop();
-          pesertaNo = txt;
-          document.getElementById('nama-peserta').innerText = p.nama;
+    function onScanSuccess(decodedText) {
+      html5QrCode.stop().then(() => {
+        document.getElementById("area-scanner").classList.add("hidden");
+        document.getElementById("btn-restart-cam").classList.remove("hidden");
+        
+        let peserta = dataHadir.find(p => p.no_peserta.toString() === decodedText.toString());
+        
+        if(peserta) {
+          pesertaSedangDinilai = decodedText;
+          document.getElementById("nama-peserta").innerText = `${peserta.nama} (${decodedText})`;
           
-          // Reset form input setiap scan peserta baru
-          document.getElementById('val-lari').value = "";
-          document.getElementById('val-catatan').value = "";
-          document.getElementById('val-check').checked = false; // Kembalikan ke mati (default)
-          toggleLabel(); // Panggil fungsi ubah warna agar jadi merah (Tidak Lolos) lagi
+          // Reset Input Formulir
+          document.getElementById("input-lari").value = "";
+          document.getElementById("input-catatan").value = "";
+          document.getElementById("input-check-lolos").checked = false;
+          toggleLabel(); // Kembalikan ke warna merah (TIDAK LOLOS)
           
-          document.getElementById('scanner-box').classList.add('hidden');
-          document.getElementById('form-nilai').classList.remove('hidden');
+          document.getElementById("form-nilai").classList.remove("hidden");
         } else {
-          Swal.fire("Peringatan", "Peserta belum Check-In!", "warning");
+          Swal.fire({
+            icon: 'error', title: 'Belum Check-In!', 
+            text: `Peserta belum melapor ke meja pendaftaran.`,
+            confirmButtonText: 'Scan Ulang'
+          }).then(() => batal());
         }
-      }, () => {});
+      });
     }
 
-    function cancelInput() {
-      document.getElementById('form-nilai').classList.add('hidden');
-      document.getElementById('scanner-box').classList.remove('hidden');
-      startScan();
+    function batal() {
+      document.getElementById("form-nilai").classList.add("hidden");
+      document.getElementById("area-scanner").classList.remove("hidden");
+      pesertaSedangDinilai = "";
+      nyalakanKamera(); 
     }
 
-    async function submitNilai() {
-      const tugas = document.getElementById('pilih-tugas').value;
-      const btn = document.getElementById('btn-simpan');
-      let valUtama = "";
+    async function simpan() {
+      const tugas = document.getElementById("pilih-tugas").value; // Jangan di lowercase saat dikirim agar matching dengan Code.gs
+      const tugasLower = tugas.toLowerCase();
+      let nilai = "";
 
-      if(tugas.includes("Lari")) valUtama = document.getElementById('val-lari').value;
-      else if(!tugas.includes("Kesehatan")) valUtama = document.getElementById('val-check').checked ? "Lolos" : "Tidak Lolos";
+      if (tugasLower.includes("lari")) {
+        nilai = document.getElementById("input-lari").value;
+        if (!nilai) return Swal.fire('Oops', 'Mohon isi angka hasil lari!', 'warning');
+      } else if (tugasLower.includes("kesehatan")) {
+        nilai = ""; // Kesehatan cukup catatan medis saja
+      } else {
+        nilai = document.getElementById("input-check-lolos").checked ? "Lolos" : "Tidak Lolos";
+      }
 
-      btn.disabled = true; btn.innerText = "Menyimpan...";
+      let btn = document.getElementById("btn-simpan");
+      btn.innerHTML = `Menyimpan...`;
+      btn.disabled = true;
       
-      const payload = {
+      let payload = {
         action: "simpanNilai",
-        noPeserta: pesertaNo,
-        kategori: tugas,
-        nilaiUtama: valUtama,
-        nilaiCatatan: document.getElementById('val-catatan').value
+        noPeserta: pesertaSedangDinilai,
+        kategori: tugas, // Mengirim nama tugas asli (misal: "Tes Ketinggian")
+        nilaiUtama: nilai,
+        nilaiCatatan: document.getElementById("input-catatan").value
       };
 
-      const resp = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload)});
-      const res = await resp.json();
-      if(res.success) {
-        Swal.fire({ icon: 'success', title: 'Data Berhasil Disimpan', showConfirmButton: false, timer: 1500 });
-        cancelInput();
+      let res = await kirimKeExcel(payload);
+      
+      if(res && res.success) {
+        Swal.fire({ icon: 'success', title: 'Data Tersimpan!', timer: 1500, showConfirmButton: false });
+        setTimeout(() => batal(), 1500);
+      } else {
+        Swal.fire('Gagal Menyimpan', res.message, 'error');
       }
-      btn.disabled = false; btn.innerText = "SIMPAN DATA";
+      
+      btn.innerHTML = `SIMPAN`;
+      btn.disabled = false;
     }
   </script>
 </body>
