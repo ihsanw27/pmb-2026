@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Portal Panitia Tes Fisik PMB PIPB</title>
+  <title>Portal Panitia Lapangan</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -61,18 +61,33 @@
         <div id="area-scanner">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="small fw-bold ps-1 text-muted">KAMERA PEMINDAI</span>
-            <button onclick="syncData()" id="btn-sync" class="btn btn-sm fw-bold px-3 d-flex align-items-center gap-1" style="background: var(--accent-soft); color: var(--accent); border-radius: 20px;">
-              <i class="bi bi-arrow-repeat" id="s-icon"></i> <span id="s-text">Sync</span>
-            </button>
+            <button onclick="syncData()" id="btn-sync" class="btn btn-sm fw-bold px-3 d-flex align-items-center gap-1" style="background: var(--accent-soft); color: var(--accent); border-radius: 20px;"><i class="bi bi-arrow-repeat" id="s-icon"></i> <span id="s-text">Sync</span></button>
           </div>
+
+          <div class="form-check form-switch mb-3 p-2 rounded border" style="background: #f8fafc;">
+            <input class="form-check-input ms-1 me-2 mt-1" type="checkbox" id="mode-bulk" onchange="toggleBulk()">
+            <label class="form-check-label small fw-bold mt-1" for="mode-bulk" style="color: var(--accent);">Mode Scan Banyak (Bulk)</label>
+          </div>
+
           <div id="reader" class="mb-3"></div>
-          <button onclick="initCam()" class="btn btn-light btn-custom w-100 border hidden" id="btn-cam" style="color: var(--text-muted);">Nyalakan Kamera Ulang</button>
+          <button onclick="initCam()" class="btn btn-light btn-custom w-100 border hidden mb-3" id="btn-cam" style="color: var(--text-muted);">Nyalakan Kamera Ulang</button>
+
+          <div id="bulk-info" class="hidden rounded p-3 mb-2" style="background: #eef2ff; border: 1.5px dashed var(--accent);">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="fw-bold text-primary small">Antrean: <span id="bulk-count" class="badge bg-primary">0</span> Peserta</span>
+              <button class="btn btn-sm btn-primary fw-bold px-3 rounded-pill" onclick="mulaiInputBulk()">Mulai Input <i class="bi bi-arrow-right"></i></button>
+            </div>
+            <ul id="bulk-list" class="small mb-0 ps-0 text-muted" style="list-style: none;"></ul>
+          </div>
         </div>
 
         <div id="form-nilai" class="hidden">
           <div class="alert d-flex align-items-center mb-3 py-2 rounded-4 border-0" style="background: #e6fcf5;">
             <i class="bi bi-check-circle-fill fs-2 me-3" style="color: var(--success);"></i>
-            <div><small class="d-block fw-bold" style="font-size:0.7rem; color: #2b8a6e;">PESERTA TERIDENTIFIKASI</small><h6 id="nama-peserta" class="fw-bold mb-0"></h6></div>
+            <div>
+              <small class="d-block fw-bold" style="font-size:0.7rem; color: #2b8a6e;" id="label-status-peserta">PESERTA TERIDENTIFIKASI</small>
+              <h6 id="nama-peserta" class="fw-bold mb-0"></h6>
+            </div>
           </div>
           
           <div class="p-3 rounded-4 border mb-3" style="background: #f8fafc; border-color: var(--border-soft);">
@@ -83,7 +98,7 @@
           <textarea id="val-catatan" class="form-control mb-3" rows="2" placeholder="Tambahkan catatan jika perlu..." style="background: #fff;"></textarea>
           
           <div class="row g-2 mt-auto">
-            <div class="col-4"><button onclick="batal()" class="btn btn-light btn-custom w-100 border text-muted" style="background: #f8fafc;">Batal</button></div>
+            <div class="col-4"><button onclick="batal()" class="btn btn-light btn-custom w-100 border text-muted" style="background: #f8fafc;" id="btn-batal">Batal</button></div>
             <div class="col-8"><button onclick="simpan()" class="btn fw-bold btn-custom w-100 text-white" id="btn-simpan" style="background: var(--success); border: none; box-shadow: 0 4px 10px rgba(56, 217, 169, 0.3);"><i class="bi bi-save2" id="simpan-icon"></i> <span id="simpan-text">SIMPAN DATA</span></button></div>
           </div>
         </div>
@@ -94,20 +109,22 @@
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzJQjxT6QKsyuNMn4KCxsFuRAD5MPItgHdqPVdAvintroDIf9dAeMxhCWyyaX4LkfeW/exec"; 
     let qrScanner, activeNo = "", pesertaList = [], intervalSync;
+    
+    // VARIABEL UNTUK MODE BULK
+    let isBulkMode = false;
+    let bulkQueue = [];
+    let currentBulkIdx = 0;
+    let isScanningPaused = false; // Penjaga agar kamera tidak mendeteksi QR berulang
 
     window.onload = () => { if(localStorage.getItem("pmbSess")) restoreSess(); };
 
     async function api(payload) {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // Batas 10 Detik
+      const timeoutId = setTimeout(() => controller.abort(), 12000); 
       try { 
         let res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), signal: controller.signal }); 
-        clearTimeout(timeoutId);
-        return JSON.parse(await res.text()); 
-      } catch(e) { 
-        clearTimeout(timeoutId);
-        return { success: false, message: "Koneksi terputus." }; 
-      }
+        clearTimeout(timeoutId); return JSON.parse(await res.text()); 
+      } catch(e) { clearTimeout(timeoutId); return { success: false, message: "Koneksi terputus." }; }
     }
 
     function togglePwd() { let i = document.getElementById("kode"), ic = document.getElementById("icon-mata"); i.type = i.type === "password" ? "text" : "password"; ic.className = i.type === "password" ? "bi bi-eye-slash" : "bi bi-eye"; ic.style.color = i.type === "password" ? "var(--text-muted)" : "var(--accent)"; }
@@ -131,12 +148,9 @@
       let sel = document.getElementById("pilih-tugas"); sel.innerHTML = "";
       sess.roles.forEach(r => sel.innerHTML += `<option value="${r}">${r}</option>`);
       
-      resetUI(); 
-      await syncData(false); 
-      qrScanner = new Html5Qrcode("reader"); 
-      initCam();
+      resetUI(); await syncData(false); 
+      qrScanner = new Html5Qrcode("reader"); initCam();
 
-      // Background Sync tiap 2 Menit (Aman untuk server)
       if(intervalSync) clearInterval(intervalSync);
       intervalSync = setInterval(() => { if (!document.getElementById("view-dashboard").classList.contains("hidden")) syncData(false); }, 60000); 
     }
@@ -146,15 +160,27 @@
     async function syncData(toast=true) {
       let ic = document.getElementById("s-icon"), btn = document.getElementById("btn-sync");
       if(btn) btn.disabled = true; if(ic) ic.className = "spinner-border spinner-border-sm";
-      
       let res = await api({ action: "getHadir" });
-      if(res.success) { 
-        pesertaList = res.data; 
-        if(toast) Swal.fire({title:'Data Terupdate', timer:1000, showConfirmButton:false, toast:true, position:'top', icon:'success'}); 
-      }
-      
+      if(res.success) { pesertaList = res.data; if(toast) Swal.fire({title:'Data Terupdate', timer:1000, showConfirmButton:false, toast:true, position:'top', icon:'success'}); }
       if(btn) btn.disabled = false; if(ic) ic.className = "bi bi-arrow-repeat";
     }
+
+    // FUNGSI TOGGLE BULK MODE
+    function toggleBulk() {
+      isBulkMode = document.getElementById("mode-bulk").checked;
+      document.getElementById("bulk-info").classList.toggle("hidden", !isBulkMode);
+      if(!isBulkMode) { bulkQueue = []; renderBulkUI(); } // Bersihkan antrean jika mode dimatikan
+    }
+
+    function renderBulkUI() {
+      document.getElementById("bulk-count").innerText = bulkQueue.length;
+      let ul = document.getElementById("bulk-list"); ul.innerHTML = "";
+      bulkQueue.forEach((p, idx) => {
+        ul.innerHTML += `<li class="d-flex justify-content-between align-items-center mb-1 py-1 border-bottom border-light"><span><b>${idx+1}.</b> ${p.nama} (${p.no})</span> <i class="bi bi-x-circle text-danger" style="cursor:pointer;" onclick="hapusBulk(${idx})"></i></li>`;
+      });
+    }
+
+    function hapusBulk(idx) { bulkQueue.splice(idx, 1); renderBulkUI(); }
 
     function resetUI() {
       let t = document.getElementById("pilih-tugas").value.toLowerCase();
@@ -176,68 +202,169 @@
 
     function initCam() {
       document.getElementById("btn-cam").classList.add("hidden");
+      isScanningPaused = false; // Buka kunci gembok scanner
       qrScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } }, onScan, ()=>{}).catch(()=>{ document.getElementById("btn-cam").classList.remove("hidden"); });
     }
 
-    // ARSITEKTUR HYBRID SMART SCAN: Cepat Instan, tapi kebal jika data belum tersync
+    // MODIFIKASI ON SCAN UNTUK MENDUKUNG BULK
     function onScan(txt) {
-      qrScanner.stop().then(async () => {
-        let teksScan = txt.toString().trim().toLowerCase();
-        let p = pesertaList.find(x => x.no.toString().trim().toLowerCase() === teksScan);
-        
-        // JIKA TIDAK DITEMUKAN SECARA LOKAL (Mungkin dia baru check-in 1 menit lalu)
-        if(!p) {
-          Swal.fire({
-            title: 'Sinkronisasi Cepat',
-            text: 'Mencari data terbaru...',
-            allowOutsideClick: false,
-            didOpen: async () => {
-              Swal.showLoading();
-              await syncData(false); // Paksa tarik data terbaru dari server
-              p = pesertaList.find(x => x.no.toString().trim().toLowerCase() === teksScan); // Cek ulang
-              
-              if (!p) {
-                // Jika ditarik terbaru tetap tidak ada, berarti memang ditolak
-                Swal.fire({icon:'error', title:'DITOLAK!', text:'Peserta belum Check-In di depan.', confirmButtonColor:'#5b7cfa'}).then(batal);
-              } else {
-                Swal.close();
-                lanjutScan(p, txt); // Lolos!
-              }
-            }
-          });
-          return;
-        }
+      if (isScanningPaused) return; // Jika sedang memproses/popup, abaikan scan agar tidak dobel
+      
+      let teksScan = txt.toString().trim().toLowerCase();
+      
+      // Jika Mode Bulk, cegah orang yang sama discan dua kali dalam 1 sesi
+      if(isBulkMode && bulkQueue.find(x => x.no.toString().trim().toLowerCase() === teksScan)) return;
 
-        // JIKA DITEMUKAN SECARA LOKAL (Eksekusi Instan)
-        lanjutScan(p, txt);
-      });
+      isScanningPaused = true; // Kunci gembok scanner
+
+      if (!isBulkMode) {
+        // Mode Single: Matikan kamera lalu proses
+        qrScanner.stop().then(() => prosesDataScan(teksScan));
+      } else {
+        // Mode Bulk: Proses tanpa mematikan kamera (agar mulus)
+        prosesDataScan(teksScan);
+      }
+    }
+
+    async function prosesDataScan(teksScan) {
+      let p = pesertaList.find(x => x.no.toString().trim().toLowerCase() === teksScan);
+      
+      if(!p) {
+        if (isBulkMode) qrScanner.stop(); // Matikan sementara kamera bulk jika ada error/popup besar
+        Swal.fire({
+          title: 'Mencari data terbaru...', allowOutsideClick: false,
+          didOpen: async () => {
+            Swal.showLoading(); await syncData(false);
+            p = pesertaList.find(x => x.no.toString().trim().toLowerCase() === teksScan);
+            
+            if (!p) {
+              Swal.fire({icon:'error', title:'DITOLAK!', text:'Peserta belum Check-In.', confirmButtonColor:'#5b7cfa'}).then(() => { if (isBulkMode) initCam(); else batal(); });
+            } else {
+              Swal.close();
+              if (isBulkMode) initCam(); 
+              lanjutScan(p, teksScan);
+            }
+          }
+        });
+        return;
+      }
+      lanjutScan(p, teksScan);
     }
 
     function lanjutScan(p, txt) {
       let t = document.getElementById("pilih-tugas").value.toLowerCase();
       if (!t.includes("kesehatan") && (t.includes("lari") || t.includes("sempit") || t.includes("ketinggian")) && p.verif.toLowerCase() !== "lolos") {
-        return Swal.fire({icon:'error', title:'Ditolak!', text:`Peserta Belum Lolos Verifikasi!`, confirmButtonColor:'#5b7cfa'}).then(batal);
+        Swal.fire({icon:'error', title:'Ditolak!', text:`Peserta Belum Lolos Verifikasi!`, confirmButtonColor:'#5b7cfa'}).then(() => {
+          if (!isBulkMode) batal(); else { isScanningPaused = false; }
+        });
+        return;
       }
 
+      // JIKA MODE BULK AKTIF -> Masukkan ke Keranjang
+      if (isBulkMode) {
+        bulkQueue.push(p); renderBulkUI();
+        Swal.fire({icon:'success', title:'Masuk Antrean', text:`${p.nama}`, timer:1200, toast:true, position:'top', showConfirmButton:false});
+        setTimeout(() => { isScanningPaused = false; }, 1300); // Buka gembok scan setelah toast hilang
+        return;
+      }
+
+      // JIKA MODE SINGLE (Normal)
       activeNo = txt; document.getElementById("nama-peserta").innerText = `${p.nama} (${txt})`;
+      document.getElementById("label-status-peserta").innerText = "PESERTA TERIDENTIFIKASI";
       document.getElementById("val-lari").value = ""; document.getElementById("val-catatan").value = ""; resetUI();
+      document.getElementById("btn-batal").innerText = "Batal";
       document.getElementById("area-scanner").classList.add("hidden"); document.getElementById("form-nilai").classList.remove("hidden");
     }
 
-    function batal() { document.getElementById("form-nilai").classList.add("hidden"); document.getElementById("area-scanner").classList.remove("hidden"); initCam(); }
+    // FUNGSI MEMULAI WIZARD BULK
+    function mulaiInputBulk() {
+      if(bulkQueue.length === 0) return Swal.fire('Kosong', 'Belum ada peserta yang discan', 'warning');
+      
+      // Jika kamera masih nyala, matikan dulu
+      try { qrScanner.stop(); } catch(e){} 
+      
+      currentBulkIdx = 0;
+      tampilkanFormBulk();
+    }
 
+    function tampilkanFormBulk() {
+      let p = bulkQueue[currentBulkIdx];
+      activeNo = p.no;
+      
+      document.getElementById("label-status-peserta").innerText = `MENGISI ANTREAN [ ${currentBulkIdx + 1} DARI ${bulkQueue.length} ]`;
+      document.getElementById("nama-peserta").innerText = `${p.nama} (${p.no})`;
+      document.getElementById("val-lari").value = ""; document.getElementById("val-catatan").value = ""; resetUI();
+      
+      document.getElementById("area-scanner").classList.add("hidden"); 
+      document.getElementById("form-nilai").classList.remove("hidden");
+
+      document.getElementById("btn-batal").innerText = "Tunda (Kembali)";
+
+      // Ganti teks tombol berdasarkan posisi antrean
+      let tx = document.getElementById("simpan-text");
+      let ic = document.getElementById("simpan-icon");
+      if (currentBulkIdx < bulkQueue.length - 1) {
+        tx.innerText = "SIMPAN LOKAL & LANJUT"; ic.className = "bi bi-arrow-right-circle";
+      } else {
+        tx.innerText = "SELESAI & KIRIM SEMUA"; ic.className = "bi bi-cloud-upload";
+      }
+    }
+
+    function batal() { 
+      document.getElementById("form-nilai").classList.add("hidden"); document.getElementById("area-scanner").classList.remove("hidden"); 
+      document.getElementById("simpan-text").innerText = "SIMPAN DATA"; document.getElementById("simpan-icon").className = "bi bi-save2";
+      initCam(); 
+    }
+
+    // FUNGSI SIMPAN (MENANGANI SINGLE MAUPUN BULK)
     async function simpan() {
       let t = document.getElementById("pilih-tugas").value;
       let val = t.toLowerCase().includes("lari") ? document.getElementById("val-lari").value : (t.toLowerCase().includes("kesehatan") || t.toLowerCase().includes("medis") ? "" : (document.getElementById("val-check").checked ? "Lolos" : "Tidak Lolos"));
       if(t.toLowerCase().includes("lari") && !val) return Swal.fire({icon:'warning', text:'Isi angka hasil lari!', confirmButtonColor:'#5b7cfa'});
       
       let btn = document.getElementById("btn-simpan"), ic = document.getElementById("simpan-icon"), tx = document.getElementById("simpan-text");
+
+      // JIKA SEDANG DALAM MODE BULK
+      if (isBulkMode) {
+        // Simpan sementara di memori HP
+        bulkQueue[currentBulkIdx].inputVal = val;
+        bulkQueue[currentBulkIdx].inputCat = document.getElementById("val-catatan").value;
+
+        // Jika masih ada sisa antrean, Lanjut ke orang berikutnya
+        if (currentBulkIdx < bulkQueue.length - 1) {
+           currentBulkIdx++;
+           tampilkanFormBulk();
+        } 
+        // Jika ini orang terakhir, KIRIM SEMUA KE SERVER
+        else {
+           btn.disabled = true;
+           Swal.fire({
+             title: 'Mengirim Data...', html: `Menyimpan 1 dari ${bulkQueue.length} peserta`, allowOutsideClick: false,
+             didOpen: () => { Swal.showLoading(); }
+           });
+
+           let gagal = 0;
+           for(let i=0; i<bulkQueue.length; i++) {
+             Swal.update({ html: `Menyimpan data peserta ke-${i+1} dari ${bulkQueue.length}...` });
+             let b = bulkQueue[i];
+             let res = await api({ action: "simpanNilai", noPeserta: b.no, kategori: t, nilaiUtama: b.inputVal, nilaiCatatan: b.inputCat });
+             if(!res.success) gagal++;
+           }
+
+           btn.disabled = false;
+           if(gagal > 0) Swal.fire('Selesai', `Dikirim. Ada ${gagal} data gagal tersimpan. Harap dicatat manual/diulang.`, 'warning');
+           else Swal.fire('Berhasil!', 'Semua data rombongan berhasil diupload.', 'success');
+
+           bulkQueue = []; renderBulkUI(); batal(); // Bersihkan memori dan kembali ke kamera
+        }
+        return;
+      }
+
+      // JIKA MODE NORMAL (SINGLE)
       btn.disabled = true; ic.className = "spinner-border spinner-border-sm"; tx.innerText = "Menyimpan...";
-      
       let res = await api({ action: "simpanNilai", noPeserta: activeNo, kategori: t, nilaiUtama: val, nilaiCatatan: document.getElementById("val-catatan").value });
       if(res.success) { Swal.fire({icon:'success', title:'Tersimpan', timer:1500, showConfirmButton:false}); setTimeout(batal, 1500); } 
       else { Swal.fire({icon:'error', title:'Gagal', text:res.message, confirmButtonColor:'#5b7cfa'}); resetUI(); }
-      
       btn.disabled = false; ic.className = "bi bi-save2"; tx.innerText = "SIMPAN DATA";
     }
   </script>
