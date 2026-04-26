@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Monitor Tes Fisik PMB</title>
+  <title>Dashboard Monitor Tes Fisik PMB PIPB</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -50,7 +50,6 @@
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .cursor-pointer { cursor: pointer; }
 
-    /* Custom Link Detail Hover */
     .link-detail { transition: all 0.2s ease; cursor: pointer; text-decoration: none; }
     .link-detail:hover { opacity: 0.7; text-decoration: underline; }
   </style>
@@ -128,18 +127,30 @@
           <div class="stat-card">
             <div class="stat-title"><i class="bi bi-stopwatch fs-5" style="color:#20c997;"></i> Kemajuan Pos Tes Fisik</div>
             <p class="small mb-3 fw-medium rounded px-2 py-1 text-center text-muted" style="background:#edf2ff;">Peserta yg berhak Uji: <strong style="color:var(--accent);"><span id="d-base-fisik">0</span></strong></p>
+            
             <div class="mb-3">
               <div class="d-flex justify-content-between micro-label"><span>1. Pos Lari</span><span><span id="d-lari">0</span> (<span id="p-lari">0</span>%)</span></div>
               <div class="progress" style="height: 8px;"><div id="bar-lari" class="progress-bar" style="background-color: #38d9a9; width: 0%"></div></div>
             </div>
+            
             <div class="mb-3">
               <div class="d-flex justify-content-between micro-label"><span>2. Pos Ketinggian</span><span><span id="d-tinggi">0</span> (<span id="p-tinggi">0</span>%)</span></div>
-              <div class="progress" style="height: 8px;"><div id="bar-tinggi" class="progress-bar" style="background-color: #38d9a9; width: 0%"></div></div>
+              <div class="progress mb-1" style="height: 8px;"><div id="bar-tinggi" class="progress-bar" style="background-color: #38d9a9; width: 0%"></div></div>
+              <div class="d-flex justify-content-end gap-3 text-muted" style="font-size: 0.65rem; font-weight: 700;">
+                <span style="color:#20c997;"><i class="bi bi-check-circle-fill"></i> Lolos: <span id="d-lolos-tinggi">0</span></span>
+                <span style="color:var(--danger);"><i class="bi bi-x-circle-fill"></i> Tdk Lolos: <span id="d-gagal-tinggi">0</span></span>
+              </div>
             </div>
+            
             <div class="mb-2">
               <div class="d-flex justify-content-between micro-label"><span>3. Pos Ruang Sempit</span><span><span id="d-sempit">0</span> (<span id="p-sempit">0</span>%)</span></div>
-              <div class="progress" style="height: 8px;"><div id="bar-sempit" class="progress-bar" style="background-color: #38d9a9; width: 0%"></div></div>
+              <div class="progress mb-1" style="height: 8px;"><div id="bar-sempit" class="progress-bar" style="background-color: #38d9a9; width: 0%"></div></div>
+              <div class="d-flex justify-content-end gap-3 text-muted" style="font-size: 0.65rem; font-weight: 700;">
+                <span style="color:#20c997;"><i class="bi bi-check-circle-fill"></i> Lolos: <span id="d-lolos-sempit">0</span></span>
+                <span style="color:var(--danger);"><i class="bi bi-x-circle-fill"></i> Tdk Lolos: <span id="d-gagal-sempit">0</span></span>
+              </div>
             </div>
+
           </div>
         </div>
 
@@ -164,7 +175,7 @@
           
           <div class="input-group search-box shadow-sm">
             <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
-            <input type="text" id="searchInput" class="form-control border-start-0 ps-0" placeholder="Cari Nama, No Peserta, atau Status..." onkeyup="filterTable()">
+            <input type="text" id="searchInput" class="form-control border-start-0 ps-0" placeholder="Cari Nama, No Peserta, Status..." onkeyup="filterTable()">
           </div>
         </div>
 
@@ -274,11 +285,13 @@
       if (res.success) {
         let d = res.stats;
         
+        // --- 1. KARTU KEHADIRAN ---
         document.getElementById("d-total").innerText = d.total; 
         document.getElementById("d-hadir").innerText = d.hadir;
         document.getElementById("d-persen").innerText = d.persentaseHadir; 
         document.getElementById("bar-hadir").style.width = d.persentaseHadir + "%";
 
+        // --- 2. KARTU VERIFIKASI ---
         document.querySelectorAll(".d-hadir-val").forEach(el => el.innerText = d.hadir); 
         document.getElementById("d-sudah-verif").innerText = d.sudahVerif; 
         document.getElementById("d-lolos-verif").innerText = d.lolosVerif;
@@ -290,6 +303,7 @@
         document.getElementById("p-proses-verif").innerText = pProsesVerif; document.getElementById("bar-proses-verif").style.width = pProsesVerif + "%";
         document.getElementById("p-lolos-verif").innerText = pLolosVerif; document.getElementById("bar-lolos-verif").style.width = pLolosVerif + "%";
 
+        // --- 3. KARTU TES FISIK (DENGAN DETAIL LOLOS/GAGAL) ---
         document.getElementById("d-base-fisik").innerText = d.lolosVerif;
         document.getElementById("d-lari").innerText = d.sudahLari; 
         document.getElementById("d-tinggi").innerText = d.sudahKetinggian; 
@@ -298,11 +312,18 @@
         let pLari = d.lolosVerif > 0 ? Math.round((d.sudahLari / d.lolosVerif) * 100) : 0; 
         let pTinggi = d.lolosVerif > 0 ? Math.round((d.sudahKetinggian / d.lolosVerif) * 100) : 0; 
         let pSempit = d.lolosVerif > 0 ? Math.round((d.sudahSempit / d.lolosVerif) * 100) : 0;
+        
         document.getElementById("p-lari").innerText = pLari; document.getElementById("bar-lari").style.width = pLari + "%";
         document.getElementById("p-tinggi").innerText = pTinggi; document.getElementById("bar-tinggi").style.width = pTinggi + "%";
         document.getElementById("p-sempit").innerText = pSempit; document.getElementById("bar-sempit").style.width = pSempit + "%";
         
-        // P3K DYNAMIC STYLING
+        // Memasukkan detail lolos/gagal untuk ketinggian dan sempit
+        document.getElementById("d-lolos-tinggi").innerText = d.lolosKetinggian;
+        document.getElementById("d-gagal-tinggi").innerText = d.gagalKetinggian;
+        document.getElementById("d-lolos-sempit").innerText = d.lolosSempit;
+        document.getElementById("d-gagal-sempit").innerText = d.gagalSempit;
+        
+        // --- 4. KARTU P3K DINAMIS ---
         document.getElementById("d-medis").innerText = d.insidenMedis;
         
         let p3kCard = document.getElementById("p3k-card");
@@ -340,7 +361,6 @@
       return `<span class="badge bg-secondary">Pending</span>`;
     }
 
-    // FUNGSI POPUP DETAIL CATATAN MEDIS
     function showDetail(nama, catatan) {
       Swal.fire({
         title: '<i class="bi bi-bandaid text-danger"></i> Catatan P3K',
@@ -369,11 +389,9 @@
       }
 
       dataPeserta.forEach(p => {
-        // Membersihkan karakter aneh pada catatan agar aman disisipkan ke fungsi JS
         let safeMedis = p.medis.replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/\n/g, "<br>");
         let safeNama = p.nama.replace(/'/g, "\\'").replace(/"/g, "&quot;");
 
-        // Logika Tampilan Medis (Aman vs P3K dgn Tombol Detail)
         let badgeMedis = p.medis !== "" 
           ? `<span class="badge" style="background:#fff5f5; color:var(--danger); border: 1px solid #ffc9c9;"><i class="bi bi-bandaid"></i> P3K</span>
              <br><a onclick="showDetail('${safeNama}', '${safeMedis}')" class="text-danger link-detail fw-bold mt-1 d-inline-block" style="font-size: 0.75rem;"><i class="bi bi-zoom-in"></i> Detail</a>` 
