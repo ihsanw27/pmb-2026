@@ -153,7 +153,9 @@
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
           <div>
             <h5 class="fw-bold mb-1">Live Rekapitulasi Penilaian</h5>
-            <span class="badge bg-light text-muted border border-secondary"><i class="bi bi-broadcast"></i> Auto-refresh aktif tiap 30dtk</span>
+            <span class="badge bg-light text-muted border border-secondary" style="font-size: 0.8rem;">
+              <i class="bi bi-broadcast text-primary"></i> Refresh dalam <strong id="timer-text" class="text-primary fs-6 ms-1">30</strong> detik
+            </span>
           </div>
           <div class="input-group search-box shadow-sm">
             <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
@@ -190,7 +192,9 @@
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzJQjxT6QKsyuNMn4KCxsFuRAD5MPItgHdqPVdAvintroDIf9dAeMxhCWyyaX4LkfeW/exec"; 
-    let intervalRefresh;
+    
+    let countdownInterval;
+    let secondsLeft = 30;
 
     window.onload = () => { if(localStorage.getItem("dashSess")) restoreSession(); };
     function togglePwd() { let i = document.getElementById("kode"), ic = document.getElementById("icon-mata"); i.type = i.type === "password" ? "text" : "password"; ic.className = i.type === "password" ? "bi bi-eye-slash" : "bi bi-eye"; ic.style.color = i.type === "password" ? "var(--text-muted)" : "var(--accent)"; }
@@ -228,19 +232,41 @@
       let sess = JSON.parse(localStorage.getItem("dashSess"));
       document.getElementById("view-login").classList.add("hidden"); document.getElementById("view-dashboard").classList.remove("hidden");
       document.getElementById("admin-nama").innerText = sess.nama;
+      
       loadData();
-      if(intervalRefresh) clearInterval(intervalRefresh);
-      intervalRefresh = setInterval(() => { loadData(false) }, 30000); 
+      startCountdown(); // Mulai Timer Hitung Mundur!
     }
 
     function logout() {
       Swal.fire({ title: 'Keluar Dashboard?', icon: 'question', showCancelButton: true, confirmButtonColor: '#ff8787', confirmButtonText: 'Ya, Keluar', cancelButtonText: 'Batal' })
-      .then((result) => { if (result.isConfirmed) { localStorage.removeItem("dashSess"); clearInterval(intervalRefresh); location.reload(); } });
+      .then((result) => { if (result.isConfirmed) { localStorage.removeItem("dashSess"); clearInterval(countdownInterval); location.reload(); } });
+    }
+
+    // FUNGSI TIMER HITUNG MUNDUR (COUNTDOWN)
+    function startCountdown() {
+      if (countdownInterval) clearInterval(countdownInterval);
+      secondsLeft = 30;
+      document.getElementById("timer-text").innerText = secondsLeft;
+      
+      countdownInterval = setInterval(() => {
+        secondsLeft--;
+        if (secondsLeft <= 0) {
+          loadData(false); // Ambil data diam-diam (tanpa toast) saat mencapai 0
+          secondsLeft = 30; // Reset ke 30 detik
+        }
+        document.getElementById("timer-text").innerText = secondsLeft;
+      }, 1000);
     }
 
     async function loadData(showToast = true) {
       let btn = document.getElementById("btn-refresh"), icon = btn.querySelector("i");
       btn.disabled = true; icon.classList.add("spinner-border", "spinner-border-sm"); icon.classList.remove("bi-arrow-clockwise");
+
+      // Reset timer jika dipencet manual oleh pimpinan
+      if (showToast) {
+        secondsLeft = 30; 
+        document.getElementById("timer-text").innerText = secondsLeft;
+      }
 
       let res = await api({ action: "getDashboard" }); 
 
@@ -309,7 +335,6 @@
       return `<span class="badge bg-secondary">Pending</span>`;
     }
 
-    // FUNGSI POPUP DENGAN AUDIT LOG PANITIA
     function showDetail(nama, pos, catatan, panitia, waktu) {
       let icon = "bi-card-text", color = "text-primary";
       if(pos.toLowerCase() === "p3k") { icon = "bi-bandaid"; color = "text-danger"; }
@@ -353,7 +378,6 @@
       dataPeserta.forEach(p => {
         let safeNama = p.nama.replace(/'/g, "\\'").replace(/"/g, "&quot;");
 
-        // Helper membuat Link dengan data audit trail
         const getDetailLink = (catatan, posName, panitia, waktu) => {
           if (!catatan || catatan.trim() === "") return "";
           let safeCat = catatan.replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/\n/g, "<br>");
