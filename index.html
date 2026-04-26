@@ -1,51 +1,143 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portal Peserta Tes Fisik PMB Politeknik Industri Petrokimia Banten</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Portal Peserta Tes Fisik PMB PIPB</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  
   <style>
-    body { background-color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    .card-login { max-width: 400px; margin: 80px auto; border: none; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-    .form-control:focus { box-shadow: none; border-color: #94a3b8; }
+    body { background-color: #f8fafc; color: #0f172a; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+    .app-container { max-width: 480px; margin: 0 auto; padding: 20px 15px; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; }
+    .card-custom { background: #ffffff; border-radius: 24px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); padding: 35px 25px; border: 1px solid #f1f5f9; }
+    
+    .form-control { border-radius: 14px; padding: 16px; border: 1px solid #cbd5e1; font-size: 1.1rem; background-color: #f8fafc; transition: all 0.2s; text-align: center; font-weight: 600; letter-spacing: 1px; }
+    .form-control:focus { background-color: #fff; border-color: #6366f1; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); outline: none; }
+    
+    .btn-custom { border-radius: 14px; padding: 16px; font-weight: 700; font-size: 1.05rem; transition: all 0.2s; letter-spacing: 0.5px; }
+    .btn-indigo { background-color: #4f46e5; color: white; border: none; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2); }
+    .btn-indigo:hover, .btn-indigo:active { background-color: #4338ca; color: white; transform: scale(0.98); box-shadow: none; }
+    
+    .qr-wrapper { background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 20px; padding: 25px; display: inline-block; margin: 20px 0; }
+    #qrcode-box img { margin: 0 auto; border-radius: 8px; }
+    
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="card card-login p-4 text-center bg-white">
-      <h3 class="fw-bold text-primary mb-1">Check-In Peserta</h3>
-      <input type="number" id="noPeserta" class="form-control form-control-lg text-center mb-3 fw-bold" placeholder="Nomor Peserta" autofocus>
-      <button onclick="checkIn()" id="btn-checkin" class="btn btn-primary btn-lg w-100 fw-bold">PROSES HADIR</button>
+  <div class="app-container">
+    
+    <div id="view-form" class="card-custom text-center">
+      <div class="mb-4">
+        <div class="bg-indigo text-white d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width:70px; height:70px; background-color: #4f46e5;">
+          <i class="bi bi-person-vcard fs-1"></i>
+        </div>
+        <h3 class="fw-bold mb-1">Portal Peserta Tes Fisik PMB PIPB</h3>
+        <p class="text-muted small px-3">Lakukan Self Check-in untuk mendapatkan QR Code ID Anda.</p>
+      </div>
+      
+      <div class="mb-4">
+        <label class="small text-muted fw-bold mb-2 d-block">NOMOR PESERTA / REGISTRASI</label>
+        <input type="text" id="noPeserta" class="form-control text-indigo" placeholder="Contoh: PMB-2026-001" autocomplete="off">
+      </div>
+      
+      <button onclick="doCheckIn()" class="btn btn-custom btn-indigo w-100" id="btn-checkin">
+        <i class="bi bi-qr-code me-2"></i>Check-in & Buat QR
+      </button>
     </div>
+
+    <div id="view-qr" class="card-custom text-center hidden">
+      <div class="mb-2 text-success">
+        <i class="bi bi-check-circle-fill" style="font-size: 3.5rem;"></i>
+      </div>
+      <h4 class="fw-bold mb-1">Check-in Berhasil!</h4>
+      <p class="text-muted small mb-0">Tunjukkan QR Code ini kepada panitia.</p>
+      
+      <div class="qr-wrapper shadow-sm">
+        <div id="qrcode-box"></div>
+      </div>
+      
+      <div class="bg-light rounded-3 py-3 mb-4 border">
+        <small class="text-muted fw-bold d-block mb-1">NOMOR PESERTA</small>
+        <h4 class="text-indigo fw-bold mb-0" id="qr-no-peserta">-</h4>
+      </div>
+      
+      <p class="text-danger small fw-bold mb-4">
+        <i class="bi bi-exclamation-triangle-fill me-1"></i> Jangan tutup halaman ini selama tes berlangsung.
+      </p>
+
+      <button onclick="resetLayar()" class="btn btn-light text-secondary fw-bold w-100 rounded-pill border">
+        Kembali / Keluar
+      </button>
+    </div>
+
   </div>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbzJQjxT6QKsyuNMn4KCxsFuRAD5MPItgHdqPVdAvintroDIf9dAeMxhCWyyaX4LkfeW/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbzJQjxT6QKsyuNMn4KCxsFuRAD5MPItgHdqPVdAvintroDIf9dAeMxhCWyyaX4LkfeW/exec"; // PASTIKAN MENGISI URL INI
+    let qrcode = null;
 
-    // Auto-submit jika pakai barcode scanner gun (enter deteksi)
-    document.getElementById("noPeserta").addEventListener("keypress", function(e) {
-      if (e.key === "Enter") checkIn();
-    });
-
-    async function checkIn() {
-      const no = document.getElementById("noPeserta").value;
-      if (!no) return;
+    async function doCheckIn() {
+      const noInput = document.getElementById("noPeserta").value.trim();
       const btn = document.getElementById("btn-checkin");
-      btn.innerText = "Memproses..."; btn.disabled = true;
+      
+      if (!noInput) {
+        return Swal.fire({icon: 'warning', title: 'Oops!', text: 'Nomor Peserta tidak boleh kosong.'});
+      }
+
+      // UI Loading State
+      btn.disabled = true; 
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Memproses...';
 
       try {
-        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "checkIn", noPeserta: no }) }).then(r => r.json());
-        if (res.success) {
-          Swal.fire({ icon: 'success', title: res.nama, text: res.message, timer: 2000, showConfirmButton: false });
-          document.getElementById("noPeserta").value = "";
+        let res = await fetch(API_URL, { 
+          method: 'POST', 
+          body: JSON.stringify({ action: "checkIn", noPeserta: noInput }) 
+        });
+        let json = JSON.parse(await res.text());
+
+        if (json.success) {
+          tampilkanQR(noInput);
         } else {
-          Swal.fire('Gagal', res.message, 'error');
+          Swal.fire({icon: 'error', title: 'Gagal', text: json.message || "Data tidak ditemukan."});
         }
-      } catch (e) { Swal.fire('Error', 'Koneksi terputus', 'error'); }
+      } catch(e) {
+        Swal.fire({icon: 'error', title: 'Koneksi Terputus', text: 'Pastikan internet Anda stabil.'});
+      }
+
+      // Reset Button State
+      btn.disabled = false; 
+      btn.innerHTML = '<i class="bi bi-qr-code me-2"></i>Check-in & Buat QR';
+    }
+
+    function tampilkanQR(nomor) {
+      // Pindah Layar
+      document.getElementById("view-form").classList.add("hidden");
+      document.getElementById("view-qr").classList.remove("hidden");
       
-      btn.innerText = "PROSES HADIR"; btn.disabled = false;
-      document.getElementById("noPeserta").focus();
+      // Set Text
+      document.getElementById("qr-no-peserta").innerText = nomor;
+
+      // Generate QR Menggunakan QRCode.js
+      document.getElementById("qrcode-box").innerHTML = ""; // Bersihkan QR sebelumnya
+      qrcode = new QRCode(document.getElementById("qrcode-box"), {
+        text: nomor,
+        width: 220,
+        height: 220,
+        colorDark : "#0f172a", // Warna Slate (Sesuai tema)
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.H
+      });
+    }
+
+    function resetLayar() {
+      document.getElementById("noPeserta").value = "";
+      document.getElementById("view-qr").classList.add("hidden");
+      document.getElementById("view-form").classList.remove("hidden");
     }
   </script>
 </body>
