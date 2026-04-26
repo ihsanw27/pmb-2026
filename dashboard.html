@@ -209,7 +209,7 @@
   </div>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbzJQjxT6QKsyuNMn4KCxsFuRAD5MPItgHdqPVdAvintroDIf9dAeMxhCWyyaX4LkfeW/exec"; 
+    const API_URL = "URL_APPS_SCRIPT_ANDA_DISINI"; 
     
     let intervalRefresh;
 
@@ -285,13 +285,11 @@
       if (res.success) {
         let d = res.stats;
         
-        // --- 1. KARTU KEHADIRAN ---
         document.getElementById("d-total").innerText = d.total; 
         document.getElementById("d-hadir").innerText = d.hadir;
         document.getElementById("d-persen").innerText = d.persentaseHadir; 
         document.getElementById("bar-hadir").style.width = d.persentaseHadir + "%";
 
-        // --- 2. KARTU VERIFIKASI ---
         document.querySelectorAll(".d-hadir-val").forEach(el => el.innerText = d.hadir); 
         document.getElementById("d-sudah-verif").innerText = d.sudahVerif; 
         document.getElementById("d-lolos-verif").innerText = d.lolosVerif;
@@ -303,7 +301,6 @@
         document.getElementById("p-proses-verif").innerText = pProsesVerif; document.getElementById("bar-proses-verif").style.width = pProsesVerif + "%";
         document.getElementById("p-lolos-verif").innerText = pLolosVerif; document.getElementById("bar-lolos-verif").style.width = pLolosVerif + "%";
 
-        // --- 3. KARTU TES FISIK (DENGAN DETAIL LOLOS/GAGAL) ---
         document.getElementById("d-base-fisik").innerText = d.lolosVerif;
         document.getElementById("d-lari").innerText = d.sudahLari; 
         document.getElementById("d-tinggi").innerText = d.sudahKetinggian; 
@@ -317,13 +314,11 @@
         document.getElementById("p-tinggi").innerText = pTinggi; document.getElementById("bar-tinggi").style.width = pTinggi + "%";
         document.getElementById("p-sempit").innerText = pSempit; document.getElementById("bar-sempit").style.width = pSempit + "%";
         
-        // Memasukkan detail lolos/gagal untuk ketinggian dan sempit
         document.getElementById("d-lolos-tinggi").innerText = d.lolosKetinggian;
         document.getElementById("d-gagal-tinggi").innerText = d.gagalKetinggian;
         document.getElementById("d-lolos-sempit").innerText = d.lolosSempit;
         document.getElementById("d-gagal-sempit").innerText = d.gagalSempit;
         
-        // --- 4. KARTU P3K DINAMIS ---
         document.getElementById("d-medis").innerText = d.insidenMedis;
         
         let p3kCard = document.getElementById("p3k-card");
@@ -361,21 +356,29 @@
       return `<span class="badge bg-secondary">Pending</span>`;
     }
 
-    function showDetail(nama, catatan) {
+    // FUNGSI POPUP DETAIL DINAMIS UNTUK SEMUA POS TUGAS
+    function showDetail(nama, pos, catatan) {
+      let icon = "bi-card-text";
+      let color = "text-primary";
+      
+      if(pos.toLowerCase() === "p3k") {
+         icon = "bi-bandaid"; color = "text-danger";
+      }
+
       Swal.fire({
-        title: '<i class="bi bi-bandaid text-danger"></i> Catatan P3K',
+        title: `<i class="bi ${icon} ${color}"></i> Catatan ${pos}`,
         html: `
           <div class="text-start mt-2">
             <p class="mb-2 text-muted small fw-bold">PESERTA:</p>
             <h6 class="fw-bold mb-3">${nama}</h6>
-            <p class="mb-1 text-muted small fw-bold">DETAIL PENANGANAN/KELUHAN:</p>
-            <div class="p-3 rounded border" style="background: #fff5f5; color: #e03131; font-weight: 500; font-size: 0.95rem;">
+            <p class="mb-1 text-muted small fw-bold">KETERANGAN / CATATAN:</p>
+            <div class="p-3 rounded border" style="background: #f8fafc; color: #334155; font-weight: 500; font-size: 0.95rem; white-space: pre-wrap;">
               ${catatan}
             </div>
           </div>
         `,
         confirmButtonText: 'Tutup',
-        confirmButtonColor: '#ff8787'
+        confirmButtonColor: '#5b7cfa'
       });
     }
 
@@ -389,22 +392,35 @@
       }
 
       dataPeserta.forEach(p => {
-        let safeMedis = p.medis.replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/\n/g, "<br>");
         let safeNama = p.nama.replace(/'/g, "\\'").replace(/"/g, "&quot;");
 
+        // Helper Fungsi untuk membuat Link Detail jika kolom catatannya berisi sesuatu
+        const getDetailLink = (catatan, posName) => {
+          if (!catatan || catatan.trim() === "") return "";
+          let safeCat = catatan.replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/\n/g, "<br>");
+          let linkColor = (posName === 'P3K') ? 'text-danger' : 'text-primary';
+          return `<br><a onclick="showDetail('${safeNama}', '${posName}', '${safeCat}')" class="${linkColor} link-detail fw-bold mt-1 d-inline-block" style="font-size: 0.75rem;"><i class="bi bi-zoom-in"></i> Detail</a>`;
+        };
+
+        let badgeVerif = getBadgeStatus(p.verif) + getDetailLink(p.catVerif, 'Verifikasi');
+        let badgeTinggi = getBadgeStatus(p.tinggi) + getDetailLink(p.catTinggi, 'Ketinggian');
+        let badgeSempit = getBadgeStatus(p.sempit) + getDetailLink(p.catSempit, 'Ruang Sempit');
+        
+        let lariVal = p.lari !== '' ? p.lari : `<span class="badge bg-secondary">Pending</span>`;
+        let badgeLari = `<span class="fw-bold text-center">${lariVal}</span>` + getDetailLink(p.catLari, 'Tes Lari');
+
         let badgeMedis = p.medis !== "" 
-          ? `<span class="badge" style="background:#fff5f5; color:var(--danger); border: 1px solid #ffc9c9;"><i class="bi bi-bandaid"></i> P3K</span>
-             <br><a onclick="showDetail('${safeNama}', '${safeMedis}')" class="text-danger link-detail fw-bold mt-1 d-inline-block" style="font-size: 0.75rem;"><i class="bi bi-zoom-in"></i> Detail</a>` 
+          ? `<span class="badge" style="background:#fff5f5; color:var(--danger); border: 1px solid #ffc9c9;"><i class="bi bi-bandaid"></i> P3K</span>` + getDetailLink(p.medis, 'P3K')
           : `<span class="badge bg-success bg-opacity-10 text-success border border-success"><i class="bi bi-shield-check"></i> Aman</span>`;
 
         tbody.innerHTML += `
           <tr class="peserta-row">
             <td class="fw-bold text-muted">${p.no}</td>
             <td class="fw-bold">${p.nama} <br><span class="badge bg-light text-dark border fw-normal mt-1">${p.jalur}</span></td>
-            <td>${getBadgeStatus(p.verif)}</td>
-            <td class="fw-bold text-center">${p.lari !== '' ? p.lari + ' Lap' : '<span class="badge bg-secondary">Pending</span>'}</td>
-            <td class="text-center">${getBadgeStatus(p.tinggi)}</td>
-            <td class="text-center">${getBadgeStatus(p.sempit)}</td>
+            <td>${badgeVerif}</td>
+            <td class="text-center">${badgeLari}</td>
+            <td class="text-center">${badgeTinggi}</td>
+            <td class="text-center">${badgeSempit}</td>
             <td>${badgeMedis}</td>
           </tr>
         `;
