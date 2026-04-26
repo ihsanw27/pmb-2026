@@ -9,125 +9,69 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://unpkg.com/html5-qrcode"></script>
   <style>
-    :root {
-      --bg-page: #f1f5f9; 
-      --bg-card: #ffffff;
-      --text-main: #0f172a;
-      --accent: #0ea5e9;
-      --danger: #ef4444;
-      --success: #10b981;
-    }
-
-    body { background-color: var(--bg-page); color: var(--text-main); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+    :root { --bg-page: #f1f5f9; --text-main: #0f172a; --accent: #0ea5e9; --success: #10b981; }
+    body { background: var(--bg-page); color: var(--text-main); font-family: 'Inter', sans-serif; }
     .app-container { max-width: 480px; margin: 0 auto; padding: 15px; min-height: 100vh; display: flex; flex-direction: column; }
-    
-    .card-custom { background: var(--bg-card); border-radius: 24px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); padding: 30px 20px; border: 1px solid rgba(226, 232, 240, 0.8); }
-    
-    .form-control, .form-select { border-radius: 14px; padding: 14px 18px; border: 1.5px solid #e2e8f0; font-size: 1rem; font-weight: 500; transition: all 0.3s; }
-    .form-control:focus, .form-select:focus { box-shadow: 0 8px 15px -3px rgba(14, 165, 233, 0.1); border-color: var(--accent); background-color: #fff; outline: none; transform: translateY(-1px); }
-    .input-group-text { border-radius: 14px; border: 1.5px solid #e2e8f0; background: #f8fafc; color: #64748b; border-right: none; }
-    .form-control.border-start-0 { border-left: none; padding-left: 0; }
-    .input-group:focus-within .input-group-text { border-color: var(--accent); color: var(--accent); }
-    .input-group:focus-within .form-control { border-color: var(--accent); }
-    
-    .btn-custom { border-radius: 14px; padding: 16px; font-weight: 600; font-size: 1rem; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
-    .btn-accent { background-color: var(--accent); color: white; border: none; box-shadow: 0 6px 15px rgba(14, 165, 233, 0.2); }
-    .btn-accent:hover { background-color: #0284c7; color: white; transform: translateY(-2px); }
-    .btn-accent:disabled { background-color: #94a3b8; transform: none; box-shadow: none; cursor: not-allowed; }
-    
-    #reader { border-radius: 18px; overflow: hidden; border: 3px solid #e2e8f0; background: #0f172a; min-height: 280px; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); }
+    .card-custom { background: #fff; border-radius: 24px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); padding: 30px 20px; border: 1px solid #e2e8f0; }
+    .form-control, .form-select { border-radius: 14px; padding: 14px 18px; border: 1.5px solid #e2e8f0; font-weight: 500; }
+    .form-control:focus, .form-select:focus { border-color: var(--accent); box-shadow: 0 0 0 0.2rem rgba(14,165,233,0.25); outline: none; }
+    .input-group-text { border-radius: 14px; border: 1.5px solid #e2e8f0; background: #f8fafc; }
+    .btn-custom { border-radius: 14px; padding: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-accent { background: var(--accent); color: white; border: none; }
+    #reader { border-radius: 18px; overflow: hidden; border: 3px solid #e2e8f0; background: #0f172a; min-height: 280px; }
     #reader video { border-radius: 14px; object-fit: cover; }
-    .hidden { display: none !important; }
-    
-    /* Custom Toggle */
-    .form-check-input { width: 3.5em !important; height: 1.8em !important; cursor: pointer; transition: background-color 0.3s; }
+    .form-check-input { width: 3.5em !important; height: 1.8em !important; cursor: pointer; }
     .form-check-input:checked { background-color: var(--success); border-color: var(--success); }
-    .form-check-label { vertical-align: middle; padding-top: 4px; font-weight: 700; }
-
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-    .fade-up { animation: fadeUp 0.4s ease forwards; }
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
   <div class="app-container">
     
-    <div id="view-login" class="card-custom text-center my-auto fade-up">
-      <div class="mb-4 text-accent">
-        <div style="width: 70px; height: 70px; background: #e0f2fe; color: #0ea5e9; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 2rem;">
-          <i class="bi bi-shield-lock-fill"></i>
-        </div>
-      </div>
+    <div id="view-login" class="card-custom text-center my-auto">
+      <div style="width: 70px; height: 70px; background: #e0f2fe; color: var(--accent); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto; font-size: 2rem;"><i class="bi bi-shield-lock-fill"></i></div>
       <h4 class="fw-bold mb-1">Akses Petugas</h4>
-      <p class="text-muted small mb-4 fw-medium">Masuk untuk memindai data peserta.</p>
+      <p class="text-muted small mb-4">Masuk untuk memindai data peserta.</p>
       
-      <div class="input-group mb-3">
-        <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-        <input type="email" id="email" class="form-control border-start-0" placeholder="Email Terdaftar">
-      </div>
-      <div class="input-group mb-4">
-        <span class="input-group-text"><i class="bi bi-key"></i></span>
-        <input type="password" id="kode" class="form-control border-start-0 border-end-0" placeholder="Kode Keamanan">
-        <span class="input-group-text bg-white border-start-0 cursor-pointer" onclick="togglePwd()"><i class="bi bi-eye-slash" id="icon-mata"></i></span>
-      </div>
-      <button onclick="login()" class="btn btn-custom btn-accent w-100" id="btn-login">
-        <i class="bi bi-box-arrow-in-right" id="l-icon"></i> <span id="l-text">MASUK SISTEM</span>
-      </button>
+      <div class="input-group mb-3"><span class="input-group-text"><i class="bi bi-envelope"></i></span><input type="email" id="email" class="form-control" placeholder="Email Terdaftar"></div>
+      <div class="input-group mb-4"><span class="input-group-text"><i class="bi bi-key"></i></span><input type="password" id="kode" class="form-control" placeholder="Kode Keamanan"><span class="input-group-text cursor-pointer" onclick="togglePwd()"><i class="bi bi-eye-slash" id="icon-mata"></i></span></div>
+      <button onclick="login()" class="btn btn-custom btn-accent w-100" id="btn-login"><i class="bi bi-box-arrow-in-right" id="l-icon"></i> <span id="l-text">MASUK SISTEM</span></button>
     </div>
 
-    <div id="view-dashboard" class="hidden flex-grow-1 d-flex flex-column fade-up mt-2">
+    <div id="view-dashboard" class="hidden flex-grow-1 d-flex flex-column mt-2">
       <div class="card-custom py-3 px-3 mb-3 d-flex flex-row justify-content-between align-items-center">
-        <div>
-          <small class="text-muted d-block fw-bold" style="font-size: 0.75rem;">LOGIN SEBAGAI</small>
-          <strong id="nama-panitia" class="text-main fs-6"></strong>
-        </div>
+        <div><small class="text-muted d-block fw-bold" style="font-size: 0.75rem;">LOGIN SEBAGAI</small><strong id="nama-panitia" class="text-main fs-6"></strong></div>
         <button onclick="logout()" class="btn btn-light rounded-circle text-danger border p-2" style="width: 40px; height: 40px;"><i class="bi bi-power"></i></button>
       </div>
 
       <div class="card-custom flex-grow-1 d-flex flex-column p-3">
         <div class="mb-3">
           <label class="form-label small fw-bold text-muted ps-1">TUGAS POS SAAT INI:</label>
-          <select id="pilih-tugas" class="form-select fw-bold text-main" style="background-color: #f8fafc;" onchange="resetUI()"></select>
+          <select id="pilih-tugas" class="form-select fw-bold bg-light" onchange="resetUI()"></select>
         </div>
         
-        <div id="area-scanner" class="fade-up">
+        <div id="area-scanner">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="small fw-bold text-muted ps-1">KAMERA PEMINDAI</span>
-            <button onclick="syncData()" id="btn-sync" class="btn btn-sm text-accent fw-bold px-3" style="background: #e0f2fe; border-radius: 20px;">
-              <i class="bi bi-arrow-repeat" id="s-icon"></i> <span id="s-text">Sync</span>
-            </button>
+            <button onclick="syncData()" id="btn-sync" class="btn btn-sm text-accent fw-bold px-3" style="background: #e0f2fe; border-radius: 20px;"><i class="bi bi-arrow-repeat" id="s-icon"></i> <span id="s-text">Sync</span></button>
           </div>
           <div id="reader" class="mb-3"></div>
-          <button onclick="initCam()" class="btn btn-light text-main btn-custom w-100 border hidden" id="btn-cam">Nyalakan Kamera Ulang</button>
+          <button onclick="initCam()" class="btn btn-light btn-custom w-100 border hidden" id="btn-cam">Nyalakan Kamera Ulang</button>
         </div>
 
-        <div id="form-nilai" class="hidden fade-up">
-          <div class="alert alert-success d-flex align-items-center mb-3 py-2 rounded-4 border-0" style="background: #ecfdf5;">
-            <i class="bi bi-check-circle-fill fs-2 me-3 text-success"></i>
-            <div><small class="d-block text-success fw-bold" style="font-size:0.7rem;">PESERTA TERIDENTIFIKASI</small><h6 id="nama-peserta" class="fw-bold mb-0 text-dark"></h6></div>
-          </div>
+        <div id="form-nilai" class="hidden">
+          <div class="alert alert-success d-flex align-items-center mb-3 py-2 rounded-4 border-0" style="background: #ecfdf5;"><i class="bi bi-check-circle-fill fs-2 me-3 text-success"></i><div><small class="d-block text-success fw-bold" style="font-size:0.7rem;">PESERTA DITEMUKAN</small><h6 id="nama-peserta" class="fw-bold mb-0"></h6></div></div>
           
-          <div class="p-3 bg-page rounded-4 border mb-3">
+          <div class="p-3 bg-light rounded-4 border mb-3">
             <label class="form-label small fw-bold text-muted" id="label-input">HASIL TES / PENILAIAN:</label>
-            <div id="wrap-lari" class="hidden">
-              <input type="number" id="val-lari" class="form-control form-control-lg text-center fw-bold fs-3" placeholder="0">
-              <small class="text-muted d-block text-center mt-1">Masukkan angka</small>
-            </div>
-            
-            <div id="wrap-check" class="hidden text-center py-2">
-              <div class="form-check form-switch d-inline-block">
-                <input class="form-check-input shadow-sm" type="checkbox" id="val-check" onchange="uiCheck()">
-                <label class="form-check-label ms-2 text-danger fs-5" id="lbl-check">TIDAK LOLOS</label>
-              </div>
-            </div>
+            <div id="wrap-lari" class="hidden"><input type="number" id="val-lari" class="form-control form-control-lg text-center fw-bold fs-3" placeholder="0"><small class="text-muted d-block text-center mt-1">Masukkan angka</small></div>
+            <div id="wrap-check" class="hidden text-center py-2"><div class="form-check form-switch d-inline-block"><input class="form-check-input shadow-sm" type="checkbox" id="val-check" onchange="uiCheck()"><label class="form-check-label ms-2 text-danger fs-5 fw-bold" id="lbl-check">TIDAK LOLOS</label></div></div>
           </div>
-          
           <textarea id="val-catatan" class="form-control mb-3" rows="2" placeholder="Tambahkan catatan jika perlu..."></textarea>
           
           <div class="row g-2 mt-auto">
             <div class="col-4"><button onclick="batal()" class="btn btn-light btn-custom w-100 border text-muted">Batal</button></div>
-            <div class="col-8"><button onclick="simpan()" class="btn btn-success fw-bold btn-custom w-100 shadow-sm" id="btn-simpan">
-              <i class="bi bi-save2" id="simpan-icon"></i> <span id="simpan-text">SIMPAN DATA</span>
-            </button></div>
+            <div class="col-8"><button onclick="simpan()" class="btn btn-success fw-bold btn-custom w-100" id="btn-simpan"><i class="bi bi-save2" id="simpan-icon"></i> <span id="simpan-text">SIMPAN DATA</span></button></div>
           </div>
         </div>
       </div>
@@ -141,91 +85,59 @@
     window.onload = () => { if(localStorage.getItem("pmbSess")) restoreSess(); };
 
     async function api(payload) {
-      try {
-        let res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
-        return JSON.parse(await res.text());
-      } catch(e) { return null; }
+      try { let res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }); return JSON.parse(await res.text()); } 
+      catch(e) { return { success: false, message: "Koneksi terputus." }; }
     }
 
-    function togglePwd() {
-      let i = document.getElementById("kode"), ic = document.getElementById("icon-mata");
-      i.type = i.type === "password" ? "text" : "password";
-      ic.className = i.type === "password" ? "bi bi-eye-slash" : "bi bi-eye text-accent";
-    }
+    function togglePwd() { let i = document.getElementById("kode"), ic = document.getElementById("icon-mata"); i.type = i.type === "password" ? "text" : "password"; ic.className = i.type === "password" ? "bi bi-eye-slash" : "bi bi-eye text-accent"; }
 
     async function login() {
       let email = document.getElementById("email").value, kode = document.getElementById("kode").value;
+      if(!email || !kode) return Swal.fire('Isi Data', 'Masukkan Email & Kode!', 'warning'); 
       let btn = document.getElementById("btn-login"), ic = document.getElementById("l-icon"), tx = document.getElementById("l-text");
-      
-      if(!email || !kode) return Swal.fire({icon: 'warning', text: 'Isi Email & Kode!', confirmButtonColor: '#0ea5e9'}); 
-      
       btn.disabled = true; ic.className = "spinner-border spinner-border-sm"; tx.innerText = "Memeriksa...";
       
       let res = await api({ action: "login", email: email, kodeLogin: kode });
-      if(res && res.success) { 
-        localStorage.setItem("pmbSess", JSON.stringify({ nama: res.nama, roles: res.kategoriList })); 
-        restoreSess(); 
-      } else { 
-        Swal.fire({icon: 'error', text: res?.message || 'Login gagal.', confirmButtonColor: '#0ea5e9'}); 
-      }
+      if(res.success) { localStorage.setItem("pmbSess", JSON.stringify({ nama: res.nama, roles: res.kategoriList })); restoreSess(); } 
+      else { Swal.fire('Gagal', res.message, 'error'); }
       btn.disabled = false; ic.className = "bi bi-box-arrow-in-right"; tx.innerText = "MASUK SISTEM";
     }
 
     async function restoreSess() {
       let sess = JSON.parse(localStorage.getItem("pmbSess"));
-      document.getElementById("view-login").classList.add("hidden"); 
-      document.getElementById("view-dashboard").classList.remove("hidden");
+      document.getElementById("view-login").classList.add("hidden"); document.getElementById("view-dashboard").classList.remove("hidden");
       document.getElementById("nama-panitia").innerText = sess.nama;
-      
       let sel = document.getElementById("pilih-tugas"); sel.innerHTML = "";
       sess.roles.forEach(r => sel.innerHTML += `<option value="${r}">${r}</option>`);
       
-      resetUI(); await syncData(false);
-      qrScanner = new Html5Qrcode("reader"); initCam();
-
-      // AUTO UPDATE 30 DETIK DI LATAR BELAKANG
+      resetUI(); await syncData(false); qrScanner = new Html5Qrcode("reader"); initCam();
       if(intervalSync) clearInterval(intervalSync);
-      intervalSync = setInterval(() => {
-        if (!document.getElementById("view-dashboard").classList.contains("hidden")) syncData(false);
-      }, 30000);
+      intervalSync = setInterval(() => { if (!document.getElementById("view-dashboard").classList.contains("hidden")) syncData(false); }, 30000);
     }
 
     function logout() { localStorage.removeItem("pmbSess"); clearInterval(intervalSync); location.reload(); }
 
     async function syncData(toast=true) {
-      let ic = document.getElementById("s-icon"), tx = document.getElementById("s-text"), btn = document.getElementById("btn-sync");
-      btn.disabled = true; ic.className = "spinner-border spinner-border-sm"; tx.innerText = "";
-      
+      let ic = document.getElementById("s-icon"), btn = document.getElementById("btn-sync");
+      btn.disabled = true; ic.className = "spinner-border spinner-border-sm";
       let res = await api({ action: "getHadir" });
-      if(res && res.success) { 
-        pesertaList = res.data; 
-        if(toast) Swal.fire({title:'Data Terupdate', timer:1000, showConfirmButton:false, toast:true, position:'top', icon:'success'}); 
-      }
-      btn.disabled = false; ic.className = "bi bi-arrow-repeat"; tx.innerText = "Sync";
+      if(res.success) { pesertaList = res.data; if(toast) Swal.fire({title:'Terupdate', timer:1000, showConfirmButton:false, toast:true, position:'top', icon:'success'}); }
+      btn.disabled = false; ic.className = "bi bi-arrow-repeat";
     }
 
     function resetUI() {
       let t = document.getElementById("pilih-tugas").value.toLowerCase();
       let isLari = t.includes("lari"), isKesehatan = t.includes("kesehatan");
-      
       document.getElementById("wrap-lari").classList.toggle("hidden", !isLari);
       document.getElementById("wrap-check").classList.toggle("hidden", isLari || isKesehatan); 
-      
-      let catEl = document.getElementById("val-catatan"), btnSimpan = document.getElementById("btn-simpan");
-      if(isKesehatan) {
-        catEl.placeholder = "Detail keluhan medis/P3K...";
-        btnSimpan.className = "btn fw-bold btn-custom w-100 shadow-sm btn-danger"; 
-      } else {
-        catEl.placeholder = "Tambahkan catatan jika perlu...";
-        btnSimpan.className = "btn fw-bold btn-custom w-100 shadow-sm btn-success";
-      }
+      document.getElementById("val-catatan").placeholder = isKesehatan ? "Detail keluhan medis..." : "Catatan tambahan...";
+      document.getElementById("btn-simpan").className = isKesehatan ? "btn fw-bold btn-custom w-100 btn-danger" : "btn fw-bold btn-custom w-100 btn-success";
       document.getElementById("val-check").checked = false; uiCheck();
     }
 
     function uiCheck() {
       let c = document.getElementById("val-check"), l = document.getElementById("lbl-check");
-      l.innerText = c.checked ? "LOLOS POS INI" : "TIDAK LOLOS";
-      l.className = c.checked ? "form-check-label ms-2 text-success fs-5" : "form-check-label ms-2 text-danger fs-5";
+      l.innerText = c.checked ? "LOLOS POS INI" : "TIDAK LOLOS"; l.className = c.checked ? "form-check-label ms-2 text-success fs-5 fw-bold" : "form-check-label ms-2 text-danger fs-5 fw-bold";
     }
 
     function initCam() {
@@ -235,44 +147,35 @@
 
     function onScan(txt) {
       qrScanner.stop().then(() => {
-        let p = pesertaList.find(x => x.no.toString() === txt.toString());
-        if(!p) return Swal.fire('Ditolak','Peserta belum Melapor Hadir di Depan!','error').then(batal);
+        let teksScan = txt.toString().trim().toLowerCase();
+        let p = pesertaList.find(x => x.no.toString().trim().toLowerCase() === teksScan);
+        
+        if(!p) return Swal.fire('DITOLAK!', 'Peserta belum Check-In di depan atau Nomor tidak valid.', 'error').then(batal);
         
         let t = document.getElementById("pilih-tugas").value.toLowerCase();
         if (!t.includes("kesehatan") && (t.includes("lari") || t.includes("sempit") || t.includes("ketinggian")) && p.verif.toLowerCase() !== "lolos") {
-          return Swal.fire('Ditolak!',`Peserta ${p.nama} Belum Lolos Verifikasi!`,'error').then(batal);
+          return Swal.fire('Ditolak!', `Peserta ${p.nama} Belum Lolos Verifikasi!`, 'error').then(batal);
         }
 
         activeNo = txt; document.getElementById("nama-peserta").innerText = `${p.nama} (${txt})`;
         document.getElementById("val-lari").value = ""; document.getElementById("val-catatan").value = ""; resetUI();
-        
-        document.getElementById("area-scanner").classList.add("hidden"); 
-        document.getElementById("form-nilai").classList.remove("hidden");
+        document.getElementById("area-scanner").classList.add("hidden"); document.getElementById("form-nilai").classList.remove("hidden");
       });
     }
 
-    function batal() { 
-      document.getElementById("form-nilai").classList.add("hidden"); 
-      document.getElementById("area-scanner").classList.remove("hidden"); 
-      initCam(); 
-    }
+    function batal() { document.getElementById("form-nilai").classList.add("hidden"); document.getElementById("area-scanner").classList.remove("hidden"); initCam(); }
 
     async function simpan() {
       let t = document.getElementById("pilih-tugas").value;
       let val = t.toLowerCase().includes("lari") ? document.getElementById("val-lari").value : (t.toLowerCase().includes("kesehatan") ? "" : (document.getElementById("val-check").checked ? "Lolos" : "Tidak Lolos"));
-      if(t.toLowerCase().includes("lari") && !val) return Swal.fire({icon:'warning', text:'Isi angka hasil lari!', confirmButtonColor: '#0ea5e9'});
+      if(t.toLowerCase().includes("lari") && !val) return Swal.fire('Kosong', 'Isi angka hasil lari!', 'warning');
       
       let btn = document.getElementById("btn-simpan"), ic = document.getElementById("simpan-icon"), tx = document.getElementById("simpan-text");
       btn.disabled = true; ic.className = "spinner-border spinner-border-sm"; tx.innerText = "Menyimpan...";
       
       let res = await api({ action: "simpanNilai", noPeserta: activeNo, kategori: t, nilaiUtama: val, nilaiCatatan: document.getElementById("val-catatan").value });
-      
-      if(res && res.success) { 
-        Swal.fire({icon:'success', title:'Tersimpan', timer:1500, showConfirmButton:false}); 
-        setTimeout(batal, 1500); 
-      } else { 
-        Swal.fire({icon:'error', text: res?.message || 'Gagal menyimpan', confirmButtonColor: '#0ea5e9'}); resetUI(); 
-      }
+      if(res.success) { Swal.fire({icon:'success', title:'Tersimpan', timer:1500, showConfirmButton:false}); setTimeout(batal, 1500); } 
+      else { Swal.fire('Gagal', res.message, 'error'); resetUI(); }
       
       btn.disabled = false; ic.className = "bi bi-save2"; tx.innerText = "SIMPAN DATA";
     }
