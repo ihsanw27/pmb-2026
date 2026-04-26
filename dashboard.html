@@ -15,8 +15,6 @@
     .card-login { background: var(--bg-card); border-radius: 24px; box-shadow: 0 10px 25px -5px rgba(100,116,139,0.06); padding: 40px 30px; border: 1px solid #ffffff; width: 100%; max-width: 420px; }
     .campus-logo { max-height: 60px; width: auto; margin: 0 auto 25px auto; display: block; object-fit: contain; }
     .form-control { border-radius: 14px; padding: 14px 18px; border: 1.5px solid var(--border-soft); font-weight: 500; background: #f4f7f9; }
-    .form-control:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(91, 124, 250, 0.15); outline: none; background: #ffffff; }
-    .input-group-text { border-radius: 14px; border: 1.5px solid var(--border-soft); background: #f4f7f9; color: var(--text-muted); }
     .btn-custom { border-radius: 14px; padding: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
     .btn-accent { background: var(--accent); color: white; border: none; box-shadow: 0 6px 15px rgba(91, 124, 250, 0.2); }
     .dashboard-wrapper { flex-grow: 1; padding: 20px; }
@@ -25,22 +23,24 @@
     .stat-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
     .stat-val { font-size: 3rem; font-weight: 800; line-height: 1; margin: 0; color: var(--text-main); }
     .progress { background-color: #edf2f7; border-radius: 50rem; overflow: hidden; }
+    .progress-bar { transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+    .micro-label { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
     .table-container { background: var(--bg-card); border-radius: 20px; padding: 25px; border: 1px solid #ffffff; box-shadow: 0 4px 15px rgba(0,0,0,0.03); overflow-x: auto; }
     .table th { background-color: #f8fafc; color: var(--text-muted); font-weight: 600; font-size: 0.8rem; border-bottom: 2px solid var(--border-soft); padding: 15px; }
     .table td { padding: 15px; vertical-align: middle; border-bottom: 1px solid var(--border-soft); font-size: 0.85rem; font-weight: 500; }
     .hidden { display: none !important; }
     .fade-in { animation: fadeIn 0.4s ease forwards; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .link-detail { transition: all 0.2s ease; cursor: pointer; text-decoration: none; }
+    .link-detail { transition: all 0.2s ease; cursor: pointer; text-decoration: none; font-size: 0.75rem; font-weight: 700; display: block; margin-top: 4px; }
     .link-detail:hover { opacity: 0.7; text-decoration: underline; }
-    .photo-thumb { width: 80px; height: 80px; object-fit: cover; border-radius: 12px; border: 2px solid var(--border-soft); margin-bottom: 10px; }
+    .photo-thumb-modal { width: 120px; height: 120px; object-fit: cover; border-radius: 15px; border: 3px solid var(--accent-soft); margin-bottom: 15px; }
   </style>
 </head>
 <body>
 
   <div id="view-login" class="login-wrapper fade-in">
     <div class="card-login text-center">
-      <img src="https://i.ibb.co.com/TDsSQQ6B/IMG-1501-removebg-preview.png" alt="Logo Kampus" class="campus-logo">
+      <img src="https://i.ibb.co.com/TDsSQQ6B/IMG-1501-removebg-preview.png" alt="Logo" class="campus-logo">
       <h4 class="fw-bold mb-1">Portal Dashboard</h4>
       <p class="small mb-4 fw-medium text-muted">Dashboard Monitor Tes Fisik PMB PIPB</p>
       <div class="input-group mb-3"><span class="input-group-text"><i class="bi bi-envelope"></i></span><input type="email" id="email" class="form-control" placeholder="Email Terdaftar"></div>
@@ -56,25 +56,65 @@
       </div>
       <div class="d-flex align-items-center gap-3">
         <div class="text-end d-none d-md-block">
-          <small class="text-muted d-block">LOGIN SEBAGAI</small>
+          <small class="text-muted d-block" style="font-size: 0.65rem;">PANITIA LOGIN</small>
           <strong id="admin-nama" class="fs-6 text-primary">Nama Panitia</strong>
         </div>
-        <button onclick="loadData()" id="btn-refresh" class="btn btn-light rounded-circle border"><i class="bi bi-arrow-clockwise"></i></button>
-        <button onclick="logout()" class="btn btn-light rounded-circle border text-danger"><i class="bi bi-power"></i></button>
+        <button onclick="loadData()" id="btn-refresh" class="btn btn-light rounded-circle border p-2"><i class="bi bi-arrow-clockwise"></i></button>
+        <button onclick="logout()" class="btn btn-light rounded-circle border p-2 text-danger"><i class="bi bi-power"></i></button>
       </div>
     </div>
 
     <div class="container-fluid mb-4">
-      <div class="row g-4">
+      <div class="row mb-4">
         <div class="col-12">
-           <div class="stat-card">
-              <div class="stat-title text-primary"><i class="bi bi-people-fill"></i> Total Check-in Kehadiran</div>
-              <div class="d-flex justify-content-between align-items-end">
-                <h2 class="fw-bold mb-0"><span id="d-hadir">0</span> / <span id="d-total">0</span></h2>
-                <div class="fw-bold fs-4 text-primary"><span id="d-persen">0</span>%</div>
-              </div>
-              <div class="progress mt-3" style="height: 12px;"><div id="bar-hadir" class="progress-bar bg-primary" style="width: 0%"></div></div>
-           </div>
+          <div class="stat-card">
+            <div class="stat-title text-primary"><i class="bi bi-people-fill"></i> Total Check-in Kehadiran</div>
+            <div class="d-flex justify-content-between align-items-end mb-2">
+              <h2 class="fw-bold mb-0"><span id="d-hadir">0</span> / <span id="d-total">0</span> <small class="fs-6 text-muted">Peserta</small></h2>
+              <div class="fw-bold fs-3 text-primary"><span id="d-persen">0</span>%</div>
+            </div>
+            <div class="progress" style="height: 12px;"><div id="bar-hadir" class="progress-bar bg-primary" style="width: 0%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="stat-card">
+            <div class="stat-title text-warning"><i class="bi bi-shield-check"></i> Verifikasi Administrasi</div>
+            <div class="mb-3">
+              <div class="d-flex justify-content-between micro-label"><span>Lolos Administrasi</span><span><span id="d-lolos-verif">0</span> / <span class="d-hadir-val">0</span></span></div>
+              <div class="progress" style="height: 8px;"><div id="bar-lolos-verif" class="progress-bar bg-success" style="width: 0%"></div></div>
+            </div>
+            <div class="mt-auto pt-2 border-top d-flex justify-content-between small fw-bold text-muted">
+              <span>Gagal: <span id="d-gagal-verif" class="text-danger">0</span></span>
+              <span>Sisa Antre: <span id="d-antre-verif">0</span></span>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="stat-card">
+            <div class="stat-title text-success"><i class="bi bi-stopwatch"></i> Kemajuan Tes Fisik</div>
+            <div class="mb-2">
+              <div class="d-flex justify-content-between micro-label"><span>1. Pos Lari</span><span id="p-lari">0%</span></div>
+              <div class="progress" style="height: 6px;"><div id="bar-lari" class="progress-bar bg-success" style="width: 0%"></div></div>
+            </div>
+            <div class="mb-2">
+              <div class="d-flex justify-content-between micro-label"><span>2. Pos Ketinggian</span><span id="p-tinggi">0%</span></div>
+              <div class="progress" style="height: 6px;"><div id="bar-tinggi" class="progress-bar bg-success" style="width: 0%"></div></div>
+            </div>
+            <div>
+              <div class="d-flex justify-content-between micro-label"><span>3. Ruang Sempit</span><span id="p-sempit">0%</span></div>
+              <div class="progress" style="height: 6px;"><div id="bar-sempit" class="progress-bar bg-success" style="width: 0%"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div id="p3k-card" class="stat-card text-center justify-content-center border-success">
+            <div id="p3k-title" class="stat-title justify-content-center text-success"><i class="bi bi-bandaid"></i> Laporan Insiden P3K</div>
+            <p class="stat-val text-success" id="d-medis">0</p>
+            <p class="small fw-bold text-success mb-0">Peserta Ditangani Medis</p>
+          </div>
         </div>
       </div>
     </div>
@@ -85,12 +125,12 @@
           <div>
             <h5 class="fw-bold mb-1">Live Rekapitulasi Penilaian</h5>
             <span class="badge bg-light text-muted border">
-              <i class="bi bi-broadcast text-primary"></i> Refresh dalam <strong id="timer-text" class="text-primary">30</strong> detik
+              <i class="bi bi-broadcast text-primary"></i> Auto-refresh dalam <strong id="timer-text" class="text-primary">30</strong> detik
             </span>
           </div>
-          <div class="input-group" style="max-width: 300px;">
-            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
-            <input type="text" id="searchInput" class="form-control border-start-0" placeholder="Cari Nama..." onkeyup="filterTable()">
+          <div class="input-group" style="max-width: 350px;">
+            <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+            <input type="text" id="searchInput" class="form-control border-start-0" placeholder="Cari Nama atau No Peserta..." onkeyup="filterTable()">
           </div>
         </div>
 
@@ -98,17 +138,17 @@
           <table class="table table-hover align-middle">
             <thead>
               <tr>
-                <th>NO PESERTA</th>
-                <th>NAMA & DETAIL</th>
+                <th>NO</th>
+                <th>NAMA & BIODATA</th>
                 <th>VERIF ADM</th>
-                <th class="text-center">TES LARI</th>
+                <th class="text-center">LARI</th>
                 <th class="text-center">KETINGGIAN</th>
                 <th class="text-center">RUANG SEMPIT</th>
-                <th>KONDISI P3K</th>
+                <th>MEDIS</th>
               </tr>
             </thead>
             <tbody id="tbody-peserta">
-              <tr><td colspan="7" class="text-center text-muted py-4">Memuat data...</td></tr>
+              <tr><td colspan="7" class="text-center py-5">Memuat data...</td></tr>
             </tbody>
           </table>
         </div>
@@ -131,11 +171,15 @@
 
     async function login() {
       let email = document.getElementById("email").value, kode = document.getElementById("kode").value;
+      let btn = document.getElementById("btn-login"), ic = document.getElementById("l-icon"), tx = document.getElementById("l-text");
+      btn.disabled = true; ic.className = "spinner-border spinner-border-sm"; tx.innerText = "Checking...";
+      
       let res = await api({ action: "login", email, kodeLogin: kode });
       if(res.success) {
         localStorage.setItem("dashSess", JSON.stringify({ nama: res.nama }));
         restoreSession();
       } else { Swal.fire('Gagal', res.message, 'error'); }
+      btn.disabled = false; ic.className = "bi bi-shield-lock"; tx.innerText = "MASUK DASHBOARD";
     }
 
     function restoreSession() {
@@ -143,8 +187,7 @@
       document.getElementById("view-login").classList.add("hidden"); 
       document.getElementById("view-dashboard").classList.remove("hidden");
       document.getElementById("admin-nama").innerText = sess.nama;
-      loadData();
-      startCountdown();
+      loadData(); startCountdown();
     }
 
     function logout() { localStorage.removeItem("dashSess"); location.reload(); }
@@ -164,7 +207,7 @@
       if (res.success) {
         updateStats(res.stats);
         renderTable(res.data);
-        if(showToast) Swal.fire({title:'Updated', timer:800, toast:true, position:'top-end', showConfirmButton:false, icon:'success'});
+        if(showToast) Swal.fire({title:'Sync OK', timer:800, toast:true, position:'top-end', showConfirmButton:false, icon:'success'});
       }
     }
 
@@ -173,22 +216,39 @@
       document.getElementById("d-hadir").innerText = s.hadir;
       document.getElementById("d-persen").innerText = s.persentaseHadir;
       document.getElementById("bar-hadir").style.width = s.persentaseHadir + "%";
+      document.querySelectorAll(".d-hadir-val").forEach(el => el.innerText = s.hadir);
+      
+      document.getElementById("d-lolos-verif").innerText = s.lolosVerif;
+      document.getElementById("d-gagal-verif").innerText = s.gagalVerif;
+      document.getElementById("d-antre-verif").innerText = s.hadir - s.sudahVerif;
+      document.getElementById("bar-lolos-verif").style.width = (s.hadir > 0 ? (s.lolosVerif/s.hadir)*100 : 0) + "%";
+      
+      let pLari = s.lolosVerif > 0 ? Math.round((s.sudahLari/s.lolosVerif)*100) : 0;
+      let pTinggi = s.lolosVerif > 0 ? Math.round((s.sudahKetinggian/s.lolosVerif)*100) : 0;
+      let pSempit = s.lolosVerif > 0 ? Math.round((s.sudahSempit/s.lolosVerif)*100) : 0;
+      
+      document.getElementById("p-lari").innerText = pLari + "%"; document.getElementById("bar-lari").style.width = pLari + "%";
+      document.getElementById("p-tinggi").innerText = pTinggi + "%"; document.getElementById("bar-tinggi").style.width = pTinggi + "%";
+      document.getElementById("p-sempit").innerText = pSempit + "%"; document.getElementById("bar-sempit").style.width = pSempit + "%";
+      
+      document.getElementById("d-medis").innerText = s.insidenMedis;
+      let cardMedis = document.getElementById("p3k-card");
+      if(s.insidenMedis > 0) { cardMedis.classList.replace("border-success", "border-danger"); cardMedis.style.background = "#fff5f5"; }
+      else { cardMedis.classList.replace("border-danger", "border-success"); cardMedis.style.background = "#fdfdfd"; }
     }
 
-    // FUNGSI UNTUK MENAMPILKAN MODAL BIODATA LENGKAP
+    // MODAL BIODATA
     function showBiodata(p) {
-      let fotoHtml = p.foto ? `<img src="${p.foto}" class="photo-thumb shadow-sm">` : `<div class="photo-thumb bg-light d-flex align-items-center justify-content-center mx-auto"><i class="bi bi-person text-muted fs-1"></i></div>`;
-      
+      let fotoHtml = p.foto ? `<img src="${p.foto}" class="photo-thumb-modal shadow-sm">` : `<div class="photo-thumb-modal bg-light d-flex align-items-center justify-content-center mx-auto border"><i class="bi bi-person text-muted fs-1"></i></div>`;
       Swal.fire({
         title: 'Profil Peserta',
         html: `
-          <div class="text-center mb-3">${fotoHtml}</div>
+          ${fotoHtml}
           <div class="text-start small">
             <table class="table table-sm table-borderless">
-              <tr><td width="100" class="fw-bold">No Peserta</td><td>: ${p.no}</td></tr>
-              <tr><td class="fw-bold">NIK</td><td>: ${p.nik || '-'}</td></tr>
+              <tr><td width="100" class="fw-bold">NIK</td><td>: ${p.nik || '-'}</td></tr>
               <tr><td class="fw-bold">Nama</td><td>: ${p.nama}</td></tr>
-              <tr><td class="fw-bold">Gender</td><td>: ${p.jenis_kelamin || '-'}</td></tr>
+              <tr><td class="fw-bold">Gender</td><td>: ${p.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan'}</td></tr>
               <tr><td class="fw-bold">Jalur</td><td>: ${p.jalur}</td></tr>
               <tr class="border-top"><td colspan="2" class="pt-2 fw-bold text-primary">Pilihan Jurusan:</td></tr>
               <tr><td class="fw-bold">Jurusan 1</td><td>: ${p.jurusan_1 || '-'}</td></tr>
@@ -196,8 +256,20 @@
             </table>
           </div>
         `,
-        confirmButtonText: 'Tutup',
-        confirmButtonColor: '#5b7cfa'
+        confirmButtonText: 'Tutup', confirmButtonColor: '#5b7cfa'
+      });
+    }
+
+    // MODAL CATATAN PANITIA
+    function showDetail(nama, pos, catatan, panitia, waktu) {
+      Swal.fire({
+        title: `Detail ${pos}`,
+        html: `<div class="text-start small"><p class="mb-1 fw-bold">Peserta: ${nama}</p><hr>
+               <p class="mb-1 fw-bold text-primary">Log Panitia:</p>
+               <p class="mb-2 bg-light p-2 rounded">Oleh: ${panitia || '-'}<br>Waktu: ${waktu || '-'}</p>
+               <p class="mb-1 fw-bold text-primary">Catatan:</p>
+               <div class="p-2 border rounded bg-white">${catatan || 'Tidak ada catatan.'}</div></div>`,
+        confirmButtonText: 'Tutup', confirmButtonColor: '#5b7cfa'
       });
     }
 
@@ -205,26 +277,37 @@
       let tbody = document.getElementById("tbody-peserta");
       tbody.innerHTML = "";
       data.forEach(p => {
-        // Konversi objek p ke string agar bisa dikirim ke fungsi onclick
         let pStr = JSON.stringify(p).replace(/"/g, '&quot;');
         
+        // Tombol Detail tiap Pos
+        const btnLog = (cat, pos, pan, wak, color) => (cat || pan) ? `<a onclick="showDetail('${p.nama.replace(/'/g,"")}', '${pos}', '${cat.replace(/'/g,"")}', '${pan}', '${wak}')" class="text-${color} link-detail"><i class="bi bi-chat-left-text"></i> Log</a>` : "";
+
         tbody.innerHTML += `
           <tr class="peserta-row">
-            <td class="fw-bold text-muted">${p.no}</td>
+            <td class="fw-bold text-muted" style="font-size:0.7rem;">${p.no}</td>
             <td>
               <div class="fw-bold">${p.nama}</div>
-              <div class="d-flex gap-2 align-items-center mt-1">
-                <span class="badge bg-light text-dark border fw-normal" style="font-size:0.7rem;">${p.jalur}</span>
-                <a onclick='showBiodata(${pStr})' class="text-primary link-detail fw-bold" style="font-size:0.75rem;">
-                  <i class="bi bi-person-lines-fill"></i> Detail Biodata
-                </a>
-              </div>
+              <a onclick='showBiodata(${pStr})' class="text-primary link-detail"><i class="bi bi-person-circle"></i> Detail Biodata</a>
             </td>
-            <td><span class="badge ${p.verif === 'Lolos' ? 'bg-success' : (p.verif === 'Tidak Lolos' ? 'bg-danger' : 'bg-secondary')}">${p.verif || 'Pending'}</span></td>
-            <td class="text-center fw-bold">${p.lari || '-'}</td>
-            <td class="text-center"><span class="badge ${p.tinggi === 'Lolos' ? 'bg-success' : (p.tinggi === 'Tidak Lolos' ? 'bg-danger' : 'bg-secondary')}">${p.tinggi || 'Pending'}</span></td>
-            <td class="text-center"><span class="badge ${p.sempit === 'Lolos' ? 'bg-success' : (p.sempit === 'Tidak Lolos' ? 'bg-danger' : 'bg-secondary')}">${p.sempit || 'Pending'}</span></td>
-            <td>${p.medis ? '<span class="badge bg-danger">P3K</span>' : '<span class="badge bg-success">Aman</span>'}</td>
+            <td>
+              <span class="badge ${p.verif === 'Lolos' ? 'bg-success' : (p.verif === 'Tidak Lolos' ? 'bg-danger' : 'bg-secondary')}">${p.verif || 'Pending'}</span>
+              ${btnLog(p.catVerif, 'Verifikasi', p.panVerif, p.wakVerif, 'primary')}
+            </td>
+            <td class="text-center">
+              <span class="fw-bold">${p.lari || '-'}</span>
+              ${btnLog(p.catLari, 'Lari', p.panLari, p.wakLari, 'success')}
+            </td>
+            <td class="text-center">
+              <span class="badge ${p.tinggi === 'Lolos' ? 'bg-success' : (p.tinggi === 'Tidak Lolos' ? 'bg-danger' : 'bg-secondary')}">${p.tinggi || 'Pending'}</span>
+              ${btnLog(p.catTinggi, 'Ketinggian', p.panTinggi, p.wakTinggi, 'success')}
+            </td>
+            <td class="text-center">
+              <span class="badge ${p.sempit === 'Lolos' ? 'bg-success' : (p.sempit === 'Tidak Lolos' ? 'bg-danger' : 'bg-secondary')}">${p.sempit || 'Pending'}</span>
+              ${btnLog(p.catSempit, 'Ruang Sempit', p.panSempit, p.wakSempit, 'success')}
+            </td>
+            <td>
+              ${p.medis ? `<span class="badge bg-danger">P3K</span> ${btnLog(p.medis, 'Medis', p.panMedis, p.wakMedis, 'danger')}` : '<span class="badge bg-success opacity-50">Aman</span>'}
+            </td>
           </tr>
         `;
       });
