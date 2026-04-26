@@ -148,9 +148,25 @@
     window.onload = () => { if(localStorage.getItem("pmbSess")) restoreSess(); };
 
     async function api(payload) {
-      try { let res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }); return JSON.parse(await res.text()); } 
-      catch(e) { return { success: false, message: "Koneksi terputus." }; }
-    }
+      // Menambahkan pelindung batas waktu (Timeout 8 Detik)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 detik maksimal
+      
+      try { 
+        let res = await fetch(API_URL, { 
+          method: 'POST', 
+          body: JSON.stringify(payload),
+          signal: controller.signal // Pasang sensor putus
+        }); 
+        clearTimeout(timeoutId);
+        return JSON.parse(await res.text()); 
+      } 
+      catch(e) { 
+        clearTimeout(timeoutId);
+        // Jika 8 detik server tidak membalas / internet putus, batalkan loading!
+        return { success: false, message: "Koneksi terputus atau internet lambat. Coba lagi." }; 
+      }
+    }    
 
     function togglePwd() { let i = document.getElementById("kode"), ic = document.getElementById("icon-mata"); i.type = i.type === "password" ? "text" : "password"; ic.className = i.type === "password" ? "bi bi-eye-slash" : "bi bi-eye"; ic.style.color = i.type === "password" ? "var(--text-muted)" : "var(--accent)"; }
 
