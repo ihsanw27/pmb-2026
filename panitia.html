@@ -52,7 +52,10 @@
       <div id="form-nilai" class="hidden">
         <div class="alert alert-info py-2"><small>Peserta:</small><br><strong id="nama-peserta"></strong></div>
         
-        <div id="wrap-lari" class="hidden mb-3"><input type="number" id="val-lari" class="form-control form-control-lg" placeholder="Angka Hasil Lari"></div>
+        <div id="wrap-lari" class="hidden mb-3">
+          <input type="number" id="val-lari" class="form-control form-control-lg" placeholder="Angka Hasil Lari">
+        </div>
+        
         <div id="wrap-check" class="hidden mb-3 text-center">
           <div class="form-check form-switch d-inline-block" style="transform:scale(1.2);">
             <input class="form-check-input" type="checkbox" id="val-check" onchange="uiCheck()">
@@ -60,7 +63,7 @@
           </div>
         </div>
         
-        <textarea id="val-catatan" class="form-control mb-3" rows="2" placeholder="Catatan opsional..."></textarea>
+        <textarea id="val-catatan" class="form-control mb-3" rows="3" placeholder="Catatan opsional..."></textarea>
         
         <div class="row g-2">
           <div class="col-4"><button onclick="batal()" class="btn btn-light w-100 border">Batal</button></div>
@@ -105,7 +108,7 @@
       let sess = JSON.parse(localStorage.getItem("pmbSess"));
       document.getElementById("view-login").classList.add("hidden");
       document.getElementById("view-dashboard").classList.remove("hidden");
-      document.getElementById("nama-panitia").textContent = sess.nama; // Aman dari XSS
+      document.getElementById("nama-panitia").textContent = sess.nama;
       
       let sel = document.getElementById("pilih-tugas"); sel.innerHTML = "";
       sess.roles.forEach(r => sel.innerHTML += `<option value="${r}">${r}</option>`);
@@ -123,8 +126,26 @@
 
     function resetUI() {
       let t = document.getElementById("pilih-tugas").value.toLowerCase();
-      document.getElementById("wrap-lari").classList.toggle("hidden", !t.includes("lari"));
-      document.getElementById("wrap-check").classList.toggle("hidden", t.includes("lari") || t.includes("kesehatan"));
+      let isLari = t.includes("lari");
+      let isKesehatan = t.includes("kesehatan");
+
+      // Set visibilitas input
+      document.getElementById("wrap-lari").classList.toggle("hidden", !isLari);
+      document.getElementById("wrap-check").classList.toggle("hidden", isLari || isKesehatan); // Medis tidak pakai lolos/tidak lolos
+      
+      // UX khusus P3K
+      let catatanEl = document.getElementById("val-catatan");
+      let btnSimpan = document.getElementById("btn-simpan");
+      if(isKesehatan) {
+        catatanEl.placeholder = "Tulis detail keluhan/penanganan medis peserta di sini...";
+        btnSimpan.textContent = "CATAT INSIDEN";
+        btnSimpan.className = "btn btn-danger fw-bold w-100"; // Warna merah peringatan
+      } else {
+        catatanEl.placeholder = "Catatan opsional...";
+        btnSimpan.textContent = "SIMPAN";
+        btnSimpan.className = "btn btn-success fw-bold w-100";
+      }
+
       document.getElementById("val-check").checked = false; uiCheck();
     }
 
@@ -145,14 +166,20 @@
         if(!p) return Swal.fire('Ditolak','Peserta belum Check-In!','error').then(batal);
         
         let t = document.getElementById("pilih-tugas").value.toLowerCase();
-        if ((t.includes("lari") || t.includes("sempit") || t.includes("ketinggian")) && p.verif.toLowerCase() !== "lolos") {
+        
+        // Cek syarat lolos verifikasi (KECUALI untuk petugas medis, medis bebas mengecek siapa saja yg cedera)
+        if (!t.includes("kesehatan") && (t.includes("lari") || t.includes("sempit") || t.includes("ketinggian")) && p.verif.toLowerCase() !== "lolos") {
           return Swal.fire('DITOLAK!',`Peserta ${p.nama} Belum Lolos Verifikasi!`,'error').then(batal);
         }
 
         activeNo = txt;
-        document.getElementById("nama-peserta").textContent = `${p.nama} (${txt})`; // Aman dari XSS
-        document.getElementById("val-lari").value = ""; document.getElementById("val-catatan").value = ""; resetUI();
-        document.getElementById("area-scanner").classList.add("hidden"); document.getElementById("form-nilai").classList.remove("hidden");
+        document.getElementById("nama-peserta").textContent = `${p.nama} (${txt})`;
+        document.getElementById("val-lari").value = ""; 
+        document.getElementById("val-catatan").value = ""; 
+        resetUI();
+        
+        document.getElementById("area-scanner").classList.add("hidden"); 
+        document.getElementById("form-nilai").classList.remove("hidden");
       });
     }
 
@@ -166,7 +193,7 @@
       let res = await api({ action: "simpanNilai", noPeserta: activeNo, kategori: t, nilaiUtama: val, nilaiCatatan: document.getElementById("val-catatan").value });
       
       if(res && res.success) { Swal.fire({icon:'success', title:'Tersimpan', timer:1500, showConfirmButton:false}); setTimeout(batal, 1500); } 
-      else { Swal.fire('Gagal', res?.message, 'error'); btn.disabled = false; btn.textContent = "SIMPAN"; }
+      else { Swal.fire('Gagal', res?.message, 'error'); resetUI(); btn.disabled = false; }
     }
   </script>
 </body>
