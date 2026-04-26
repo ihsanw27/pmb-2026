@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portal Panitia Tes Fisik PMB Politeknik Industri Petrokimia Banten</title>
+  <title>Portal Panitia PMB</title>
   
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -24,8 +24,6 @@
     #reader video { object-fit: cover; border-radius: 16px; }
     .hidden { display: none !important; }
     .info-badge { background-color: #e0f2fe; color: #0369a1; border-radius: 8px; padding: 15px; }
-    
-    /* Perbaikan agar teks sejajar dengan sakelar besar */
     .form-check-label { vertical-align: middle; padding-top: 2px; }
   </style>
 </head>
@@ -33,7 +31,7 @@
 
   <nav class="navbar navbar-dark navbar-custom shadow-sm py-3">
     <div class="container-fluid justify-content-center">
-      <span class="navbar-brand mb-0 h1 fw-bold"><i class="bi bi-shield-check me-2"></i>Login Panitia</span>
+      <span class="navbar-brand mb-0 h1 fw-bold"><i class="bi bi-shield-check me-2"></i>Portal Petugas Lapangan</span>
     </div>
   </nav>
 
@@ -65,6 +63,9 @@
             <p class="mb-0 small text-uppercase fw-bold opacity-75">Petugas Aktif</p>
             <h5 id="nama-panitia" class="mb-0 fw-bold">Memuat...</h5>
           </div>
+          <button onclick="logout()" class="btn btn-sm btn-outline-danger border-0" title="Keluar">
+            <i class="bi bi-box-arrow-right fs-4"></i>
+          </button>
         </div>
 
         <div class="mb-4">
@@ -133,6 +134,54 @@
     let pesertaSedangDinilai = "";
     let dataHadir = []; 
 
+    // FITUR UPDATE: Cek sesi saat halaman dimuat (refresh browser)
+    window.onload = () => {
+      checkSession();
+    };
+
+    async function checkSession() {
+      const savedSession = localStorage.getItem("panitiaSessionPMB");
+      if (savedSession) {
+        const res = JSON.parse(savedSession);
+        
+        // Memulihkan tampilan UI
+        document.getElementById("view-login").classList.add("hidden");
+        document.getElementById("view-dashboard").classList.remove("hidden");
+        document.getElementById("nama-panitia").innerText = res.nama;
+        
+        let select = document.getElementById("pilih-tugas");
+        select.innerHTML = "";
+        res.kategoriList.forEach(t => select.innerHTML += `<option value="${t}">${t}</option>`);
+        
+        sesuaikanInput();
+
+        // Mengambil data peserta hadir terbaru
+        let resHadir = await kirimKeExcel({ action: "getHadir" });
+        if(resHadir && resHadir.success) {
+          dataHadir = resHadir.data;
+          html5QrCode = new Html5Qrcode("reader");
+          nyalakanKamera();
+        }
+      }
+    }
+
+    function logout() {
+      Swal.fire({
+        title: 'Keluar?',
+        text: "Sesi Anda akan dihapus dari perangkat ini.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, Keluar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          localStorage.removeItem("panitiaSessionPMB"); // Hapus sesi
+          location.reload(); // Refresh halaman ke login
+        }
+      });
+    }
+
     async function kirimKeExcel(data) {
       try {
         const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify(data) });
@@ -156,11 +205,16 @@
       let res = await kirimKeExcel({ action: "login", email: email, kodeLogin: kode });
       
       if(res && res.success) {
+        // FITUR UPDATE: Simpan data login ke penyimpanan browser
+        localStorage.setItem("panitiaSessionPMB", JSON.stringify({
+          nama: res.nama,
+          kategoriList: res.kategoriList
+        }));
+
         document.getElementById("view-login").classList.add("hidden");
         document.getElementById("view-dashboard").classList.remove("hidden");
         document.getElementById("nama-panitia").innerText = res.nama;
         
-        // Memasukkan list multi-role ke dropdown
         let select = document.getElementById("pilih-tugas");
         select.innerHTML = "";
         res.kategoriList.forEach(t => select.innerHTML += `<option value="${t}">${t}</option>`);
@@ -180,7 +234,6 @@
       }
     }
 
-    // Mengubah warna dan teks Lolos/Tidak Lolos
     function toggleLabel() {
       const check = document.getElementById('input-check-lolos');
       const label = document.getElementById('label-check');
@@ -193,7 +246,6 @@
       }
     }
 
-    // Mengubah tampilan berdasarkan tugas ("Tes Lari" vs "Verifikasi Administrasi" dll)
     function sesuaikanInput() {
       const tugas = document.getElementById("pilih-tugas").value.toLowerCase();
       const wrapLari = document.getElementById("wrapper-lari");
@@ -212,8 +264,6 @@
         wrapLari.classList.add("hidden");
         wrapCheck.classList.remove("hidden");
         label.innerText = "Status Kelulusan:";
-        
-        // Reset sakelar saat berganti tugas
         document.getElementById("input-check-lolos").checked = false;
         toggleLabel();
       }
@@ -244,11 +294,10 @@
           pesertaSedangDinilai = decodedText;
           document.getElementById("nama-peserta").innerText = `${peserta.nama} (${decodedText})`;
           
-          // Reset Input Formulir
           document.getElementById("input-lari").value = "";
           document.getElementById("input-catatan").value = "";
           document.getElementById("input-check-lolos").checked = false;
-          toggleLabel(); // Kembalikan ke warna merah (TIDAK LOLOS)
+          toggleLabel(); 
           
           document.getElementById("form-nilai").classList.remove("hidden");
         } else {
@@ -269,7 +318,7 @@
     }
 
     async function simpan() {
-      const tugas = document.getElementById("pilih-tugas").value; // Jangan di lowercase saat dikirim agar matching dengan Code.gs
+      const tugas = document.getElementById("pilih-tugas").value; 
       const tugasLower = tugas.toLowerCase();
       let nilai = "";
 
@@ -277,7 +326,7 @@
         nilai = document.getElementById("input-lari").value;
         if (!nilai) return Swal.fire('Oops', 'Mohon isi angka hasil lari!', 'warning');
       } else if (tugasLower.includes("kesehatan")) {
-        nilai = ""; // Kesehatan cukup catatan medis saja
+        nilai = ""; 
       } else {
         nilai = document.getElementById("input-check-lolos").checked ? "Lolos" : "Tidak Lolos";
       }
@@ -289,7 +338,7 @@
       let payload = {
         action: "simpanNilai",
         noPeserta: pesertaSedangDinilai,
-        kategori: tugas, // Mengirim nama tugas asli (misal: "Tes Ketinggian")
+        kategori: tugas, 
         nilaiUtama: nilai,
         nilaiCatatan: document.getElementById("input-catatan").value
       };
