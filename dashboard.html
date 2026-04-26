@@ -9,13 +9,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
-    :root { 
-      --bg-page: #e8eef2; --bg-card: #fdfdfd; --text-main: #334155; 
-      --text-muted: #64748b; --accent: #5b7cfa; --accent-soft: #edf2ff; 
-      --success: #38d9a9; --danger: #ff8787; --warning: #fcc419; --border-soft: #dce4ec; 
-    }
+    :root { --bg-page: #e8eef2; --bg-card: #fdfdfd; --text-main: #334155; --text-muted: #64748b; --accent: #5b7cfa; --accent-soft: #edf2ff; --success: #38d9a9; --danger: #ff8787; --warning: #fcc419; --border-soft: #dce4ec; }
     body { background: var(--bg-page); color: var(--text-main); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; min-height: 100vh; display: flex; flex-direction: column; }
-    
     .login-wrapper { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
     .card-login { background: var(--bg-card); border-radius: 24px; box-shadow: 0 10px 25px -5px rgba(100,116,139,0.06); padding: 40px 30px; border: 1px solid #ffffff; width: 100%; max-width: 420px; }
     .campus-logo { max-height: 60px; width: auto; margin: 0 auto 25px auto; display: block; object-fit: contain; }
@@ -26,30 +21,23 @@
     .btn-custom { border-radius: 14px; padding: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
     .btn-accent { background: var(--accent); color: white; border: none; box-shadow: 0 6px 15px rgba(91, 124, 250, 0.2); }
     .btn-accent:active { transform: translateY(2px); box-shadow: none; }
-    
     .dashboard-wrapper { flex-grow: 1; padding: 20px; }
     .navbar-custom { background: var(--bg-card); border-radius: 20px; padding: 15px 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #ffffff; }
-    
     .stat-card { background: var(--bg-card); border-radius: 20px; padding: 25px; border: 1px solid #ffffff; box-shadow: 0 4px 15px rgba(0,0,0,0.03); height: 100%; display: flex; flex-direction: column; transition: all 0.3s ease; }
     .stat-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; transition: all 0.3s ease; }
     .stat-val { font-size: 3rem; font-weight: 800; line-height: 1; margin: 0; color: var(--text-main); transition: all 0.3s ease; }
-    
     .progress { background-color: #edf2f7; border-radius: 50rem; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.02); }
     .progress-bar { font-weight: 600; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
     .micro-label { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
-
     .table-container { background: var(--bg-card); border-radius: 20px; padding: 25px; border: 1px solid #ffffff; box-shadow: 0 4px 15px rgba(0,0,0,0.03); overflow-x: auto; }
     .table { margin-bottom: 0; }
     .table th { background-color: #f8fafc; color: var(--text-muted); font-weight: 600; font-size: 0.8rem; letter-spacing: 0.5px; border-bottom: 2px solid var(--border-soft); padding: 15px; }
     .table td { padding: 15px; vertical-align: middle; border-bottom: 1px solid var(--border-soft); font-size: 0.85rem; font-weight: 500; }
-    
     .search-box { max-width: 350px; width: 100%; }
-    
     .hidden { display: none !important; }
     .fade-in { animation: fadeIn 0.4s ease forwards; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .cursor-pointer { cursor: pointer; }
-
     .link-detail { transition: all 0.2s ease; cursor: pointer; text-decoration: none; }
     .link-detail:hover { opacity: 0.7; text-decoration: underline; }
   </style>
@@ -61,16 +49,13 @@
       <img src="https://i.ibb.co.com/TDsSQQ6B/IMG-1501-removebg-preview.png" alt="Logo Kampus" class="campus-logo">
       <h4 class="fw-bold mb-1">Portal Dashboard</h4>
       <p class="small mb-4 fw-medium text-muted">Dashboard Monitor Tes Fisik PMB PIPB</p>
-      
       <div class="input-group mb-3"><span class="input-group-text"><i class="bi bi-envelope"></i></span><input type="email" id="email" class="form-control border-start-0" placeholder="Email Terdaftar"></div>
       <div class="input-group mb-4"><span class="input-group-text"><i class="bi bi-key"></i></span><input type="password" id="kode" class="form-control border-start-0 border-end-0" placeholder="Kode Keamanan"><span class="input-group-text bg-transparent border-start-0 cursor-pointer" onclick="togglePwd()"><i class="bi bi-eye-slash" id="icon-mata"></i></span></div>
-      
       <button onclick="login()" class="btn btn-custom btn-accent w-100" id="btn-login"><i class="bi bi-shield-lock" id="l-icon"></i> <span id="l-text">MASUK DASHBOARD</span></button>
     </div>
   </div>
 
   <div id="view-dashboard" class="dashboard-wrapper hidden fade-in">
-    
     <div class="navbar-custom container-fluid">
       <div class="d-flex align-items-center gap-3">
         <img src="https://i.ibb.co.com/TDsSQQ6B/IMG-1501-removebg-preview.png" alt="Logo" style="height: 40px; object-fit: contain;">
@@ -150,7 +135,6 @@
                 <span style="color:var(--danger);"><i class="bi bi-x-circle-fill"></i> Tdk Lolos: <span id="d-gagal-sempit">0</span></span>
               </div>
             </div>
-
           </div>
         </div>
 
@@ -166,13 +150,11 @@
 
     <div class="container-fluid">
       <div class="table-container">
-        
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
           <div>
             <h5 class="fw-bold mb-1">Live Rekapitulasi Penilaian</h5>
             <span class="badge bg-light text-muted border border-secondary"><i class="bi bi-broadcast"></i> Auto-refresh aktif tiap 30dtk</span>
           </div>
-          
           <div class="input-group search-box shadow-sm">
             <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
             <input type="text" id="searchInput" class="form-control border-start-0 ps-0" placeholder="Cari Nama, No Peserta, Status..." onkeyup="filterTable()">
@@ -202,25 +184,16 @@
           <i class="bi bi-search fs-1 text-muted opacity-50 mb-2 d-block"></i>
           <p class="text-muted fw-medium mb-0">Peserta tidak ditemukan.</p>
         </div>
-
       </div>
     </div>
-
   </div>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzJQjxT6QKsyuNMn4KCxsFuRAD5MPItgHdqPVdAvintroDIf9dAeMxhCWyyaX4LkfeW/exec"; 
-    
     let intervalRefresh;
 
     window.onload = () => { if(localStorage.getItem("dashSess")) restoreSession(); };
-
-    function togglePwd() { 
-      let i = document.getElementById("kode"), ic = document.getElementById("icon-mata"); 
-      i.type = i.type === "password" ? "text" : "password"; 
-      ic.className = i.type === "password" ? "bi bi-eye-slash" : "bi bi-eye"; 
-      ic.style.color = i.type === "password" ? "var(--text-muted)" : "var(--accent)"; 
-    }
+    function togglePwd() { let i = document.getElementById("kode"), ic = document.getElementById("icon-mata"); i.type = i.type === "password" ? "text" : "password"; ic.className = i.type === "password" ? "bi bi-eye-slash" : "bi bi-eye"; ic.style.color = i.type === "password" ? "var(--text-muted)" : "var(--accent)"; }
 
     async function api(payload) {
       const controller = new AbortController();
@@ -234,30 +207,20 @@
     async function login() {
       let email = document.getElementById("email").value, kode = document.getElementById("kode").value;
       if(!email || !kode) return Swal.fire('Data Belum Lengkap', 'Masukkan Email dan Kode Keamanan!', 'warning'); 
-      
       let btn = document.getElementById("btn-login"), ic = document.getElementById("l-icon"), tx = document.getElementById("l-text");
       btn.disabled = true; ic.className = "spinner-border spinner-border-sm"; tx.innerText = "Memverifikasi...";
       
       let res = await api({ action: "login", email: email, kodeLogin: kode });
-      
       if(res.success) { 
         let rolesArray = Array.isArray(res.kategoriList) ? res.kategoriList : (res.kategoriList || "").toString().split(",");
         let isManagement = rolesArray.some(role => role.toLowerCase().trim() === "management");
-
         if (isManagement) {
           localStorage.setItem("dashSess", JSON.stringify({ nama: res.nama, jabatan: rolesArray.join(", ") })); 
           restoreSession(); 
         } else {
-          Swal.fire({
-            icon: 'error', 
-            title: 'Akses Ditolak!', 
-            text: 'Akun Anda valid, tetapi Anda tidak memiliki Hak Akses "Management" untuk membuka Dashboard Eksekutif.', 
-            confirmButtonColor: '#ff8787'
-          });
+          Swal.fire({icon: 'error', title: 'Akses Ditolak!', text: 'Anda tidak memiliki Hak Akses Management.', confirmButtonColor: '#ff8787'});
         }
-      } else { 
-        Swal.fire({icon:'error', title:'Login Gagal', text:res.message, confirmButtonColor:'#5b7cfa'}); 
-      }
+      } else { Swal.fire({icon:'error', title:'Login Gagal', text:res.message, confirmButtonColor:'#5b7cfa'}); }
       btn.disabled = false; ic.className = "bi bi-shield-lock"; tx.innerText = "MASUK DASHBOARD";
     }
 
@@ -265,7 +228,6 @@
       let sess = JSON.parse(localStorage.getItem("dashSess"));
       document.getElementById("view-login").classList.add("hidden"); document.getElementById("view-dashboard").classList.remove("hidden");
       document.getElementById("admin-nama").innerText = sess.nama;
-      
       loadData();
       if(intervalRefresh) clearInterval(intervalRefresh);
       intervalRefresh = setInterval(() => { loadData(false) }, 30000); 
@@ -284,7 +246,6 @@
 
       if (res.success) {
         let d = res.stats;
-        
         document.getElementById("d-total").innerText = d.total; 
         document.getElementById("d-hadir").innerText = d.hadir;
         document.getElementById("d-persen").innerText = d.persentaseHadir; 
@@ -328,25 +289,17 @@
         
         if (d.insidenMedis === 0) {
           p3kCard.style.background = "linear-gradient(145deg, #e6fcf5 0%, #ffffff 100%)";
-          p3kCard.style.borderColor = "#b2f2bb";
-          p3kTitle.style.color = "var(--success)";
-          p3kVal.style.color = "var(--success)";
-          p3kText.style.color = "var(--success)";
+          p3kCard.style.borderColor = "#b2f2bb"; p3kTitle.style.color = "var(--success)"; p3kVal.style.color = "var(--success)"; p3kText.style.color = "var(--success)";
         } else {
           p3kCard.style.background = "linear-gradient(145deg, #fff5f5 0%, #ffffff 100%)";
-          p3kCard.style.borderColor = "#ffc9c9";
-          p3kTitle.style.color = "var(--danger)";
-          p3kVal.style.color = "var(--danger)";
-          p3kText.style.color = "var(--danger)";
+          p3kCard.style.borderColor = "#ffc9c9"; p3kTitle.style.color = "var(--danger)"; p3kVal.style.color = "var(--danger)"; p3kText.style.color = "var(--danger)";
         }
 
         renderTable(res.data);
-
         if(showToast) Swal.fire({title: 'Data Sinkron!', timer: 1000, toast: true, position: 'top-end', showConfirmButton: false, icon: 'success'});
       } else {
         if(showToast) Swal.fire('Gagal Refresh', 'Cek koneksi internet Anda.', 'error');
       }
-
       btn.disabled = false; icon.classList.remove("spinner-border", "spinner-border-sm"); icon.classList.add("bi-arrow-clockwise");
     }
 
@@ -356,24 +309,30 @@
       return `<span class="badge bg-secondary">Pending</span>`;
     }
 
-    // FUNGSI POPUP DETAIL DINAMIS UNTUK SEMUA POS TUGAS
-    function showDetail(nama, pos, catatan) {
-      let icon = "bi-card-text";
-      let color = "text-primary";
-      
-      if(pos.toLowerCase() === "p3k") {
-         icon = "bi-bandaid"; color = "text-danger";
-      }
+    // FUNGSI POPUP DENGAN AUDIT LOG PANITIA
+    function showDetail(nama, pos, catatan, panitia, waktu) {
+      let icon = "bi-card-text", color = "text-primary";
+      if(pos.toLowerCase() === "p3k") { icon = "bi-bandaid"; color = "text-danger"; }
 
       Swal.fire({
-        title: `<i class="bi ${icon} ${color}"></i> Catatan ${pos}`,
+        title: `<i class="bi ${icon} ${color}"></i> Detail ${pos}`,
         html: `
           <div class="text-start mt-2">
             <p class="mb-2 text-muted small fw-bold">PESERTA:</p>
             <h6 class="fw-bold mb-3">${nama}</h6>
-            <p class="mb-1 text-muted small fw-bold">KETERANGAN / CATATAN:</p>
+            
+            <p class="mb-1 text-muted small fw-bold">LOG PANITIA PEMERIKSA:</p>
+            <div class="d-flex align-items-center mb-3 p-2 rounded" style="background: #f1f5f9;">
+              <i class="bi bi-person-badge fs-2 me-3" style="color: #94a3b8;"></i>
+              <div>
+                <p class="mb-0 fw-bold" style="color: #334155;">${panitia || 'Unknown'}</p>
+                <small class="text-muted"><i class="bi bi-clock-history"></i> ${waktu || '-'}</small>
+              </div>
+            </div>
+
+            <p class="mb-1 text-muted small fw-bold">CATATAN/KETERANGAN:</p>
             <div class="p-3 rounded border" style="background: #f8fafc; color: #334155; font-weight: 500; font-size: 0.95rem; white-space: pre-wrap;">
-              ${catatan}
+              ${catatan || 'Tidak ada catatan.'}
             </div>
           </div>
         `,
@@ -394,23 +353,24 @@
       dataPeserta.forEach(p => {
         let safeNama = p.nama.replace(/'/g, "\\'").replace(/"/g, "&quot;");
 
-        // Helper Fungsi untuk membuat Link Detail jika kolom catatannya berisi sesuatu
-        const getDetailLink = (catatan, posName) => {
+        // Helper membuat Link dengan data audit trail
+        const getDetailLink = (catatan, posName, panitia, waktu) => {
           if (!catatan || catatan.trim() === "") return "";
           let safeCat = catatan.replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/\n/g, "<br>");
+          let safePanitia = panitia.replace(/'/g, "\\'");
           let linkColor = (posName === 'P3K') ? 'text-danger' : 'text-primary';
-          return `<br><a onclick="showDetail('${safeNama}', '${posName}', '${safeCat}')" class="${linkColor} link-detail fw-bold mt-1 d-inline-block" style="font-size: 0.75rem;"><i class="bi bi-zoom-in"></i> Detail</a>`;
+          return `<br><a onclick="showDetail('${safeNama}', '${posName}', '${safeCat}', '${safePanitia}', '${waktu}')" class="${linkColor} link-detail fw-bold mt-1 d-inline-block" style="font-size: 0.75rem;"><i class="bi bi-zoom-in"></i> Detail</a>`;
         };
 
-        let badgeVerif = getBadgeStatus(p.verif) + getDetailLink(p.catVerif, 'Verifikasi');
-        let badgeTinggi = getBadgeStatus(p.tinggi) + getDetailLink(p.catTinggi, 'Ketinggian');
-        let badgeSempit = getBadgeStatus(p.sempit) + getDetailLink(p.catSempit, 'Ruang Sempit');
+        let badgeVerif = getBadgeStatus(p.verif) + getDetailLink(p.catVerif, 'Verifikasi', p.panVerif, p.wakVerif);
+        let badgeTinggi = getBadgeStatus(p.tinggi) + getDetailLink(p.catTinggi, 'Ketinggian', p.panTinggi, p.wakTinggi);
+        let badgeSempit = getBadgeStatus(p.sempit) + getDetailLink(p.catSempit, 'Ruang Sempit', p.panSempit, p.wakSempit);
         
         let lariVal = p.lari !== '' ? p.lari : `<span class="badge bg-secondary">Pending</span>`;
-        let badgeLari = `<span class="fw-bold text-center">${lariVal}</span>` + getDetailLink(p.catLari, 'Tes Lari');
+        let badgeLari = `<span class="fw-bold text-center">${lariVal}</span>` + getDetailLink(p.catLari, 'Tes Lari', p.panLari, p.wakLari);
 
         let badgeMedis = p.medis !== "" 
-          ? `<span class="badge" style="background:#fff5f5; color:var(--danger); border: 1px solid #ffc9c9;"><i class="bi bi-bandaid"></i> P3K</span>` + getDetailLink(p.medis, 'P3K')
+          ? `<span class="badge" style="background:#fff5f5; color:var(--danger); border: 1px solid #ffc9c9;"><i class="bi bi-bandaid"></i> P3K</span>` + getDetailLink(p.medis, 'P3K', p.panMedis, p.wakMedis)
           : `<span class="badge bg-success bg-opacity-10 text-success border border-success"><i class="bi bi-shield-check"></i> Aman</span>`;
 
         tbody.innerHTML += `
@@ -425,7 +385,6 @@
           </tr>
         `;
       });
-
       filterTable();
     }
 
@@ -434,22 +393,12 @@
       let rows = document.querySelectorAll(".peserta-row");
       let noResultMsg = document.getElementById("no-result-msg");
       let visibleCount = 0;
-
       rows.forEach(row => {
-        let textData = row.textContent.toLowerCase();
-        if (textData.includes(input)) {
-          row.style.display = "";
-          visibleCount++;
-        } else {
-          row.style.display = "none";
-        }
+        if (row.textContent.toLowerCase().includes(input)) { row.style.display = ""; visibleCount++; } 
+        else { row.style.display = "none"; }
       });
-
-      if (visibleCount === 0 && rows.length > 0) {
-        noResultMsg.classList.remove("hidden");
-      } else {
-        noResultMsg.classList.add("hidden");
-      }
+      if (visibleCount === 0 && rows.length > 0) noResultMsg.classList.remove("hidden");
+      else noResultMsg.classList.add("hidden");
     }
   </script>
 </body>
