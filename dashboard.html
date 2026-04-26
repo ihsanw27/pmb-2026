@@ -217,36 +217,26 @@
     }
 
     async function login() {
-      let email = document.getElementById("email").value, kode = document.getElementById("kode").value;
-      if(!email || !kode) return Swal.fire('Data Belum Lengkap', 'Masukkan Email dan Kode Keamanan!', 'warning'); 
-      
-      let btn = document.getElementById("btn-login"), ic = document.getElementById("l-icon"), tx = document.getElementById("l-text");
-      btn.disabled = true; ic.className = "spinner-border spinner-border-sm"; tx.innerText = "Memverifikasi...";
-      
-      let res = await api({ action: "login", email: email, kodeLogin: kode });
-      
-      if(res.success) { 
-        // ---------------------------------------------------------
-        // KUNCI KEAMANAN: HANYA ROLE "MANAGEMENT" YANG BISA MASUK
-        // ---------------------------------------------------------
-        let isManagement = res.kategoriList.some(role => role.toLowerCase().trim() === "management");
+  let email = document.getElementById("email").value, kode = document.getElementById("kode").value;
+  if(!email || !kode) return Swal.fire('Peringatan', 'Isi email dan kode!', 'warning');
+  
+  let res = await api({ action: "login", email: email, kodeLogin: kode });
+  
+  if(res.success) {
+    // Memastikan kategoriList diproses sebagai array dan dicari kata "Management"
+    let roles = Array.isArray(res.kategoriList) ? res.kategoriList : [];
+    let isManagement = roles.some(r => r.toLowerCase().trim() === "management");
 
-        if (isManagement) {
-          localStorage.setItem("dashSess", JSON.stringify({ nama: res.nama, jabatan: res.kategoriList.join(", ") })); 
-          restoreSession(); 
-        } else {
-          Swal.fire({
-            icon: 'error', 
-            title: 'Akses Ditolak!', 
-            text: 'Akun Anda valid, tetapi Anda tidak memiliki Hak Akses "Management" untuk membuka Dashboard Eksekutif.', 
-            confirmButtonColor: '#ff8787'
-          });
-        }
-      } else { 
-        Swal.fire({icon:'error', title:'Login Gagal', text:res.message, confirmButtonColor:'#5b7cfa'}); 
-      }
-      btn.disabled = false; ic.className = "bi bi-shield-lock"; tx.innerText = "MASUK DASHBOARD";
+    if (isManagement) {
+      localStorage.setItem("dashSess", JSON.stringify({ nama: res.nama, jabatan: roles.join(", ") }));
+      restoreSession();
+    } else {
+      Swal.fire('Akses Ditolak', 'Anda bukan bagian dari Management.', 'error');
     }
+  } else {
+    Swal.fire('Gagal', res.message, 'error');
+  }
+}
 
     function restoreSession() {
       let sess = JSON.parse(localStorage.getItem("dashSess"));
