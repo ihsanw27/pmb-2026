@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Portal Panitia Lapangan Tes Fisik PMB PIPB</title>
+  <title>Portal Panitia Tes Fisik PMB PIPB</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -40,7 +40,7 @@
     <div id="view-login" class="card-custom text-center my-auto fade-in">
       <img src="https://i.ibb.co.com/TDsSQQ6B/IMG-1501-removebg-preview.png" alt="Logo Kampus" class="campus-logo">
       <h4 class="fw-bold mb-1">Akses Petugas</h4>
-      <p class="small mb-4 fw-medium text-muted">Masuk untuk memindai peserta tes</p>
+      <p class="small mb-4 fw-medium text-muted">Masuk untuk memindai peserta tes.</p>
       <div class="input-group mb-3"><span class="input-group-text"><i class="bi bi-envelope"></i></span><input type="email" id="email" class="form-control border-start-0" placeholder="Email Terdaftar"></div>
       <div class="input-group mb-4"><span class="input-group-text"><i class="bi bi-key"></i></span><input type="password" id="kode" class="form-control border-start-0 border-end-0" placeholder="Kode Keamanan"><span class="input-group-text bg-transparent border-start-0 cursor-pointer" onclick="togglePwd()"><i class="bi bi-eye-slash" id="icon-mata"></i></span></div>
       <button onclick="login()" class="btn btn-custom btn-accent w-100" id="btn-login"><i class="bi bi-box-arrow-in-right" id="l-icon"></i> <span id="l-text">MASUK SISTEM</span></button>
@@ -308,8 +308,14 @@
 
     function lanjutScan(p, txt) {
       let t = document.getElementById("pilih-tugas").value.toLowerCase();
-      if (!t.includes("kesehatan") && !t.includes("medis") && p.verif.toLowerCase() !== "lolos") {
-        Swal.fire({icon:'error', title:'Ditolak!', text:`Peserta Belum Lolos Verifikasi!`, confirmButtonColor:'#5b7cfa'}).then(() => {
+      
+      // LOGIKA KUNCI: Cek apakah pos yang sedang aktif adalah pos Verifikasi Administrasi atau Pos Kesehatan/Medis
+      let isVerifikasi = t.includes("verifikasi") || t.includes("administrasi");
+      let isKesehatan = t.includes("kesehatan") || t.includes("medis");
+
+      // JIKA INI ADALAH POS TES FISIK (Bukan Verifikasi & Bukan Kesehatan) TAPI PESERTA BELUM LOLOS VERIFIKASI, MAKA TOLAK!
+      if (!isVerifikasi && !isKesehatan && p.verif.toLowerCase() !== "lolos") {
+        Swal.fire({icon:'error', title:'Ditolak!', text:`Peserta Belum Lolos Verifikasi Administrasi!`, confirmButtonColor:'#5b7cfa'}).then(() => {
           if (!isBulkMode) batal(); else { isScanningPaused = false; }
         });
         return;
