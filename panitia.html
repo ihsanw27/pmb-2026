@@ -40,7 +40,7 @@
     <div id="view-login" class="card-custom text-center my-auto fade-in">
       <img src="https://i.ibb.co.com/TDsSQQ6B/IMG-1501-removebg-preview.png" alt="Logo Kampus" class="campus-logo">
       <h4 class="fw-bold mb-1">Akses Petugas</h4>
-      <p class="small mb-4 fw-medium text-muted">Masuk untuk memindai peserta tes.</p>
+      <p class="small mb-4 fw-medium text-muted">Masuk untuk memindai peserta tes</p>
       <div class="input-group mb-3"><span class="input-group-text"><i class="bi bi-envelope"></i></span><input type="email" id="email" class="form-control border-start-0" placeholder="Email Terdaftar"></div>
       <div class="input-group mb-4"><span class="input-group-text"><i class="bi bi-key"></i></span><input type="password" id="kode" class="form-control border-start-0 border-end-0" placeholder="Kode Keamanan"><span class="input-group-text bg-transparent border-start-0 cursor-pointer" onclick="togglePwd()"><i class="bi bi-eye-slash" id="icon-mata"></i></span></div>
       <button onclick="login()" class="btn btn-custom btn-accent w-100" id="btn-login"><i class="bi bi-box-arrow-in-right" id="l-icon"></i> <span id="l-text">MASUK SISTEM</span></button>
@@ -169,7 +169,6 @@
       let sel = document.getElementById("pilih-tugas"); sel.innerHTML = "";
       
       let rolesRaw = Array.isArray(sess.roles) ? sess.roles : (sess.roles ? sess.roles.split(",") : []);
-      // Filter Management agar tidak muncul di scanner HP
       let tugasScanner = rolesRaw.filter(r => r.trim().toLowerCase() !== "management");
       
       if(tugasScanner.length === 0) {
@@ -309,11 +308,9 @@
     function lanjutScan(p, txt) {
       let t = document.getElementById("pilih-tugas").value.toLowerCase();
       
-      // LOGIKA KUNCI: Cek apakah pos yang sedang aktif adalah pos Verifikasi Administrasi atau Pos Kesehatan/Medis
       let isVerifikasi = t.includes("verifikasi") || t.includes("administrasi");
       let isKesehatan = t.includes("kesehatan") || t.includes("medis");
 
-      // JIKA INI ADALAH POS TES FISIK (Bukan Verifikasi & Bukan Kesehatan) TAPI PESERTA BELUM LOLOS VERIFIKASI, MAKA TOLAK!
       if (!isVerifikasi && !isKesehatan && p.verif.toLowerCase() !== "lolos") {
         Swal.fire({icon:'error', title:'Ditolak!', text:`Peserta Belum Lolos Verifikasi Administrasi!`, confirmButtonColor:'#5b7cfa'}).then(() => {
           if (!isBulkMode) batal(); else { isScanningPaused = false; }
@@ -333,6 +330,7 @@
       document.getElementById("area-scanner").classList.add("hidden"); document.getElementById("form-nilai-single").classList.remove("hidden");
     }
 
+    // MEMBANGUN TABEL (MENGISI DENGAN DATA YANG TERSIMPAN JIKA ADA)
     function mulaiInputBulk() {
       if(bulkQueue.length === 0) return Swal.fire('Kosong', 'Belum ada peserta yang discan', 'warning');
       try { qrScanner.stop(); } catch(e){} 
@@ -346,11 +344,18 @@
 
       bulkQueue.forEach((p, idx) => {
         let inputHTML = "";
+        let savedVal = p.tempVal !== undefined ? p.tempVal : "";
+        let savedCat = p.tempCat !== undefined ? p.tempCat : "";
         
         if (isLari) {
-          inputHTML = `<input type="number" id="bulk-lari-${idx}" class="form-control mb-2 text-center fw-bold fs-5" placeholder="Isi angka lari..." style="background: #fff; border-color: var(--accent);">`;
+          inputHTML = `<input type="number" id="bulk-lari-${idx}" class="form-control mb-2 text-center fw-bold fs-5" placeholder="Isi angka lari..." style="background: #fff; border-color: var(--accent);" value="${savedVal}">`;
         } else if (!isKesehatan) {
-          inputHTML = `<div class="form-check form-switch mb-2"><input class="form-check-input" type="checkbox" id="bulk-check-${idx}" onchange="uiCheckBulk(${idx})"><label class="form-check-label ms-2 fw-bold" id="bulk-lbl-${idx}" style="color: var(--danger);">TIDAK LOLOS</label></div>`;
+          let isLolos = savedVal === "Lolos"; 
+          let isChecked = isLolos ? "checked" : "";
+          let lblColor = isLolos ? "var(--success)" : "var(--danger)";
+          let lblText = isLolos ? "LOLOS" : "TIDAK LOLOS";
+          
+          inputHTML = `<div class="form-check form-switch mb-2"><input class="form-check-input shadow-sm" type="checkbox" id="bulk-check-${idx}" onchange="uiCheckBulk(${idx})" ${isChecked}><label class="form-check-label ms-2 fw-bold" id="bulk-lbl-${idx}" style="color: ${lblColor};">${lblText}</label></div>`;
         }
         
         let catPlaceholder = isKesehatan ? "Keluhan medis..." : "Catatan...";
@@ -361,7 +366,7 @@
               <i class="bi bi-person-bounding-box"></i> ${idx+1}. ${p.nama} <br><span class="text-muted" style="font-weight:500;">No: ${p.no}</span>
             </div>
             ${inputHTML}
-            <input type="text" id="bulk-catatan-${idx}" class="form-control form-control-sm" placeholder="${catPlaceholder}" style="background: #fff;">
+            <input type="text" id="bulk-catatan-${idx}" class="form-control form-control-sm" placeholder="${catPlaceholder}" style="background: #fff;" value="${savedCat}">
           </div>
         `;
       });
@@ -396,51 +401,114 @@
       btn.disabled = false; ic.className = "bi bi-save2"; tx.innerText = "SIMPAN DATA";
     }
 
+    // FUNGSI UPLOAD BULK DENGAN FITUR INTERUPSI / PEMBATALAN
     async function simpanBulk() {
       let t = document.getElementById("pilih-tugas").value;
       let t_low = t.toLowerCase();
       let isLari = t_low.includes("lari");
       let isKesehatan = t_low.includes("kesehatan") || t_low.includes("medis");
 
-      if (isLari) {
-        for(let i=0; i<bulkQueue.length; i++) {
-          if(!document.getElementById(`bulk-lari-${i}`).value) {
-            return Swal.fire({icon:'warning', text:`Isi angka lari untuk peserta nomor urut ${i+1}!`, confirmButtonColor:'#5b7cfa'});
-          }
+      // 1. Validasi & Amankan Inputan Panitia ke dalam memory
+      for(let i=0; i<bulkQueue.length; i++) {
+        let val = "";
+        if(isLari) {
+          val = document.getElementById(`bulk-lari-${i}`).value;
+          if(!val) return Swal.fire({icon:'warning', text:`Isi angka lari untuk peserta nomor urut ${i+1}!`, confirmButtonColor:'#5b7cfa'});
+        } else if(!isKesehatan) {
+          val = document.getElementById(`bulk-check-${i}`).checked ? "Lolos" : "Tidak Lolos";
         }
+        
+        bulkQueue[i].tempVal = val;
+        bulkQueue[i].tempCat = document.getElementById(`bulk-catatan-${i}`).value;
       }
 
       document.getElementById("btn-simpan-bulk").disabled = true;
 
+      // 2. Tampilkan Popup Loading (Tanpa OK, Hanya Tombol CANCEL BESAR)
+      let isCancelled = false;
       Swal.fire({
-         title: 'Mengirim Data...', html: `Menyimpan 1 dari ${bulkQueue.length} peserta`, allowOutsideClick: false,
-         didOpen: () => { Swal.showLoading(); }
+         title: 'Sedang Mengunggah Data...',
+         html: `
+           <div class="my-4">
+             <div class="spinner-border text-primary" style="width: 3.5rem; height: 3.5rem;" role="status"></div>
+           </div>
+           <div id="swal-progress-text" class="fw-bold fs-5 text-primary">Memulai...</div>
+         `,
+         allowOutsideClick: false,
+         showConfirmButton: false, // Hilangkan tombol OK!
+         showCancelButton: true,
+         cancelButtonText: '<i class="bi bi-x-octagon-fill me-1"></i> BATALKAN SISA',
+         cancelButtonColor: '#dc3545',
+         customClass: {
+           cancelButton: 'btn btn-danger btn-lg px-4 py-2 fw-bold shadow-sm w-100'
+         }
+      }).then((result) => {
+         if (result.isDismissed) isCancelled = true;
       });
 
+      let successIndices = [];
       let gagal = 0;
-      for(let i=0; i<bulkQueue.length; i++) {
-         Swal.update({ html: `Menyimpan data peserta ke-${i+1} dari ${bulkQueue.length}...` });
-         let b = bulkQueue[i];
-         
-         let val = "";
-         if(isLari) val = document.getElementById(`bulk-lari-${i}`).value;
-         else if(!isKesehatan) val = document.getElementById(`bulk-check-${i}`).checked ? "Lolos" : "Tidak Lolos";
-         
-         let cat = document.getElementById(`bulk-catatan-${i}`).value;
 
-         let res = await api({ action: "simpanNilai", noPeserta: b.no, kategori: t, nilaiUtama: val, nilaiCatatan: cat });
-         if(!res.success) gagal++;
+      // 3. Proses Pengiriman Satu per Satu (Bisa Diinterupsi)
+      for(let i=0; i<bulkQueue.length; i++) {
+         if(isCancelled) break; // REM DARURAT JIKA DIBATALKAN PANITIA!
+
+         let b = bulkQueue[i];
+         let pText = document.getElementById("swal-progress-text");
+         if(pText) pText.innerHTML = `Menyimpan <b>${i+1}</b> dari <b>${bulkQueue.length}</b><br><span class="small text-muted fw-medium">${b.nama}</span>`;
+         
+         let res = await api({ action: "simpanNilai", noPeserta: b.no, kategori: t, nilaiUtama: b.tempVal, nilaiCatatan: b.tempCat });
+         if(res.success) {
+            successIndices.push(i);
+         } else {
+            gagal++;
+         }
       }
 
       document.getElementById("btn-simpan-bulk").disabled = false;
 
-      if(gagal > 0) {
-        Swal.fire('Selesai', `Dikirim. Ada ${gagal} data gagal tersimpan. Harap dicatat manual/diulang.`, 'warning');
-      } else {
-        Swal.fire('Berhasil!', 'Semua data rombongan berhasil diupload ke server.', 'success');
+      // 4. Hapus data yang SUKSES terkirim dari keranjang UI (Hapus dari belakang agar urutan aman)
+      for (let i = successIndices.length - 1; i >= 0; i--) {
+          bulkQueue.splice(successIndices[i], 1);
       }
 
-      bulkQueue = []; renderBulkUI(); batal(); 
+      // 5. Rekapitulasi Akhir
+      if (isCancelled) {
+          Swal.fire({
+             icon: 'info',
+             title: 'Pengiriman Dihentikan',
+             html: `
+               <div class="text-start mt-3">
+                 <p class="mb-1"><i class="bi bi-check-circle-fill text-success"></i> <b>${successIndices.length}</b> peserta berhasil terkirim.</p>
+                 <p class="mb-0"><i class="bi bi-exclamation-circle-fill text-warning"></i> <b>${bulkQueue.length}</b> peserta batal dikirim.</p>
+               </div>
+             `,
+             confirmButtonText: 'OKE SAYA MENGERTI',
+             confirmButtonColor: '#5b7cfa'
+          });
+          renderBulkUI();
+          if (bulkQueue.length > 0) mulaiInputBulk(); // Sisakan yang belum dikirim di form
+          else batal();
+          return;
+      }
+
+      if(gagal > 0) {
+        Swal.fire({
+           icon: 'warning',
+           title: 'Selesai dengan Error',
+           html: `<b>${successIndices.length}</b> berhasil terkirim.<br><b>${gagal}</b> gagal terkirim.<br>Peserta yang gagal tidak dihapus dari form, silakan coba kirim ulang.`,
+           confirmButtonText: 'OKE',
+           confirmButtonColor: '#fcc419'
+        });
+        renderBulkUI();
+        if (bulkQueue.length > 0) mulaiInputBulk();
+        else batal();
+      } else {
+        Swal.fire('Berhasil!', 'Semua data rombongan telah berhasil diupload ke server.', 'success');
+        bulkQueue = []; 
+        renderBulkUI(); 
+        batal(); 
+      }
     }
   </script>
 </body>
