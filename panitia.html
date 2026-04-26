@@ -16,7 +16,7 @@
     .navbar-custom { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); }
     .card-custom { background: white; border: none; border-radius: 16px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); padding: 30px; margin: 20px auto; max-width: 450px; }
     .form-control, .form-select { border-radius: 10px; padding: 12px 15px; border: 1px solid #cbd5e1; }
-    .form-control:focus { box-shadow: none; border-color: #cbd5e1; }
+    .form-control:focus { box-shadow: none; border-color: #3b82f6; }
     .btn-custom { border-radius: 10px; padding: 12px; font-weight: 600; transition: all 0.3s ease; }
     .btn-primary-custom { background-color: #2563eb; color: white; border: none; }
     .btn-primary-custom:hover { background-color: #1d4ed8; color: white; }
@@ -50,8 +50,8 @@
       
       <div class="input-group mb-4 text-start">
         <span class="input-group-text bg-white border-end-0"><i class="bi bi-key text-muted"></i></span>
-        <input type="password" id="kodeLogin" class="form-control border-start-0 border-end-0" placeholder="Kode Login (Case Sensitive)">
-        <span class="input-group-text bg-white border-start-0" onclick="togglePassword()" style="cursor: pointer;" title="Tampilkan/Sembunyikan Kode">
+        <input type="password" id="kodeLogin" class="form-control border-start-0 border-end-0" placeholder="Kode Login">
+        <span class="input-group-text bg-white border-start-0" onclick="togglePassword()" style="cursor: pointer;" title="Intip Sandi">
           <i class="bi bi-eye-slash text-muted" id="icon-mata"></i>
         </span>
       </div>
@@ -74,12 +74,12 @@
 
         <div class="mb-4">
           <label class="form-label small fw-bold text-muted">Kategori Tugas Anda:</label>
-          <select id="pilih-tugas" class="form-select border-primary fw-bold text-primary shadow-sm"></select>
+          <select id="pilih-tugas" class="form-select border-primary fw-bold text-primary shadow-sm" onchange="sesuaikanInput()"></select>
         </div>
 
         <div id="area-scanner">
           <button onclick="refreshDataPeserta()" class="btn btn-sm btn-outline-secondary w-100 mb-3 fw-bold" id="btn-refresh">
-            <i class="bi bi-arrow-repeat me-1"></i> Sinkronisasi Data Peserta Terbaru
+            <i class="bi bi-arrow-repeat me-1"></i> Sinkronisasi Data Terbaru
           </button>
 
           <h6 class="text-center fw-bold mb-3"><i class="bi bi-qr-code-scan me-2"></i>Arahkan ke QR Peserta</h6>
@@ -115,7 +115,7 @@
           
           <div class="mb-4">
             <label class="form-label small fw-bold text-muted">Catatan (Opsional):</label>
-            <textarea id="input-catatan" class="form-control" rows="2" placeholder="Catatan..."></textarea>
+            <textarea id="input-catatan" class="form-control" rows="2" placeholder="Catatan opsional..."></textarea>
           </div>
           
           <div class="row g-2">
@@ -133,88 +133,49 @@
   </div>
 
   <script>
-    // ==========================================
-    // DEPLOY BARU LALU PASTE URL DI SINI!
-    // ==========================================
+    // ==========================================================
+    // DEPLOY BARU GOOGLE APPS SCRIPT DAN PASTE URL DI BAWAH INI
+    // ==========================================================
     const API_URL = "https://script.google.com/macros/s/AKfycbzJQjxT6QKsyuNMn4KCxsFuRAD5MPItgHdqPVdAvintroDIf9dAeMxhCWyyaX4LkfeW/exec";
     
     let html5QrCode;
     let pesertaSedangDinilai = "";
     let dataHadir = []; 
 
-    window.onload = () => { checkSession(); };
+    // --- INISIALISASI ---
+    window.onload = () => checkSession();
 
-    // FITUR UPDATE: Fungsi Intip Password
-    function togglePassword() {
-      let input = document.getElementById("kodeLogin");
-      let icon = document.getElementById("icon-mata");
-      
-      if (input.type === "password") {
-        input.type = "text";
-        icon.classList.replace("bi-eye-slash", "bi-eye");
-        icon.classList.add("text-primary");
-        icon.classList.remove("text-muted");
-      } else {
-        input.type = "password";
-        icon.classList.replace("bi-eye", "bi-eye-slash");
-        icon.classList.add("text-muted");
-        icon.classList.remove("text-primary");
-      }
-    }
-
-    async function checkSession() {
-      const savedSession = localStorage.getItem("panitiaSessionPMB");
-      if (savedSession) {
-        const res = JSON.parse(savedSession);
-        
-        document.getElementById("view-login").classList.add("hidden");
-        document.getElementById("view-dashboard").classList.remove("hidden");
-        document.getElementById("nama-panitia").innerText = res.nama;
-        
-        let select = document.getElementById("pilih-tugas");
-        select.innerHTML = "";
-        res.kategoriList.forEach(t => select.innerHTML += `<option value="${t}">${t}</option>`);
-        
-        sesuaikanInput();
-        await refreshDataPeserta(false); 
-        html5QrCode = new Html5Qrcode("reader");
-        nyalakanKamera();
-      }
-    }
-
-    function logout() {
-      Swal.fire({
-        title: 'Keluar?', text: "Sesi Anda akan dihapus.", icon: 'warning',
-        showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'Ya, Keluar'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          localStorage.removeItem("panitiaSessionPMB");
-          location.reload(); 
-        }
-      });
-    }
-
-    async function refreshDataPeserta(showToast = true) {
-      let btn = document.getElementById("btn-refresh");
-      if(btn) { btn.innerHTML = `<i class="bi bi-hourglass-split me-1"></i> Menyinkron...`; btn.disabled = true; }
-      
-      let resHadir = await kirimKeExcel({ action: "getHadir" });
-      if(resHadir && resHadir.success) {
-        dataHadir = resHadir.data;
-        if(showToast) Swal.fire({icon: 'success', title: 'Data Diperbarui!', text:'Status Verifikasi tersinkronisasi.', toast: true, position: 'top', showConfirmButton: false, timer: 2000});
-      }
-      
-      if(btn) { btn.innerHTML = `<i class="bi bi-arrow-repeat me-1"></i> Sinkronisasi Data Peserta Terbaru`; btn.disabled = false; }
-    }
-
-    async function kirimKeExcel(data) {
+    // --- FUNGSI API FETCH ---
+    async function apiCall(dataPayload) {
       try {
-        const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify(data) });
+        const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify(dataPayload) });
         return await response.json();
       } catch (e) {
-        Swal.fire('Error', 'Internet terputus!', 'error');
+        Swal.fire('Error', 'Internet terputus atau server gagal merespons!', 'error');
         return null;
       }
+    }
+
+    // --- FUNGSI SESI & LOGIN ---
+    async function checkSession() {
+      const saved = localStorage.getItem("panitiaSessionPMB");
+      if (saved) {
+        const res = JSON.parse(saved);
+        setupDashboard(res.nama, res.kategoriList);
+        await refreshDataPeserta(false); 
+        initCamera();
+      }
+    }
+
+    function setupDashboard(nama, kategoriList) {
+      document.getElementById("view-login").classList.add("hidden");
+      document.getElementById("view-dashboard").classList.remove("hidden");
+      document.getElementById("nama-panitia").innerText = nama;
+      
+      let select = document.getElementById("pilih-tugas");
+      select.innerHTML = "";
+      kategoriList.forEach(t => select.innerHTML += `<option value="${t}">${t}</option>`);
+      sesuaikanInput();
     }
 
     async function login() {
@@ -222,28 +183,43 @@
       let kode = document.getElementById("kodeLogin").value;
       let btn = document.getElementById("btn-login");
       
-      if(!email || !kode) return Swal.fire('Oops', 'Isi Email dan Kode!', 'warning');
-      btn.innerHTML = `Memuat...`; btn.disabled = true;
+      if(!email || !kode) return Swal.fire('Oops', 'Isi Email dan Kode Login!', 'warning');
       
-      let res = await kirimKeExcel({ action: "login", email: email, kodeLogin: kode });
+      btn.innerHTML = `Memverifikasi...`; btn.disabled = true;
+      let res = await apiCall({ action: "login", email: email, kodeLogin: kode });
       
       if(res && res.success) {
         localStorage.setItem("panitiaSessionPMB", JSON.stringify({ nama: res.nama, kategoriList: res.kategoriList }));
-        document.getElementById("view-login").classList.add("hidden");
-        document.getElementById("view-dashboard").classList.remove("hidden");
-        document.getElementById("nama-panitia").innerText = res.nama;
-        
-        let select = document.getElementById("pilih-tugas");
-        select.innerHTML = "";
-        res.kategoriList.forEach(t => select.innerHTML += `<option value="${t}">${t}</option>`);
-        sesuaikanInput();
-
+        setupDashboard(res.nama, res.kategoriList);
         await refreshDataPeserta(false);
-        html5QrCode = new Html5Qrcode("reader");
-        nyalakanKamera();
+        initCamera();
       } else {
-        Swal.fire('Gagal Login', res.message, 'error');
-        btn.innerHTML = `MASUK SISTEM`; btn.disabled = false;
+        Swal.fire('Gagal Login', res ? res.message : 'Koneksi gagal', 'error');
+      }
+      btn.innerHTML = `MASUK SISTEM`; btn.disabled = false;
+    }
+
+    function logout() {
+      Swal.fire({
+        title: 'Keluar?', text: "Sesi Anda akan dihapus.", icon: 'warning',
+        showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'Ya, Keluar'
+      }).then((res) => {
+        if (res.isConfirmed) { localStorage.removeItem("panitiaSessionPMB"); location.reload(); }
+      });
+    }
+
+    // --- FUNGSI UI UX ---
+    function togglePassword() {
+      let input = document.getElementById("kodeLogin");
+      let icon = document.getElementById("icon-mata");
+      if (input.type === "password") {
+        input.type = "text";
+        icon.classList.replace("bi-eye-slash", "bi-eye");
+        icon.classList.add("text-primary"); icon.classList.remove("text-muted");
+      } else {
+        input.type = "password";
+        icon.classList.replace("bi-eye", "bi-eye-slash");
+        icon.classList.add("text-muted"); icon.classList.remove("text-primary");
       }
     }
 
@@ -264,22 +240,40 @@
       const label = document.getElementById("label-input");
 
       if (tugas.includes("lari")) {
-        wrapLari.classList.remove("hidden"); wrapCheck.classList.add("hidden"); label.innerText = "Input Hasil Lari (Angka):";
+        wrapLari.classList.remove("hidden"); wrapCheck.classList.add("hidden"); 
+        label.innerText = "Input Hasil Lari (Angka):";
       } else if (tugas.includes("kesehatan")) {
-        wrapLari.classList.add("hidden"); wrapCheck.classList.add("hidden"); label.innerText = "Silakan isi Catatan Medis di bawah:";
+        wrapLari.classList.add("hidden"); wrapCheck.classList.add("hidden"); 
+        label.innerText = "Silakan isi Catatan Medis di bawah:";
       } else {
-        wrapLari.classList.add("hidden"); wrapCheck.classList.remove("hidden"); label.innerText = "Status Kelulusan:";
+        wrapLari.classList.add("hidden"); wrapCheck.classList.remove("hidden"); 
+        label.innerText = "Status Kelulusan:";
         document.getElementById("input-check-lolos").checked = false; toggleLabel();
       }
     }
 
-    document.getElementById("pilih-tugas").addEventListener("change", sesuaikanInput);
+    // --- FUNGSI DATA & SCANNER ---
+    async function refreshDataPeserta(showToast = true) {
+      let btn = document.getElementById("btn-refresh");
+      if(btn) { btn.innerHTML = `<i class="bi bi-hourglass-split me-1"></i> Menyinkron...`; btn.disabled = true; }
+      
+      let res = await apiCall({ action: "getHadir" });
+      if(res && res.success) {
+        dataHadir = res.data;
+        if(showToast) Swal.fire({icon: 'success', title: 'Data Diperbarui!', toast: true, position: 'top', showConfirmButton: false, timer: 2000});
+      }
+      if(btn) { btn.innerHTML = `<i class="bi bi-arrow-repeat me-1"></i> Sinkronisasi Data Terbaru`; btn.disabled = false; }
+    }
+
+    function initCamera() {
+      if(!html5QrCode) html5QrCode = new Html5Qrcode("reader");
+      nyalakanKamera();
+    }
 
     function nyalakanKamera() {
       document.getElementById("btn-restart-cam").classList.add("hidden");
       html5QrCode.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 },
+        { facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 },
         onScanSuccess, () => {}
       ).catch(() => {
         Swal.fire('Kamera Error', 'Izinkan penggunaan kamera di browser.', 'warning');
@@ -295,14 +289,14 @@
         let peserta = dataHadir.find(p => p.no_peserta.toString() === decodedText.toString());
         
         if(peserta) {
+          // SAFEGUARD FRONTEND
           const tugasSkg = document.getElementById("pilih-tugas").value.toLowerCase();
           const butuhVerif = tugasSkg.includes("ketinggian") || tugasSkg.includes("sempit") || tugasSkg.includes("lari");
           
-          if (butuhVerif && peserta.lolos_verifikasi !== "Lolos") {
+          if (butuhVerif && peserta.lolos_verifikasi.toLowerCase() !== "lolos") {
              Swal.fire({
-                icon: 'error', 
-                title: 'DITOLAK!', 
-                text: `Peserta ${peserta.nama} BELUM Lolos Verifikasi Administrasi! Jika peserta merasa baru saja verifikasi, silakan klik tombol Sinkronisasi Data.`,
+                icon: 'error', title: 'DITOLAK!', 
+                text: `Peserta ${peserta.nama} BELUM Lolos Verifikasi Administrasi!`,
                 confirmButtonText: 'Kembali Scan'
              }).then(() => batal());
              return; 
@@ -314,8 +308,7 @@
           document.getElementById("input-lari").value = "";
           document.getElementById("input-catatan").value = "";
           if(document.getElementById("input-check-lolos")) {
-             document.getElementById("input-check-lolos").checked = false;
-             toggleLabel(); 
+             document.getElementById("input-check-lolos").checked = false; toggleLabel(); 
           }
           document.getElementById("form-nilai").classList.remove("hidden");
         } else {
@@ -352,7 +345,7 @@
       let btn = document.getElementById("btn-simpan");
       btn.innerHTML = `Menyimpan...`; btn.disabled = true;
       
-      let res = await kirimKeExcel({
+      let res = await apiCall({
         action: "simpanNilai", noPeserta: pesertaSedangDinilai,
         kategori: tugas, nilaiUtama: nilai, nilaiCatatan: document.getElementById("input-catatan").value
       });
@@ -361,7 +354,7 @@
         Swal.fire({ icon: 'success', title: 'Data Tersimpan!', timer: 1500, showConfirmButton: false });
         setTimeout(() => batal(), 1500);
       } else {
-        Swal.fire('Gagal', res.message, 'error');
+        Swal.fire('Gagal', res ? res.message : 'Error server.', 'error');
       }
       
       btn.innerHTML = `SIMPAN`; btn.disabled = false;
