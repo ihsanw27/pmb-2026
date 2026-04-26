@@ -57,7 +57,7 @@
     <div class="card-login text-center">
       <img src="https://i.ibb.co.com/TDsSQQ6B/IMG-1501-removebg-preview.png" alt="Logo Kampus" class="campus-logo">
       <h4 class="fw-bold mb-1">Portal Dashboard</h4>
-      <p class="small mb-4 fw-medium text-muted">Dashboard Tes Fisik PMB PIPB</p>
+      <p class="small mb-4 fw-medium text-muted">Dashboard Panitia Tes Fisik PMB PIPB</p>
       
       <div class="input-group mb-3"><span class="input-group-text"><i class="bi bi-envelope"></i></span><input type="email" id="email" class="form-control border-start-0" placeholder="Email Terdaftar"></div>
       <div class="input-group mb-4"><span class="input-group-text"><i class="bi bi-key"></i></span><input type="password" id="kode" class="form-control border-start-0 border-end-0" placeholder="Kode Keamanan"><span class="input-group-text bg-transparent border-start-0 cursor-pointer" onclick="togglePwd()"><i class="bi bi-eye-slash" id="icon-mata"></i></span></div>
@@ -160,7 +160,7 @@
           
           <div class="input-group search-box shadow-sm">
             <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
-            <input type="text" id="searchInput" class="form-control border-start-0 ps-0" placeholder="Cari Nama, No Peserta, atau Status..." onkeyup="filterTable()">
+            <input type="text" id="searchInput" class="form-control border-start-0 ps-0" placeholder="Cari Nama, No Peserta..." onkeyup="filterTable()">
           </div>
         </div>
 
@@ -213,30 +213,36 @@
       try { 
         let res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), signal: controller.signal }); 
         clearTimeout(timeoutId); return JSON.parse(await res.text()); 
-      } catch(e) { clearTimeout(timeoutId); return { success: false, message: "Koneksi terputus atau server sibuk." }; }
+      } catch(e) { clearTimeout(timeoutId); return { success: false, message: "Koneksi terputus." }; }
     }
 
     async function login() {
-  let email = document.getElementById("email").value, kode = document.getElementById("kode").value;
-  if(!email || !kode) return Swal.fire('Peringatan', 'Isi email dan kode!', 'warning');
-  
-  let res = await api({ action: "login", email: email, kodeLogin: kode });
-  
-  if(res.success) {
-    // Memastikan kategoriList diproses sebagai array dan dicari kata "Management"
-    let roles = Array.isArray(res.kategoriList) ? res.kategoriList : [];
-    let isManagement = roles.some(r => r.toLowerCase().trim() === "management");
+      let email = document.getElementById("email").value, kode = document.getElementById("kode").value;
+      if(!email || !kode) return Swal.fire('Data Belum Lengkap', 'Masukkan Email dan Kode Keamanan!', 'warning'); 
+      
+      let btn = document.getElementById("btn-login"), ic = document.getElementById("l-icon"), tx = document.getElementById("l-text");
+      btn.disabled = true; ic.className = "spinner-border spinner-border-sm"; tx.innerText = "Memverifikasi...";
+      
+      let res = await api({ action: "login", email: email, kodeLogin: kode });
+      
+      if(res.success) { 
+        let rolesArray = Array.isArray(res.kategoriList) ? res.kategoriList : (res.kategoriList || "").toString().split(",");
+        let isManagement = rolesArray.some(role => role.toLowerCase().trim() === "management");
 
-    if (isManagement) {
-      localStorage.setItem("dashSess", JSON.stringify({ nama: res.nama, jabatan: roles.join(", ") }));
-      restoreSession();
-    } else {
-      Swal.fire('Akses Ditolak', 'Anda bukan bagian dari Management.', 'error');
+        if (isManagement) {
+          localStorage.setItem("dashSess", JSON.stringify({ nama: res.nama, jabatan: rolesArray.join(", ") })); 
+          restoreSession(); 
+        } else {
+          Swal.fire({
+            icon: 'error', title: 'Akses Ditolak!', 
+            text: 'Anda tidak memiliki Hak Akses "Management".', confirmButtonColor: '#ff8787'
+          });
+        }
+      } else { 
+        Swal.fire({icon:'error', title:'Login Gagal', text:res.message, confirmButtonColor:'#5b7cfa'}); 
+      }
+      btn.disabled = false; ic.className = "bi bi-shield-lock"; tx.innerText = "MASUK DASHBOARD";
     }
-  } else {
-    Swal.fire('Gagal', res.message, 'error');
-  }
-}
 
     function restoreSession() {
       let sess = JSON.parse(localStorage.getItem("dashSess"));
