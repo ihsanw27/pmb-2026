@@ -186,7 +186,7 @@
     // 1. PROSES LOGIN
     async function login() {
       let email = document.getElementById("email-login").value;
-      let kode = document.getElementById("kode-login").value;
+      let kode = document.getElementById("kodeLogin").value; // <-- INI YANG DIPERBAIKI
       let btn = document.getElementById("btn-login");
       
       if(!email || !kode) {
@@ -197,7 +197,7 @@
       btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Memverifikasi...`;
       btn.disabled = true;
       
-      let res = await kirimKeExcel({ action: "login", email: email, kodeLogin: kode.toUpperCase() });
+      let res = await kirimKeExcel({ action: "login", email: email, kodeLogin: kode }); // <-- .toUpperCase() DIHAPUS KARENA CASE-SENSITIVE
       
       if(res && res.success) {
         document.getElementById("view-login").classList.add("hidden");
