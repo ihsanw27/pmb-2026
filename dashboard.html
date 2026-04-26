@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Executive Dashboard | Monitoring PMB</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f8fafc;
+      --accent-blue: #3b82f6;
+      --accent-green: #22c55e;
+    }
+    body { background-color: var(--bg-dark); color: var(--text-main); font-family: 'Inter', sans-serif; }
+    .card-stat { 
+      background: var(--card-bg); 
+      border: 1px solid #334155; 
+      border-radius: 16px; 
+      padding: 20px; 
+      transition: 0.3s; 
+      height: 100%; 
+    }
+    .card-stat:hover { border-color: var(--accent-blue); transform: translateY(-3px); }
+    .text-glow-blue { text-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
+    .text-glow-green { text-shadow: 0 0 15px rgba(34, 197, 94, 0.5); }
+    
+    .progress-container { background-color: #334155; height: 10px; border-radius: 10px; overflow: hidden; }
+    .bar-fill { height: 100%; transition: width 1s ease-in-out; border-radius: 10px; }
+    
+    .status-online { width: 10px; height: 10px; border-radius: 50%; background: var(--accent-green); display: inline-block; box-shadow: 0 0 10px var(--accent-green); }
+    .box-data { background: #0f172a; border-radius: 12px; padding: 15px; border: 1px solid #334155; }
+    .gender-icon { font-size: 1.2rem; vertical-align: middle; }
+  </style>
+</head>
+<body>
+
+  <div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h3 class="fw-bold mb-0 text-glow-blue"><i class="bi bi-graph-up-arrow me-2"></i>Executive PMB Analytics</h3>
+        <p class="text-muted small mb-0">Pemantauan Real-Time Seleksi Fisik & Verifikasi</p>
+      </div>
+      <div class="text-end">
+        <div class="small fw-bold text-success mb-1">
+          <span class="status-online me-1"></span> LIVE SYSTEM
+        </div>
+        <p class="text-muted style" style="font-size: 0.75rem;">Update Terakhir: <span id="last-update">-</span></p>
+      </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+      <div class="col-md-3">
+        <div class="card-stat">
+          <h6 class="text-uppercase small fw-bold text-muted">Total Pendaftar</h6>
+          <h2 id="stat-total" class="fw-bold mb-2">0</h2>
+          <div class="d-flex gap-3 small">
+            <span class="text-primary"><i class="bi bi-gender-male gender-icon"></i> <span id="stat-pria">0</span></span>
+            <span class="text-danger"><i class="bi bi-gender-female gender-icon"></i> <span id="stat-wanita">0</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="card-stat">
+          <h6 class="text-uppercase small fw-bold text-info">Total Check-In</h6>
+          <h2 id="stat-checkin" class="fw-bold mb-2 text-info">0</h2>
+          <div class="small text-muted">Rasio Kehadiran: <span id="res-rasio-checkin" class="fw-bold">0</span>%</div>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="card-stat border-success">
+          <h6 class="text-uppercase small fw-bold text-success">Lolos Verifikasi</h6>
+          <h2 id="stat-verif" class="fw-bold mb-2 text-success text-glow-green">0</h2>
+          <div class="small text-muted">Rasio Kelulusan: <span id="res-rasio-verif" class="fw-bold">0</span>%</div>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="card-stat border-warning">
+          <h6 class="text-uppercase small fw-bold text-warning">Rerata Tes Lari</h6>
+          <h2 id="stat-lari-avg" class="fw-bold mb-2 text-warning">0</h2>
+          <div class="small text-muted">Min: <span id="stat-lari-min">0</span> | Max: <span id="stat-lari-max">0</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-7">
+        <div class="card-stat">
+          <h5 class="fw-bold mb-4"><i class="bi bi-check2-all me-2"></i>Progress Kelulusan Verifikasi</h5>
+          
+          <div class="mb-4">
+            <div class="d-flex justify-content-between mb-2">
+              <span class="small fw-bold">Rasio Verifikasi / Pendaftar</span>
+              <span id="label-bar-verif" class="fw-bold text-success">0%</span>
+            </div>
+            <div class="progress-container">
+              <div id="bar-verif" class="bar-fill" style="width: 0%; background: linear-gradient(90deg, #22c55e, #4ade80);"></div>
+            </div>
+          </div>
+
+          <div class="mb-2">
+            <div class="d-flex justify-content-between mb-2">
+              <span class="small fw-bold">Rasio Check-In / Pendaftar</span>
+              <span id="label-bar-checkin" class="fw-bold text-info">0%</span>
+            </div>
+            <div class="progress-container">
+              <div id="bar-checkin" class="bar-fill" style="width: 0%; background: linear-gradient(90deg, #3b82f6, #60a5fa);"></div>
+            </div>
+          </div>
+          <p class="small text-muted mt-4">*Data dihitung berdasarkan kolom 'kehadiran' dan 'lolos_verifikasi' di database.</p>
+        </div>
+      </div>
+
+      <div class="col-lg-5">
+        <div class="card-stat border-secondary">
+          <h5 class="fw-bold mb-3"><i class="bi bi-info-circle me-2"></i>Summary Statistik</h5>
+          <div class="row g-2">
+            <div class="col-6">
+              <div class="box-data text-center">
+                <div class="small text-muted">Lolos Ketinggian</div>
+                <h4 id="stat-tinggi-pass" class="fw-bold mb-0">0</h4>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="box-data text-center">
+                <div class="small text-muted">Lolos R. Sempit</div>
+                <h4 id="stat-sempit-pass" class="fw-bold mb-0">0</h4>
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 p-3 bg-dark border border-secondary rounded">
+            <p class="small mb-0 text-muted"><i class="bi bi-exclamation-triangle me-2"></i>Catatan Manajemen:</p>
+            <p class="small mb-0">Seluruh data yang ditampilkan bersifat sementara (real-time) dan dapat berubah hingga seluruh proses seleksi fisik ditutup oleh admin.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // GANTI URL DI BAWAH INI DENGAN URL DEPLOYMENT GOOGLE APPS SCRIPT ANDA
+    const API_URL = "URL_APPS_SCRIPT_ANDA_DISINI";
+
+    async function fetchData() {
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: "getSummary" })
+        });
+        const res = await response.json();
+
+        if (res.success) {
+          // Update Angka Utama
+          document.getElementById('stat-total').innerText = res.total;
+          document.getElementById('stat-pria').innerText = res.pria;
+          document.getElementById('stat-wanita').innerText = res.wanita;
+          
+          document.getElementById('stat-checkin').innerText = res.checkIn;
+          document.getElementById('res-rasio-checkin').innerText = res.rasioCheckIn;
+          
+          document.getElementById('stat-verif').innerText = res.verifLolos;
+          document.getElementById('res-rasio-verif').innerText = res.rasioVerif;
+          
+          document.getElementById('stat-lari-avg').innerText = res.lariAvg;
+          document.getElementById('stat-lari-min').innerText = res.lariMin;
+          document.getElementById('stat-lari-max').innerText = res.lariMax;
+
+          // Update Progress Bars
+          document.getElementById('bar-verif').style.width = res.rasioVerif + "%";
+          document.getElementById('label-bar-verif').innerText = res.rasioVerif + "%";
+          
+          document.getElementById('bar-checkin').style.width = res.rasioCheckIn + "%";
+          document.getElementById('label-bar-checkin').innerText = res.rasioCheckIn + "%";
+
+          // Info Tambahan
+          document.getElementById('stat-tinggi-pass').innerText = res.tinggiPass || 0;
+          document.getElementById('stat-sempit-pass').innerText = res.sempitPass || 0;
+
+          document.getElementById('last-update').innerText = res.timestamp;
+        }
+      } catch (err) {
+        console.error("Gagal memperbarui dashboard:", err);
+      }
+    }
+
+    // Interval Update setiap 15 detik
+    setInterval(fetchData, 15000);
+    // Jalankan sekali saat load pertama
+    fetchData();
+  </script>
+</body>
+</html>
