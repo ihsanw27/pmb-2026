@@ -7,33 +7,71 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <style>
-    :root {
-      --bg-dark: #0f172a;
-      --card-bg: #1e293b;
-      --text-main: #f8fafc;
-      --accent-blue: #3b82f6;
-      --accent-green: #22c55e;
-    }
-    body { background-color: var(--bg-dark); color: var(--text-main); font-family: 'Inter', sans-serif; }
-    .card-stat { 
-      background: var(--card-bg); 
-      border: 1px solid #334155; 
-      border-radius: 16px; 
-      padding: 20px; 
-      transition: 0.3s; 
-      height: 100%; 
-    }
-    .card-stat:hover { border-color: var(--accent-blue); transform: translateY(-3px); }
-    .text-glow-blue { text-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
-    .text-glow-green { text-shadow: 0 0 15px rgba(34, 197, 94, 0.5); }
-    
-    .progress-container { background-color: #334155; height: 10px; border-radius: 10px; overflow: hidden; }
-    .bar-fill { height: 100%; transition: width 1s ease-in-out; border-radius: 10px; }
-    
-    .status-online { width: 10px; height: 10px; border-radius: 50%; background: var(--accent-green); display: inline-block; box-shadow: 0 0 10px var(--accent-green); }
-    .box-data { background: #0f172a; border-radius: 12px; padding: 15px; border: 1px solid #334155; }
-    .gender-icon { font-size: 1.2rem; vertical-align: middle; }
-  </style>
+  :root {
+    --bg-dark: #0f172a;       /* Latar belakang utama (Sangat Gelap) */
+    --card-bg: #1e293b;       /* Latar belakang kartu (Biru Gelap) */
+    --text-white: #ffffff;    /* Teks utama (Putih Bersih) */
+    --text-muted: #94a3b8;    /* Teks keterangan (Abu-abu Slate) */
+    --accent-blue: #3b82f6;
+    --accent-green: #22c55e;
+  }
+
+  body { 
+    background-color: var(--bg-dark); 
+    color: var(--text-white); /* Memastikan semua teks default jadi putih */
+    font-family: 'Inter', sans-serif; 
+  }
+
+  .card-stat { 
+    background: var(--card-bg); 
+    border: 1px solid #334155; 
+    border-radius: 16px; 
+    padding: 20px; 
+    transition: 0.3s; 
+    height: 100%; 
+    color: var(--text-white); /* Teks di dalam kartu harus putih */
+  }
+
+  /* Judul kecil di atas angka (misal: "TOTAL PENDAFTAR") */
+  .text-muted { 
+    color: var(--text-muted) !important; 
+  }
+
+  /* Angka-angka besar */
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--text-white);
+    font-weight: 700;
+  }
+
+  /* Box data kecil di bagian summary */
+  .box-data { 
+    background: #0f172a; 
+    border-radius: 12px; 
+    padding: 15px; 
+    border: 1px solid #334155;
+    color: var(--text-white);
+  }
+
+  .progress-container { 
+    background-color: #334155; 
+    height: 10px; 
+    border-radius: 10px; 
+    overflow: hidden; 
+    margin-top: 5px;
+  }
+
+  .bar-fill { 
+    height: 100%; 
+    transition: width 1s ease-in-out; 
+    border-radius: 10px; 
+  }
+
+  .text-glow-blue { text-shadow: 0 0 15px rgba(59, 130, 246, 0.6); color: #60a5fa !important; }
+  .text-glow-green { text-shadow: 0 0 15px rgba(34, 197, 94, 0.6); color: #4ade80 !important; }
+
+  /* Menghilangkan seleksi biru pada teks jika di klik */
+  * { -webkit-tap-highlight-color: transparent; }
+</style>
 </head>
 <body>
 
