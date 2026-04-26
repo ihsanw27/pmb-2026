@@ -136,12 +136,30 @@
 
     async function restoreSess() {
       let sess = JSON.parse(localStorage.getItem("pmbSess"));
-      document.getElementById("view-login").classList.add("hidden"); document.getElementById("view-dashboard").classList.remove("hidden");
-      document.getElementById("nama-panitia").textContent = sess.nama;
-      let sel = document.getElementById("pilih-tugas"); sel.innerHTML = "";
+      document.getElementById("view-login").classList.add("hidden"); 
+      document.getElementById("view-dashboard").classList.remove("hidden");
+      document.getElementById("nama-panitia").innerText = sess.nama;
+      
+      let sel = document.getElementById("pilih-tugas"); 
+      sel.innerHTML = "";
       sess.roles.forEach(r => sel.innerHTML += `<option value="${r}">${r}</option>`);
-      resetUI(); await syncData(false);
-      qrScanner = new Html5Qrcode("reader"); initCam();
+      
+      resetUI(); 
+      await syncData(false);
+      qrScanner = new Html5Qrcode("reader"); 
+      initCam();
+
+      // ==========================================
+      // TAMBAHKAN KODE INI UNTUK AUTO-UPDATE 30 DETIK
+      // ==========================================
+      setInterval(() => {
+        // Cek apakah panitia sedang login (berada di dashboard)
+        if (!document.getElementById("view-dashboard").classList.contains("hidden")) {
+          // Sinkronisasi di latar belakang (false = tanpa memunculkan popup sukses)
+          syncData(false); 
+        }
+      }, 30000); // 30000 milidetik = 30 detik
+      // ==========================================
     }
 
     function logout() { localStorage.removeItem("pmbSess"); location.reload(); }
