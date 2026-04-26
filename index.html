@@ -71,42 +71,55 @@
   </div>
 
   <script>
-    // ==========================================
-    // MASUKKAN URL API GOOGLE SCRIPT YANG SAMA!
-    // ==========================================
+    // ==========================================================
+    // KONFIGURASI API — GANTI URL INI JIKA DEPLOY ULANG GAS
+    // (Samakan dengan URL di panitia.html dan dashboard.html)
+    // ==========================================================
     const API_URL = "https://script.google.com/macros/s/AKfycbzJQjxT6QKsyuNMn4KCxsFuRAD5MPItgHdqPVdAvintroDIf9dAeMxhCWyyaX4LkfeW/exec";
 
+    // --- FUNGSI API FETCH (robust: ambil teks dulu, lalu parse JSON) ---
+    async function apiCall(dataPayload) {
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify(dataPayload)
+        });
+        const text = await response.text();
+        try {
+          return JSON.parse(text);
+        } catch (err) {
+          console.error("Respon bukan JSON:", text);
+          return { success: false, message: "Terjadi kesalahan format data di server." };
+        }
+      } catch (e) {
+        console.error("Fetch error:", e);
+        Swal.fire('Koneksi Gagal', 'Pastikan internet Anda stabil.', 'error');
+        return null;
+      }
+    }
+
     async function loginPeserta() {
-      let no = document.getElementById("no-peserta").value;
+      let no = document.getElementById("no-peserta").value.trim();
       if(!no) return Swal.fire('Data Kosong', 'Masukkan Nomor Pendaftaran!', 'warning');
       
       let btn = document.getElementById("btn-login");
       btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Mencari...`;
       btn.disabled = true;
 
-      try {
-        let res = await fetch(API_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: "loginPeserta", noPeserta: no })
-        }).then(r => r.json());
+      const res = await apiCall({ action: "loginPeserta", noPeserta: no });
 
-        if(res && res.success) {
-          // Isi data text
-          document.getElementById("nama-peserta").innerText = res.nama;
-          document.getElementById("nomor-peserta").innerText = res.no_peserta;
-          
-          // Generate QR Code otomatis pakai API luar
-          let qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(res.no_peserta)}`;
-          document.getElementById("qr-image").src = qrUrl;
+      if(res && res.success) {
+        document.getElementById("nama-peserta").innerText = res.nama;
+        document.getElementById("nomor-peserta").innerText = res.no_peserta;
+        
+        // Generate QR Code otomatis pakai API luar
+        let qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(res.no_peserta)}`;
+        document.getElementById("qr-image").src = qrUrl;
 
-          // Pindah Halaman
-          document.getElementById("view-login").classList.add("hidden");
-          document.getElementById("view-kartu").classList.remove("hidden");
-        } else {
-          Swal.fire('Tidak Ditemukan', res.message, 'error');
-        }
-      } catch(e) {
-        Swal.fire('Koneksi Gagal', 'Pastikan internet Anda stabil.', 'error');
+        document.getElementById("view-login").classList.add("hidden");
+        document.getElementById("view-kartu").classList.remove("hidden");
+      } else if (res) {
+        Swal.fire('Tidak Ditemukan', res.message || 'Nomor peserta tidak ditemukan.', 'error');
       }
 
       btn.innerHTML = `TAMPILKAN QR CODE <i class="bi bi-qr-code ms-1"></i>`;
