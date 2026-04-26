@@ -147,14 +147,26 @@
 
     // --- FUNGSI API FETCH ---
     async function apiCall(dataPayload) {
-      try {
-        const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify(dataPayload) });
-        return await response.json();
-      } catch (e) {
-        Swal.fire('Error', 'Internet terputus atau server gagal merespons!', 'error');
-        return null;
-      }
+  try {
+    const response = await fetch(API_URL, { 
+      method: 'POST', 
+      body: JSON.stringify(dataPayload) 
+    });
+    
+    const text = await response.text(); // Ambil respon sebagai teks dulu
+    
+    try {
+      return JSON.parse(text); // Coba ubah ke JSON
+    } catch (err) {
+      // Jika gagal jadi JSON (berarti isinya error HTML/CSS)
+      console.error("Respon bukan JSON:", text);
+      return { success: false, message: "Terjadi kesalahan format data di server. Pastikan tidak ada karakter aneh di Google Sheets." };
     }
+  } catch (e) {
+    Swal.fire('Error', 'Internet terputus!', 'error');
+    return null;
+  }
+}
 
     // --- FUNGSI SESI & LOGIN ---
     async function checkSession() {
