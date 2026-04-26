@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Portal Panitia Tes Fisik PMB PIPB</title>
+  <title>Portal Panitia Lapangan TTes Fisik PMB PIPB</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -127,10 +127,7 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbzJQjxT6QKsyuNMn4KCxsFuRAD5MPItgHdqPVdAvintroDIf9dAeMxhCWyyaX4LkfeW/exec"; 
     let qrScanner, activeNo = "", pesertaList = [], intervalSync;
     
-    let isBulkMode = false;
-    let bulkQueue = [];
-    let isScanningPaused = false; 
-    let currentRole = ""; 
+    let isBulkMode = false, bulkQueue = [], isScanningPaused = false, currentRole = ""; 
 
     window.onload = () => { if(localStorage.getItem("pmbSess")) restoreSess(); };
 
@@ -212,9 +209,7 @@
             bulkQueue = []; renderBulkUI();
             currentRole = newRole; resetUI();
             Swal.fire({toast: true, position: 'top', icon: 'info', title: `Pos aktif: ${currentRole}`, showConfirmButton: false, timer: 1500});
-          } else {
-            document.getElementById("pilih-tugas").value = currentRole; 
-          }
+          } else { document.getElementById("pilih-tugas").value = currentRole; }
         });
       } else {
         currentRole = newRole; resetUI();
@@ -233,9 +228,7 @@
     function renderBulkUI() {
       document.getElementById("bulk-count").innerText = bulkQueue.length;
       let ul = document.getElementById("bulk-list"); ul.innerHTML = "";
-      bulkQueue.forEach((p, idx) => {
-        ul.innerHTML += `<li class="d-flex justify-content-between align-items-center mb-1 py-1 border-bottom border-light"><span><b>${idx+1}.</b> ${p.nama} (${p.no})</span> <i class="bi bi-x-circle text-danger" style="cursor:pointer;" onclick="hapusBulk(${idx})"></i></li>`;
-      });
+      bulkQueue.forEach((p, idx) => { ul.innerHTML += `<li class="d-flex justify-content-between align-items-center mb-1 py-1 border-bottom border-light"><span><b>${idx+1}.</b> ${p.nama} (${p.no})</span> <i class="bi bi-x-circle text-danger" style="cursor:pointer;" onclick="hapusBulk(${idx})"></i></li>`; });
     }
 
     function hapusBulk(idx) { bulkQueue.splice(idx, 1); renderBulkUI(); }
@@ -307,7 +300,6 @@
 
     function lanjutScan(p, txt) {
       let t = document.getElementById("pilih-tugas").value.toLowerCase();
-      
       let isVerifikasi = t.includes("verifikasi") || t.includes("administrasi");
       let isKesehatan = t.includes("kesehatan") || t.includes("medis");
 
@@ -330,7 +322,6 @@
       document.getElementById("area-scanner").classList.add("hidden"); document.getElementById("form-nilai-single").classList.remove("hidden");
     }
 
-    // MEMBANGUN TABEL (MENGISI DENGAN DATA YANG TERSIMPAN JIKA ADA)
     function mulaiInputBulk() {
       if(bulkQueue.length === 0) return Swal.fire('Kosong', 'Belum ada peserta yang discan', 'warning');
       try { qrScanner.stop(); } catch(e){} 
@@ -394,21 +385,22 @@
       let btn = document.getElementById("btn-simpan-single"), ic = document.getElementById("simpan-icon-single"), tx = document.getElementById("simpan-text-single");
       btn.disabled = true; ic.className = "spinner-border spinner-border-sm"; tx.innerText = "Menyimpan...";
       
-      let res = await api({ action: "simpanNilai", noPeserta: activeNo, kategori: t, nilaiUtama: val, nilaiCatatan: document.getElementById("val-catatan-single").value });
+      // Mengirimkan NAMA PANITIA untuk dicatat di Excel
+      let sess = JSON.parse(localStorage.getItem("pmbSess"));
+      let res = await api({ action: "simpanNilai", noPeserta: activeNo, kategori: t, nilaiUtama: val, nilaiCatatan: document.getElementById("val-catatan-single").value, namaPanitia: sess.nama });
+      
       if(res.success) { Swal.fire({icon:'success', title:'Tersimpan', timer:1500, showConfirmButton:false}); setTimeout(batal, 1500); } 
       else { Swal.fire({icon:'error', title:'Gagal', text:res.message, confirmButtonColor:'#5b7cfa'}); resetUI(); }
       
       btn.disabled = false; ic.className = "bi bi-save2"; tx.innerText = "SIMPAN DATA";
     }
 
-    // FUNGSI UPLOAD BULK DENGAN FITUR INTERUPSI / PEMBATALAN
     async function simpanBulk() {
       let t = document.getElementById("pilih-tugas").value;
       let t_low = t.toLowerCase();
       let isLari = t_low.includes("lari");
       let isKesehatan = t_low.includes("kesehatan") || t_low.includes("medis");
 
-      // 1. Validasi & Amankan Inputan Panitia ke dalam memory
       for(let i=0; i<bulkQueue.length; i++) {
         let val = "";
         if(isLari) {
@@ -423,91 +415,51 @@
       }
 
       document.getElementById("btn-simpan-bulk").disabled = true;
-
-      // 2. Tampilkan Popup Loading (Tanpa OK, Hanya Tombol CANCEL BESAR)
       let isCancelled = false;
+
       Swal.fire({
          title: 'Sedang Mengunggah Data...',
-         html: `
-           <div class="my-4">
-             <div class="spinner-border text-primary" style="width: 3.5rem; height: 3.5rem;" role="status"></div>
-           </div>
-           <div id="swal-progress-text" class="fw-bold fs-5 text-primary">Memulai...</div>
-         `,
-         allowOutsideClick: false,
-         showConfirmButton: false, // Hilangkan tombol OK!
-         showCancelButton: true,
-         cancelButtonText: '<i class="bi bi-x-octagon-fill me-1"></i> BATALKAN SISA',
-         cancelButtonColor: '#dc3545',
-         customClass: {
-           cancelButton: 'btn btn-danger btn-lg px-4 py-2 fw-bold shadow-sm w-100'
-         }
-      }).then((result) => {
-         if (result.isDismissed) isCancelled = true;
-      });
+         html: `<div class="my-4"><div class="spinner-border text-primary" style="width: 3.5rem; height: 3.5rem;" role="status"></div></div><div id="swal-progress-text" class="fw-bold fs-5 text-primary">Memulai...</div>`,
+         allowOutsideClick: false, showConfirmButton: false, showCancelButton: true,
+         cancelButtonText: '<i class="bi bi-x-octagon-fill me-1"></i> BATALKAN SISA', cancelButtonColor: '#dc3545',
+         customClass: { cancelButton: 'btn btn-danger btn-lg px-4 py-2 fw-bold shadow-sm w-100' }
+      }).then((result) => { if (result.isDismissed) isCancelled = true; });
 
-      let successIndices = [];
-      let gagal = 0;
+      let successIndices = [], gagal = 0;
+      let sess = JSON.parse(localStorage.getItem("pmbSess"));
 
-      // 3. Proses Pengiriman Satu per Satu (Bisa Diinterupsi)
       for(let i=0; i<bulkQueue.length; i++) {
-         if(isCancelled) break; // REM DARURAT JIKA DIBATALKAN PANITIA!
-
+         if(isCancelled) break; 
          let b = bulkQueue[i];
          let pText = document.getElementById("swal-progress-text");
          if(pText) pText.innerHTML = `Menyimpan <b>${i+1}</b> dari <b>${bulkQueue.length}</b><br><span class="small text-muted fw-medium">${b.nama}</span>`;
          
-         let res = await api({ action: "simpanNilai", noPeserta: b.no, kategori: t, nilaiUtama: b.tempVal, nilaiCatatan: b.tempCat });
-         if(res.success) {
-            successIndices.push(i);
-         } else {
-            gagal++;
-         }
+         // MENGIRIM NAMA PANITIA KE SERVER
+         let res = await api({ action: "simpanNilai", noPeserta: b.no, kategori: t, nilaiUtama: b.tempVal, nilaiCatatan: b.tempCat, namaPanitia: sess.nama });
+         if(res.success) successIndices.push(i); else gagal++;
       }
 
       document.getElementById("btn-simpan-bulk").disabled = false;
 
-      // 4. Hapus data yang SUKSES terkirim dari keranjang UI (Hapus dari belakang agar urutan aman)
-      for (let i = successIndices.length - 1; i >= 0; i--) {
-          bulkQueue.splice(successIndices[i], 1);
-      }
+      for (let i = successIndices.length - 1; i >= 0; i--) { bulkQueue.splice(successIndices[i], 1); }
 
-      // 5. Rekapitulasi Akhir
       if (isCancelled) {
           Swal.fire({
-             icon: 'info',
-             title: 'Pengiriman Dihentikan',
-             html: `
-               <div class="text-start mt-3">
-                 <p class="mb-1"><i class="bi bi-check-circle-fill text-success"></i> <b>${successIndices.length}</b> peserta berhasil terkirim.</p>
-                 <p class="mb-0"><i class="bi bi-exclamation-circle-fill text-warning"></i> <b>${bulkQueue.length}</b> peserta batal dikirim.</p>
-               </div>
-             `,
-             confirmButtonText: 'OKE SAYA MENGERTI',
-             confirmButtonColor: '#5b7cfa'
+             icon: 'info', title: 'Pengiriman Dihentikan',
+             html: `<div class="text-start mt-3"><p class="mb-1"><i class="bi bi-check-circle-fill text-success"></i> <b>${successIndices.length}</b> terkirim.</p><p class="mb-0"><i class="bi bi-exclamation-circle-fill text-warning"></i> <b>${bulkQueue.length}</b> sisa dibatalkan.</p></div>`,
+             confirmButtonText: 'OKE SAYA MENGERTI', confirmButtonColor: '#5b7cfa'
           });
           renderBulkUI();
-          if (bulkQueue.length > 0) mulaiInputBulk(); // Sisakan yang belum dikirim di form
-          else batal();
+          if (bulkQueue.length > 0) mulaiInputBulk(); else batal();
           return;
       }
 
       if(gagal > 0) {
-        Swal.fire({
-           icon: 'warning',
-           title: 'Selesai dengan Error',
-           html: `<b>${successIndices.length}</b> berhasil terkirim.<br><b>${gagal}</b> gagal terkirim.<br>Peserta yang gagal tidak dihapus dari form, silakan coba kirim ulang.`,
-           confirmButtonText: 'OKE',
-           confirmButtonColor: '#fcc419'
-        });
-        renderBulkUI();
-        if (bulkQueue.length > 0) mulaiInputBulk();
-        else batal();
+        Swal.fire({icon: 'warning', title: 'Selesai dengan Error', html: `<b>${successIndices.length}</b> terkirim.<br><b>${gagal}</b> gagal. Silakan coba lagi.`, confirmButtonText: 'OKE', confirmButtonColor: '#fcc419'});
+        renderBulkUI(); if (bulkQueue.length > 0) mulaiInputBulk(); else batal();
       } else {
-        Swal.fire('Berhasil!', 'Semua data rombongan telah berhasil diupload ke server.', 'success');
-        bulkQueue = []; 
-        renderBulkUI(); 
-        batal(); 
+        Swal.fire('Berhasil!', 'Semua data telah diupload.', 'success');
+        bulkQueue = []; renderBulkUI(); batal(); 
       }
     }
   </script>
