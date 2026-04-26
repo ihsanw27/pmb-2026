@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Monitor Tes Fisik PMB PIPB</title>
+  <title>Dashboard Monitor Tes Fisik PMB</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -30,9 +30,9 @@
     .dashboard-wrapper { flex-grow: 1; padding: 20px; }
     .navbar-custom { background: var(--bg-card); border-radius: 20px; padding: 15px 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #ffffff; }
     
-    .stat-card { background: var(--bg-card); border-radius: 20px; padding: 25px; border: 1px solid #ffffff; box-shadow: 0 4px 15px rgba(0,0,0,0.03); height: 100%; display: flex; flex-direction: column; }
-    .stat-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
-    .stat-val { font-size: 3rem; font-weight: 800; line-height: 1; margin: 0; color: var(--text-main); }
+    .stat-card { background: var(--bg-card); border-radius: 20px; padding: 25px; border: 1px solid #ffffff; box-shadow: 0 4px 15px rgba(0,0,0,0.03); height: 100%; display: flex; flex-direction: column; transition: all 0.3s ease; }
+    .stat-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; transition: all 0.3s ease; }
+    .stat-val { font-size: 3rem; font-weight: 800; line-height: 1; margin: 0; color: var(--text-main); transition: all 0.3s ease; }
     
     .progress { background-color: #edf2f7; border-radius: 50rem; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.02); }
     .progress-bar { font-weight: 600; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -57,7 +57,7 @@
     <div class="card-login text-center">
       <img src="https://i.ibb.co.com/TDsSQQ6B/IMG-1501-removebg-preview.png" alt="Logo Kampus" class="campus-logo">
       <h4 class="fw-bold mb-1">Portal Dashboard</h4>
-      <p class="small mb-4 fw-medium text-muted">Dashboard Panitia Tes Fisik PMB PIPB</p>
+      <p class="small mb-4 fw-medium text-muted">Dashboard Tes Fisik PMB PIPB</p>
       
       <div class="input-group mb-3"><span class="input-group-text"><i class="bi bi-envelope"></i></span><input type="email" id="email" class="form-control border-start-0" placeholder="Email Terdaftar"></div>
       <div class="input-group mb-4"><span class="input-group-text"><i class="bi bi-key"></i></span><input type="password" id="kode" class="form-control border-start-0 border-end-0" placeholder="Kode Keamanan"><span class="input-group-text bg-transparent border-start-0 cursor-pointer" onclick="togglePwd()"><i class="bi bi-eye-slash" id="icon-mata"></i></span></div>
@@ -140,10 +140,10 @@
         </div>
 
         <div class="col-md-4">
-          <div class="stat-card text-center justify-content-center" style="background: linear-gradient(145deg, #fff8e6 0%, #ffffff 100%); border-color: #ffec99;">
-            <div class="stat-title justify-content-center" style="color:#f59f00;"><i class="bi bi-bandaid-fill fs-5"></i> Laporan Insiden P3K</div>
-            <p class="stat-val my-2" style="color:#f59f00;" id="d-medis">0</p>
-            <p class="small fw-semibold opacity-75" style="color:#f59f00;">Peserta Ditangani Medis</p>
+          <div id="p3k-card" class="stat-card text-center justify-content-center" style="background: linear-gradient(145deg, #e6fcf5 0%, #ffffff 100%); border-color: #b2f2bb;">
+            <div id="p3k-title" class="stat-title justify-content-center" style="color:var(--success);"><i class="bi bi-bandaid-fill fs-5"></i> Laporan Insiden P3K</div>
+            <p class="stat-val my-2" style="color:var(--success);" id="d-medis">0</p>
+            <p id="p3k-text" class="small fw-semibold opacity-75" style="color:var(--success);">Peserta Ditangani Medis</p>
           </div>
         </div>
       </div>
@@ -160,7 +160,7 @@
           
           <div class="input-group search-box shadow-sm">
             <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
-            <input type="text" id="searchInput" class="form-control border-start-0 ps-0" placeholder="Cari Nama, No Peserta..." onkeyup="filterTable()">
+            <input type="text" id="searchInput" class="form-control border-start-0 ps-0" placeholder="Cari Nama, No Peserta, atau Status..." onkeyup="filterTable()">
           </div>
         </div>
 
@@ -213,7 +213,7 @@
       try { 
         let res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), signal: controller.signal }); 
         clearTimeout(timeoutId); return JSON.parse(await res.text()); 
-      } catch(e) { clearTimeout(timeoutId); return { success: false, message: "Koneksi terputus." }; }
+      } catch(e) { clearTimeout(timeoutId); return { success: false, message: "Koneksi terputus atau server sibuk." }; }
     }
 
     async function login() {
@@ -234,8 +234,10 @@
           restoreSession(); 
         } else {
           Swal.fire({
-            icon: 'error', title: 'Akses Ditolak!', 
-            text: 'Anda tidak memiliki Hak Akses "Management".', confirmButtonColor: '#ff8787'
+            icon: 'error', 
+            title: 'Akses Ditolak!', 
+            text: 'Akun Anda valid, tetapi Anda tidak memiliki Hak Akses "Management" untuk membuka Dashboard Eksekutif.', 
+            confirmButtonColor: '#ff8787'
           });
         }
       } else { 
@@ -296,7 +298,27 @@
         document.getElementById("p-tinggi").innerText = pTinggi; document.getElementById("bar-tinggi").style.width = pTinggi + "%";
         document.getElementById("p-sempit").innerText = pSempit; document.getElementById("bar-sempit").style.width = pSempit + "%";
         
+        // P3K DYNAMIC STYLING
         document.getElementById("d-medis").innerText = d.insidenMedis;
+        
+        let p3kCard = document.getElementById("p3k-card");
+        let p3kTitle = document.getElementById("p3k-title");
+        let p3kVal = document.getElementById("d-medis");
+        let p3kText = document.getElementById("p3k-text");
+        
+        if (d.insidenMedis === 0) {
+          p3kCard.style.background = "linear-gradient(145deg, #e6fcf5 0%, #ffffff 100%)";
+          p3kCard.style.borderColor = "#b2f2bb";
+          p3kTitle.style.color = "var(--success)";
+          p3kVal.style.color = "var(--success)";
+          p3kText.style.color = "var(--success)";
+        } else {
+          p3kCard.style.background = "linear-gradient(145deg, #fff5f5 0%, #ffffff 100%)";
+          p3kCard.style.borderColor = "#ffc9c9";
+          p3kTitle.style.color = "var(--danger)";
+          p3kVal.style.color = "var(--danger)";
+          p3kText.style.color = "var(--danger)";
+        }
 
         renderTable(res.data);
 
@@ -325,7 +347,7 @@
 
       dataPeserta.forEach(p => {
         let badgeMedis = p.medis !== "" 
-          ? `<span class="badge" style="background:#fff8e6; color:#f59f00; border: 1px solid #fcc419;" title="Catatan: ${p.medis}"><i class="bi bi-bandaid"></i> P3K</span>` 
+          ? `<span class="badge" style="background:#fff5f5; color:var(--danger); border: 1px solid #ffc9c9;" title="Catatan: ${p.medis}"><i class="bi bi-bandaid"></i> P3K</span>` 
           : `<span class="badge bg-success bg-opacity-10 text-success border border-success"><i class="bi bi-shield-check"></i> Aman</span>`;
 
         tbody.innerHTML += `
@@ -333,7 +355,7 @@
             <td class="fw-bold text-muted">${p.no}</td>
             <td class="fw-bold">${p.nama} <br><span class="badge bg-light text-dark border fw-normal mt-1">${p.jalur}</span></td>
             <td>${getBadgeStatus(p.verif)}</td>
-            <td class="fw-bold text-center">${p.lari !== '' ? p.lari + ' Lap' : '<span class="text-muted small">Pending</span>'}</td>
+            <td class="fw-bold text-center">${p.lari !== '' ? p.lari + ' Lap' : '<span class="badge bg-secondary">Pending</span>'}</td>
             <td class="text-center">${getBadgeStatus(p.tinggi)}</td>
             <td class="text-center">${getBadgeStatus(p.sempit)}</td>
             <td>${badgeMedis}</td>
