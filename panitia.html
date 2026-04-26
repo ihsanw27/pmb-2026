@@ -137,36 +137,63 @@
     // DEPLOY BARU GOOGLE APPS SCRIPT DAN PASTE URL DI BAWAH INI
     // ==========================================================
     const API_URL = "https://script.google.com/macros/s/AKfycbzJQjxT6QKsyuNMn4KCxsFuRAD5MPItgHdqPVdAvintroDIf9dAeMxhCWyyaX4LkfeW/exec";
-    
+
     let html5QrCode;
     let pesertaSedangDinilai = "";
-    let dataHadir = []; 
+    let dataHadir = [];
+    let isCameraRunning = false;   // mencegah start() dipanggil ganda
+    let isScanProcessing = false;  // debounce: cegah onScanSuccess double-fire
 
     // --- INISIALISASI ---
-    window.onload = () => checkSession();
+    window.onload = () => {
+      checkSession();
+      // Enter-to-submit untuk form login
+      ["email-login", "kodeLogin"].forEach(id => {
+        document.getElementById(id).addEventListener("keydown", (e) => {
+          if (e.key === "Enter") login();
+        });
+      });
+    };
 
     // --- FUNGSI API FETCH ---
-    async function apiCall(dataPayload) {
-  try {
-    const response = await fetch(API_URL, { 
-      method: 'POST', 
-      body: JSON.stringify(dataPayload) 
-    });
-    
-    const text = await response.text(); // Ambil respon sebagai teks dulu
-    
-    try {
-      return JSON.parse(text); // Coba ubah ke JSON
-    } catch (err) {
-      // Jika gagal jadi JSON (berarti isinya error HTML/CSS)
-      console.error("Respon bukan JSON:", text);
-      return { success: false, message: "Terjadi kesalahan format data di server. Pastikan tidak ada karakter aneh di Google Sheets." };
+    // silent=true: jangan tampilkan dialog error (untuk refresh otomatis di background)
+    async function apiCall(dataPayload, silent = false) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify(dataPayload),
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        const text = await response.text();
+
+        if (!response.ok) {
+          console.error(`HTTP ${response.status}:`, text);
+          return { success: false, message: `Error server (${response.status}). Pastikan API masih aktif.` };
+        }
+
+        try {
+          return JSON.parse(text);
+        } catch (err) {
+          // Respon bukan JSON (misal halaman error HTML dari server)
+          console.error("Respon bukan JSON:", text);
+          return { success: false, message: "Terjadi kesalahan format data di server. Pastikan tidak ada karakter aneh di Google Sheets." };
+        }
+      } catch (e) {
+        clearTimeout(timeoutId);
+        if (!silent) {
+          if (e.name === 'AbortError') {
+            Swal.fire('Timeout', 'Permintaan memakan waktu terlalu lama. Periksa koneksi internet Anda.', 'error');
+          } else {
+            Swal.fire('Error', 'Internet terputus!', 'error');
+          }
+        }
+        return null;
+      }
     }
-  } catch (e) {
-    Swal.fire('Error', 'Internet terputus!', 'error');
-    return null;
-  }
-}
 
     // --- FUNGSI SESI & LOGIN ---
     async function checkSession() {
@@ -174,7 +201,7 @@
       if (saved) {
         const res = JSON.parse(saved);
         setupDashboard(res.nama, res.kategoriList);
-        await refreshDataPeserta(false); 
+        await refreshDataPeserta(false);
         initCamera();
       }
     }
@@ -183,7 +210,7 @@
       document.getElementById("view-login").classList.add("hidden");
       document.getElementById("view-dashboard").classList.remove("hidden");
       document.getElementById("nama-panitia").innerText = nama;
-      
+
       let select = document.getElementById("pilih-tugas");
       select.innerHTML = "";
       kategoriList.forEach(t => select.innerHTML += `<option value="${t}">${t}</option>`);
@@ -194,21 +221,28 @@
       let email = document.getElementById("email-login").value;
       let kode = document.getElementById("kodeLogin").value;
       let btn = document.getElementById("btn-login");
-      
-      if(!email || !kode) return Swal.fire('Oops', 'Isi Email dan Kode Login!', 'warning');
-      
-      btn.innerHTML = `Memverifikasi...`; btn.disabled = true;
+
+      // Nonaktifkan tombol segera untuk mencegah klik ganda
+      btn.disabled = true;
+
+      if (!email || !kode) {
+        btn.disabled = false;
+        return Swal.fire('Oops', 'Isi Email dan Kode Login!', 'warning');
+      }
+
+      btn.innerHTML = `Memverifikasi...`;
       let res = await apiCall({ action: "login", email: email, kodeLogin: kode });
-      
-      if(res && res.success) {
+
+      if (res && res.success) {
         localStorage.setItem("panitiaSessionPMB", JSON.stringify({ nama: res.nama, kategoriList: res.kategoriList }));
         setupDashboard(res.nama, res.kategoriList);
         await refreshDataPeserta(false);
         initCamera();
       } else {
         Swal.fire('Gagal Login', res ? res.message : 'Koneksi gagal', 'error');
+        btn.innerHTML = `MASUK SISTEM`;
+        btn.disabled = false;
       }
-      btn.innerHTML = `MASUK SISTEM`; btn.disabled = false;
     }
 
     function logout() {
@@ -238,7 +272,7 @@
     function toggleLabel() {
       const check = document.getElementById('input-check-lolos');
       const label = document.getElementById('label-check');
-      if(check.checked) {
+      if (check.checked) {
         label.innerText = "LOLOS TES"; label.className = "form-check-label ms-2 fw-bold text-success";
       } else {
         label.innerText = "TIDAK LOLOS"; label.className = "form-check-label ms-2 fw-bold text-danger";
@@ -252,13 +286,13 @@
       const label = document.getElementById("label-input");
 
       if (tugas.includes("lari")) {
-        wrapLari.classList.remove("hidden"); wrapCheck.classList.add("hidden"); 
+        wrapLari.classList.remove("hidden"); wrapCheck.classList.add("hidden");
         label.innerText = "Input Hasil Lari (Angka):";
       } else if (tugas.includes("kesehatan")) {
-        wrapLari.classList.add("hidden"); wrapCheck.classList.add("hidden"); 
+        wrapLari.classList.add("hidden"); wrapCheck.classList.add("hidden");
         label.innerText = "Silakan isi Catatan Medis di bawah:";
       } else {
-        wrapLari.classList.add("hidden"); wrapCheck.classList.remove("hidden"); 
+        wrapLari.classList.add("hidden"); wrapCheck.classList.remove("hidden");
         label.innerText = "Status Kelulusan:";
         document.getElementById("input-check-lolos").checked = false; toggleLabel();
       }
@@ -267,81 +301,126 @@
     // --- FUNGSI DATA & SCANNER ---
     async function refreshDataPeserta(showToast = true) {
       let btn = document.getElementById("btn-refresh");
-      if(btn) { btn.innerHTML = `<i class="bi bi-hourglass-split me-1"></i> Menyinkron...`; btn.disabled = true; }
-      
-      let res = await apiCall({ action: "getHadir" });
-      if(res && res.success) {
+      if (btn) { btn.innerHTML = `<i class="bi bi-hourglass-split me-1"></i> Menyinkron...`; btn.disabled = true; }
+
+      // silent=true saat refresh otomatis agar tidak menampilkan dialog error
+      let res = await apiCall({ action: "getHadir" }, !showToast);
+      if (res && res.success) {
         dataHadir = res.data;
-        if(showToast) Swal.fire({icon: 'success', title: 'Data Diperbarui!', toast: true, position: 'top', showConfirmButton: false, timer: 2000});
+        if (showToast) Swal.fire({ icon: 'success', title: 'Data Diperbarui!', toast: true, position: 'top', showConfirmButton: false, timer: 2000 });
+      } else if (!res && !showToast) {
+        console.warn("Gagal memuat data peserta (silent refresh).");
       }
-      if(btn) { btn.innerHTML = `<i class="bi bi-arrow-repeat me-1"></i> Sinkronisasi Data Terbaru`; btn.disabled = false; }
+      if (btn) { btn.innerHTML = `<i class="bi bi-arrow-repeat me-1"></i> Sinkronisasi Data Terbaru`; btn.disabled = false; }
     }
 
     function initCamera() {
-      if(!html5QrCode) html5QrCode = new Html5Qrcode("reader");
+      if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
       nyalakanKamera();
     }
 
     function nyalakanKamera() {
+      if (isCameraRunning) return; // Cegah start() ganda
       document.getElementById("btn-restart-cam").classList.add("hidden");
+      isCameraRunning = true;
       html5QrCode.start(
-        { facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 },
-        onScanSuccess, () => {}
-      ).catch(() => {
-        Swal.fire('Kamera Error', 'Izinkan penggunaan kamera di browser.', 'warning');
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 },
+        onScanSuccess,
+        () => {}
+      ).catch((err) => {
+        isCameraRunning = false;
+        let msg = 'Izinkan penggunaan kamera di browser.';
+        if (err) {
+          if (err.name === 'NotAllowedError' || (err.message && err.message.toLowerCase().includes('permission'))) {
+            msg = 'Akses kamera ditolak. Silakan izinkan kamera di pengaturan browser.';
+          } else if (err.name === 'NotFoundError') {
+            msg = 'Tidak ada kamera yang ditemukan di perangkat ini.';
+          } else if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+            msg = 'Kamera membutuhkan koneksi HTTPS. Buka halaman ini melalui HTTPS.';
+          }
+        }
+        Swal.fire('Kamera Error', msg, 'warning');
         document.getElementById("btn-restart-cam").classList.remove("hidden");
       });
     }
 
     function onScanSuccess(decodedText) {
-      html5QrCode.stop().then(() => {
+      // Debounce: abaikan jika sudah dalam proses scan
+      if (isScanProcessing) return;
+      isScanProcessing = true;
+
+      const processResult = () => {
+        isCameraRunning = false;
         document.getElementById("area-scanner").classList.add("hidden");
         document.getElementById("btn-restart-cam").classList.remove("hidden");
-        
+
+        // Pastikan data peserta sudah dimuat
+        if (dataHadir.length === 0) {
+          Swal.fire({
+            icon: 'warning', title: 'Data Belum Dimuat',
+            text: 'Data peserta belum tersedia. Coba sinkronisasi ulang terlebih dahulu.',
+            confirmButtonText: 'OK'
+          }).then(() => batal());
+          return;
+        }
+
         let peserta = dataHadir.find(p => p.no_peserta.toString() === decodedText.toString());
-        
-        if(peserta) {
+
+        if (peserta) {
           // SAFEGUARD FRONTEND
           const tugasSkg = document.getElementById("pilih-tugas").value.toLowerCase();
           const butuhVerif = tugasSkg.includes("ketinggian") || tugasSkg.includes("sempit") || tugasSkg.includes("lari");
-          
+
           if (butuhVerif && peserta.lolos_verifikasi.toLowerCase() !== "lolos") {
-             Swal.fire({
-                icon: 'error', title: 'DITOLAK!', 
-                text: `Peserta ${peserta.nama} BELUM Lolos Verifikasi Administrasi!`,
-                confirmButtonText: 'Kembali Scan'
-             }).then(() => batal());
-             return; 
+            Swal.fire({
+              icon: 'error', title: 'DITOLAK!',
+              text: `Peserta ${peserta.nama} BELUM Lolos Verifikasi Administrasi!`,
+              confirmButtonText: 'Kembali Scan'
+            }).then(() => batal());
+            return;
           }
 
           pesertaSedangDinilai = decodedText;
           document.getElementById("nama-peserta").innerText = `${peserta.nama} (${decodedText})`;
-          
+
           document.getElementById("input-lari").value = "";
           document.getElementById("input-catatan").value = "";
-          if(document.getElementById("input-check-lolos")) {
-             document.getElementById("input-check-lolos").checked = false; toggleLabel(); 
-          }
+          document.getElementById("input-check-lolos").checked = false;
+          toggleLabel();
           document.getElementById("form-nilai").classList.remove("hidden");
         } else {
           Swal.fire({
-            icon: 'error', title: 'Belum Check-In!', 
+            icon: 'error', title: 'Belum Check-In!',
             text: `Peserta belum melapor ke meja pendaftaran.`,
             confirmButtonText: 'Scan Ulang'
           }).then(() => batal());
         }
-      });
+      };
+
+      // Hentikan kamera lalu proses hasil; tangani jika kamera sudah berhenti
+      html5QrCode.stop().then(processResult).catch(() => processResult());
     }
 
     function batal() {
       document.getElementById("form-nilai").classList.add("hidden");
       document.getElementById("area-scanner").classList.remove("hidden");
       pesertaSedangDinilai = "";
-      nyalakanKamera(); 
+      isScanProcessing = false;
+
+      if (isCameraRunning) {
+        // Hentikan dulu jika masih berjalan, baru nyalakan ulang
+        html5QrCode.stop().catch((err) => console.warn('Gagal menghentikan kamera:', err)).finally(() => {
+          isCameraRunning = false;
+          nyalakanKamera();
+        });
+      } else {
+        nyalakanKamera();
+      }
     }
 
     async function simpan() {
-      const tugas = document.getElementById("pilih-tugas").value; 
+      const tugas = document.getElementById("pilih-tugas").value;
       const tugasLower = tugas.toLowerCase();
       let nilai = "";
 
@@ -349,26 +428,26 @@
         nilai = document.getElementById("input-lari").value;
         if (!nilai) return Swal.fire('Oops', 'Mohon isi angka hasil lari!', 'warning');
       } else if (tugasLower.includes("kesehatan")) {
-        nilai = ""; 
+        nilai = "";
       } else {
         nilai = document.getElementById("input-check-lolos").checked ? "Lolos" : "Tidak Lolos";
       }
 
       let btn = document.getElementById("btn-simpan");
       btn.innerHTML = `Menyimpan...`; btn.disabled = true;
-      
+
       let res = await apiCall({
         action: "simpanNilai", noPeserta: pesertaSedangDinilai,
         kategori: tugas, nilaiUtama: nilai, nilaiCatatan: document.getElementById("input-catatan").value
       });
-      
-      if(res && res.success) {
+
+      if (res && res.success) {
         Swal.fire({ icon: 'success', title: 'Data Tersimpan!', timer: 1500, showConfirmButton: false });
         setTimeout(() => batal(), 1500);
       } else {
         Swal.fire('Gagal', res ? res.message : 'Error server.', 'error');
       }
-      
+
       btn.innerHTML = `SIMPAN`; btn.disabled = false;
     }
   </script>
