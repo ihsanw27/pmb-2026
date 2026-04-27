@@ -54,20 +54,20 @@
   <div id="view-dashboard" class="dashboard-wrapper hidden fade-in">
     <div class="navbar-custom container-fluid">
       <div class="d-flex align-items-center gap-3">
-        <h5 class="mb-0 fw-bold">Monitor Tes Fisik PMB</h5>
+        <h5 class="mb-0 fw-bold">Monitor Tes Fisik PMB PIPB</h5>
       </div>
       <div class="d-flex align-items-center gap-3">
         <div class="text-end d-none d-md-block">
           <small class="text-muted d-block" style="font-size: 0.65rem;">PANITIA LOGIN</small>
           <strong id="admin-nama" class="fs-6 text-primary">Nama Panitia</strong>
         </div>
+        <button onclick="toggleLivestream()" id="btn-livestream" class="btn btn-light rounded-circle border p-2 text-primary" title="Mode Livestream"><i class="bi bi-display"></i></button>
         <button onclick="loadData()" id="btn-refresh" class="btn btn-light rounded-circle border p-2"><i class="bi bi-arrow-clockwise"></i></button>
         <button onclick="logout()" class="btn btn-light rounded-circle border p-2 text-danger"><i class="bi bi-power"></i></button>
       </div>
     </div>
 
     <div class="container-fluid mb-4">
-      
       <div class="row mb-4">
         <div class="col-12">
           <div class="stat-card">
@@ -82,7 +82,6 @@
       </div>
 
       <div class="row g-4">
-        
         <div class="col-lg-4 col-md-6">
           <div class="stat-card">
             <div class="stat-title text-warning"><i class="bi bi-shield-check"></i> 1. Verifikasi Administrasi</div>
@@ -93,7 +92,7 @@
             <div class="mt-auto pt-2 border-top d-flex justify-content-between small fw-bold text-muted">
               <span>Lolos: <span id="d-lolos-verif" class="text-success">0</span></span>
               <span>Gagal: <span id="d-gagal-verif" class="text-danger">0</span></span>
-              <span>Belum: <span id="d-antre-verif">0</span></span>
+              <span>Antre: <span id="d-antre-verif">0</span></span>
             </div>
           </div>
         </div>
@@ -106,8 +105,8 @@
               <div class="progress" style="height: 8px;"><div id="bar-lari" class="progress-bar bg-primary" style="width: 0%"></div></div>
             </div>
             <div class="mt-auto pt-2 border-top d-flex justify-content-between small fw-bold text-muted">
-              <span>Sudah: <span id="d-sudah-lari" class="text-primary">0</span></span>
-              <span>Belum: <span id="d-antre-lari">0</span></span>
+              <span>Sudah Lari: <span id="d-sudah-lari" class="text-primary">0</span></span>
+              <span>Antre Lari: <span id="d-antre-lari">0</span></span>
             </div>
           </div>
         </div>
@@ -122,7 +121,7 @@
             <div class="mt-auto pt-2 border-top d-flex justify-content-between small fw-bold text-muted">
               <span>Lolos: <span id="d-lolos-tinggi" class="text-success">0</span></span>
               <span>Gagal: <span id="d-gagal-tinggi" class="text-danger">0</span></span>
-              <span>Belum: <span id="d-antre-tinggi">0</span></span>
+              <span>Antre: <span id="d-antre-tinggi">0</span></span>
             </div>
           </div>
         </div>
@@ -137,7 +136,7 @@
             <div class="mt-auto pt-2 border-top d-flex justify-content-between small fw-bold text-muted">
               <span>Lolos: <span id="d-lolos-sempit" class="text-success">0</span></span>
               <span>Gagal: <span id="d-gagal-sempit" class="text-danger">0</span></span>
-              <span>Belum: <span id="d-antre-sempit">0</span></span>
+              <span>Antre: <span id="d-antre-sempit">0</span></span>
             </div>
           </div>
         </div>
@@ -165,7 +164,7 @@
       </div>
     </div>
 
-    <div class="container-fluid">
+    <div class="container-fluid" id="section-tabel">
       <div class="table-container">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
           <div>
@@ -205,6 +204,7 @@
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzJQjxT6QKsyuNMn4KCxsFuRAD5MPItgHdqPVdAvintroDIf9dAeMxhCWyyaX4LkfeW/exec"; 
     let countdownInterval, secondsLeft = 30;
+    let isLivestreamMode = false;
 
     window.onload = () => { if(localStorage.getItem("dashSess")) restoreSession(); };
 
@@ -258,13 +258,11 @@
     }
 
     function updateStats(s) {
-      // 1. Induk: Check-in Master
       document.getElementById("d-total").innerText = s.total;
       document.getElementById("d-hadir").innerText = s.hadir;
       document.getElementById("d-persen").innerText = s.persentaseHadir;
       document.getElementById("bar-hadir").style.width = s.persentaseHadir + "%";
 
-      // 2. Verifikasi Administrasi
       let pVerif = s.hadir > 0 ? Math.round((s.sudahVerif / s.hadir) * 100) : 0;
       document.getElementById("d-lolos-verif").innerText = s.lolosVerif;
       document.getElementById("d-gagal-verif").innerText = s.gagalVerif;
@@ -272,17 +270,14 @@
       document.getElementById("d-persen-verif").innerText = pVerif + "%";
       document.getElementById("bar-lolos-verif").style.width = pVerif + "%";
       
-      // BASE UNTUK TES FISIK (Hanya yang Lolos Verifikasi yang berhak ikut tes fisik)
       let baseFisik = s.lolosVerif;
 
-      // 3. Tes Lari
       let pLari = baseFisik > 0 ? Math.round((s.sudahLari / baseFisik) * 100) : 0;
       document.getElementById("d-sudah-lari").innerText = s.sudahLari;
       document.getElementById("d-antre-lari").innerText = baseFisik - s.sudahLari;
       document.getElementById("d-persen-lari").innerText = pLari + "%";
       document.getElementById("bar-lari").style.width = pLari + "%";
 
-      // 4. Tes Ketinggian
       let pTinggi = baseFisik > 0 ? Math.round((s.sudahKetinggian / baseFisik) * 100) : 0;
       document.getElementById("d-lolos-tinggi").innerText = s.lolosKetinggian;
       document.getElementById("d-gagal-tinggi").innerText = s.gagalKetinggian;
@@ -290,7 +285,6 @@
       document.getElementById("d-persen-tinggi").innerText = pTinggi + "%";
       document.getElementById("bar-tinggi").style.width = pTinggi + "%";
 
-      // 5. Ruang Sempit
       let pSempit = baseFisik > 0 ? Math.round((s.sudahSempit / baseFisik) * 100) : 0;
       document.getElementById("d-lolos-sempit").innerText = s.lolosSempit;
       document.getElementById("d-gagal-sempit").innerText = s.gagalSempit;
@@ -298,7 +292,6 @@
       document.getElementById("d-persen-sempit").innerText = pSempit + "%";
       document.getElementById("bar-sempit").style.width = pSempit + "%";
 
-      // 6. Insiden Medis (P3K)
       document.getElementById("d-medis").innerText = s.insidenMedis;
       let cardMedis = document.getElementById("p3k-card");
       if(s.insidenMedis > 0) { 
@@ -313,38 +306,36 @@
       }
     }
 
-    // MODAL BIODATA
+    // TOGGLE MODE LIVESTREAM
+    function toggleLivestream() {
+      isLivestreamMode = !isLivestreamMode;
+      const sectionTabel = document.getElementById("section-tabel");
+      const btnIcon = document.querySelector("#btn-livestream i");
+
+      if (isLivestreamMode) {
+        sectionTabel.classList.add("hidden");
+        btnIcon.classList.replace("bi-display", "bi-display-fill");
+        Swal.fire({ title: 'Mode Livestream Aktif', text: 'Tabel data peserta disembunyikan.', icon: 'success', timer: 1500, showConfirmButton: false, toast: true, position: 'top-end' });
+      } else {
+        sectionTabel.classList.remove("hidden");
+        btnIcon.classList.replace("bi-display-fill", "bi-display");
+        Swal.fire({ title: 'Mode Normal Aktif', text: 'Tabel data peserta ditampilkan kembali.', icon: 'info', timer: 1500, showConfirmButton: false, toast: true, position: 'top-end' });
+      }
+    }
+
     function showBiodata(p) {
       let fotoHtml = p.foto ? `<img src="${p.foto}" class="photo-thumb-modal shadow-sm">` : `<div class="photo-thumb-modal bg-light d-flex align-items-center justify-content-center mx-auto border"><i class="bi bi-person text-muted fs-1"></i></div>`;
       Swal.fire({
         title: 'Profil Peserta',
-        html: `
-          ${fotoHtml}
-          <div class="text-start small">
-            <table class="table table-sm table-borderless">
-              <tr><td width="100" class="fw-bold">NIK</td><td>: ${p.nik || '-'}</td></tr>
-              <tr><td class="fw-bold">Nama</td><td>: ${p.nama}</td></tr>
-              <tr><td class="fw-bold">Gender</td><td>: ${p.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan'}</td></tr>
-              <tr><td class="fw-bold">Jalur</td><td>: ${p.jalur}</td></tr>
-              <tr class="border-top"><td colspan="2" class="pt-2 fw-bold text-primary">Pilihan Jurusan:</td></tr>
-              <tr><td class="fw-bold">Jurusan 1</td><td>: ${p.jurusan_1 || '-'}</td></tr>
-              <tr><td class="fw-bold">Jurusan 2</td><td>: ${p.jurusan_2 || '-'}</td></tr>
-            </table>
-          </div>
-        `,
+        html: `${fotoHtml}<div class="text-start small"><table class="table table-sm table-borderless"><tr><td width="100" class="fw-bold">NIK</td><td>: ${p.nik || '-'}</td></tr><tr><td class="fw-bold">Nama</td><td>: ${p.nama}</td></tr><tr><td class="fw-bold">Gender</td><td>: ${p.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan'}</td></tr><tr><td class="fw-bold">Jalur</td><td>: ${p.jalur}</td></tr><tr class="border-top"><td colspan="2" class="pt-2 fw-bold text-primary">Pilihan Jurusan:</td></tr><tr><td class="fw-bold">Jurusan 1</td><td>: ${p.jurusan_1 || '-'}</td></tr><tr><td class="fw-bold">Jurusan 2</td><td>: ${p.jurusan_2 || '-'}</td></tr></table></div>`,
         confirmButtonText: 'Tutup', confirmButtonColor: '#5b7cfa'
       });
     }
 
-    // MODAL CATATAN PANITIA
     function showDetail(nama, pos, catatan, panitia, waktu) {
       Swal.fire({
         title: `Detail ${pos}`,
-        html: `<div class="text-start small"><p class="mb-1 fw-bold">Peserta: ${nama}</p><hr>
-               <p class="mb-1 fw-bold text-primary">Log Panitia:</p>
-               <p class="mb-2 bg-light p-2 rounded">Oleh: ${panitia || '-'}<br>Waktu: ${waktu || '-'}</p>
-               <p class="mb-1 fw-bold text-primary">Catatan:</p>
-               <div class="p-2 border rounded bg-white">${catatan || 'Tidak ada catatan.'}</div></div>`,
+        html: `<div class="text-start small"><p class="mb-1 fw-bold">Peserta: ${nama}</p><hr><p class="mb-1 fw-bold text-primary">Log Panitia:</p><p class="mb-2 bg-light p-2 rounded">Oleh: ${panitia || '-'}<br>Waktu: ${waktu || '-'}</p><p class="mb-1 fw-bold text-primary">Catatan:</p><div class="p-2 border rounded bg-white">${catatan || 'Tidak ada catatan.'}</div></div>`,
         confirmButtonText: 'Tutup', confirmButtonColor: '#5b7cfa'
       });
     }
@@ -352,15 +343,12 @@
     function renderTable(data) {
       let tbody = document.getElementById("tbody-peserta");
       tbody.innerHTML = "";
-      
-      // Variabel untuk menghitung peserta selesai
       let selesaiSemua = 0;
 
       data.forEach(p => {
         let pStr = JSON.stringify(p).replace(/"/g, '&quot;');
         
-        // --- LOGIKA PESERTA SELESAI ---
-        // Hanya yang Lolos Verifikasi dan sudah menyelesaikan ke-3 pos fisik
+        // Logika Selesai: Lolos Verif DAN sudah ada data di ketiga pos fisik
         if (p.verif === 'Lolos' && p.tinggi !== "" && p.sempit !== "" && p.lari !== "") {
           selesaiSemua++;
         }
@@ -382,34 +370,15 @@
         tbody.innerHTML += `
           <tr class="peserta-row">
             <td class="fw-bold text-muted" style="font-size:0.7rem;">${p.no}</td>
-            <td>
-              <div class="fw-bold">${p.nama}</div>
-              <a onclick='showBiodata(${pStr})' class="text-primary link-detail"><i class="bi bi-person-circle"></i> Detail Biodata</a>
-            </td>
-            <td>
-              <span class="badge ${p.verif === 'Lolos' ? 'bg-success' : (p.verif === 'Tidak Lolos' ? 'bg-danger' : 'bg-secondary')}">${p.verif || 'Pending'}</span>
-              ${btnLog(p.catVerif, 'Verifikasi', p.panVerif, p.wakVerif, 'primary')}
-            </td>
-            <td class="text-center align-middle" style="min-width: 150px;">
-              ${badgeLari}
-              ${btnLog(p.catLari, 'Lari', p.panLari, p.wakLari, 'primary')}
-            </td>
-            <td class="text-center">
-              <span class="badge ${p.tinggi === 'Lolos' ? 'bg-success' : (p.tinggi === 'Tidak Lolos' ? 'bg-danger' : 'bg-secondary')}">${p.tinggi || 'Pending'}</span>
-              ${btnLog(p.catTinggi, 'Ketinggian', p.panTinggi, p.wakTinggi, 'info')}
-            </td>
-            <td class="text-center">
-              <span class="badge ${p.sempit === 'Lolos' ? 'bg-success' : (p.sempit === 'Tidak Lolos' ? 'bg-danger' : 'bg-secondary')}" style="${p.sempit === 'Lolos' ? '' : (p.sempit === 'Tidak Lolos' ? '' : 'background-color:#6c757d;')}">${p.sempit || 'Pending'}</span>
-              ${btnLog(p.catSempit, 'Ruang Sempit', p.panSempit, p.wakSempit, 'purple')}
-            </td>
-            <td>
-              ${p.medis ? `<span class="badge bg-danger shadow-sm">P3K</span> ${btnLog(p.medis, 'Medis', p.panMedis, p.wakMedis, 'danger')}` : '<span class="badge bg-success opacity-50">Aman</span>'}
-            </td>
-          </tr>
-        `;
+            <td><div class="fw-bold">${p.nama}</div><a onclick='showBiodata(${pStr})' class="text-primary link-detail"><i class="bi bi-person-circle"></i> Detail Biodata</a></td>
+            <td><span class="badge ${p.verif === 'Lolos' ? 'bg-success' : (p.verif === 'Tidak Lolos' ? 'bg-danger' : 'bg-secondary')}">${p.verif || 'Pending'}</span>${btnLog(p.catVerif, 'Verifikasi', p.panVerif, p.wakVerif, 'primary')}</td>
+            <td class="text-center align-middle" style="min-width: 150px;">${badgeLari}${btnLog(p.catLari, 'Lari', p.panLari, p.wakLari, 'primary')}</td>
+            <td class="text-center"><span class="badge ${p.tinggi === 'Lolos' ? 'bg-success' : (p.tinggi === 'Tidak Lolos' ? 'bg-danger' : 'bg-secondary')}">${p.tinggi || 'Pending'}</span>${btnLog(p.catTinggi, 'Ketinggian', p.panTinggi, p.wakTinggi, 'info')}</td>
+            <td class="text-center"><span class="badge ${p.sempit === 'Lolos' ? 'bg-success' : (p.sempit === 'Tidak Lolos' ? 'bg-danger' : 'bg-secondary')}" style="${p.sempit === 'Lolos' ? '' : (p.sempit === 'Tidak Lolos' ? '' : 'background-color:#6c757d;')}">${p.sempit || 'Pending'}</span>${btnLog(p.catSempit, 'Ruang Sempit', p.panSempit, p.wakSempit, 'purple')}</td>
+            <td>${p.medis ? `<span class="badge bg-danger shadow-sm">P3K</span> ${btnLog(p.medis, 'Medis', p.panMedis, p.wakMedis, 'danger')}` : '<span class="badge bg-success opacity-50">Aman</span>'}</td>
+          </tr>`;
       });
       
-      // Tampilkan hasil hitungan ke Card ke-6
       if (document.getElementById("d-selesai-semua")) {
         document.getElementById("d-selesai-semua").innerText = selesaiSemua;
       }
