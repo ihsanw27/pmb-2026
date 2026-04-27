@@ -76,9 +76,17 @@
               <input class="form-check-input ms-1 me-2 mt-1" type="checkbox" id="mode-bulk" onchange="toggleBulk()">
               <label class="form-check-label small fw-bold mt-1" for="mode-bulk" style="color: var(--accent);">Mode Scan Banyak (Bulk Tabel)</label>
             </div>
-            <div class="form-check form-switch border-top pt-2">
+            <div class="form-check form-switch border-top pt-2 mb-2">
               <input class="form-check-input ms-1 me-2 mt-1" type="checkbox" id="mode-mirror" onchange="toggleMirror()">
-              <label class="form-check-label small fw-bold mt-1 text-muted" for="mode-mirror">Mirror View (Untuk Kamera Laptop)</label>
+              <label class="form-check-label small fw-bold mt-1 text-muted" for="mode-mirror">Mirror View (Untuk Laptop)</label>
+            </div>
+            
+            <div class="border-top pt-2">
+              <label class="form-label small fw-bold text-muted mb-1"><i class="bi bi-keyboard"></i> Input Manual (Jika QR Rusak):</label>
+              <div class="input-group input-group-sm">
+                <input type="text" id="input-manual" class="form-control fw-bold py-2" placeholder="Ketik No Peserta..." onkeypress="handleManual(event)">
+                <button class="btn btn-secondary fw-bold px-3" onclick="prosesManual()"><i class="bi bi-search"></i> Cari</button>
+              </div>
             </div>
           </div>
 
@@ -125,6 +133,7 @@
                   <input type="number" id="lari-b-single" class="form-control text-center px-1 border-primary text-primary fw-bold" placeholder="0">
                 </div>
               </div>
+              <p class="text-danger small mb-0 mt-1 fw-bold" style="font-size: 0.65rem;">*WAJIB DIISI SEMUA. Ketik "0" jika tidak mendapat warna stik tersebut.</p>
             </div>
 
             <div id="wrap-check-single" class="hidden text-center py-2"><div class="form-check form-switch d-inline-block"><input class="form-check-input shadow-sm" type="checkbox" id="val-check-single" onchange="uiCheckSingle()"><label class="form-check-label ms-2 fs-5 fw-bold" id="lbl-check-single" style="color: var(--danger);">TIDAK LOLOS</label></div></div>
@@ -153,7 +162,6 @@
   </div>
 
   <script>
-    // MASUKKAN URL DEPLOYMENT APPS SCRIPT ANDA DI SINI
     const API_URL = "https://script.google.com/macros/s/AKfycbzJQjxT6QKsyuNMn4KCxsFuRAD5MPItgHdqPVdAvintroDIf9dAeMxhCWyyaX4LkfeW/exec"; 
     
     let qrScanner, activeNo = "", pesertaList = [], intervalSync;
@@ -199,14 +207,8 @@
       tugasScanner.forEach(r => sel.innerHTML += `<option value="${r.trim()}">${r.trim()}</option>`);
       currentRole = sel.value; 
       
-      // Load Preference Bulk Mode
       if(sess.bulkMode === true) { document.getElementById("mode-bulk").checked = true; isBulkMode = true; document.getElementById("bulk-info").classList.remove("hidden"); }
-      
-      // Load Preference Mirror View
-      if(sess.mirrorMode === true) {
-        document.getElementById("mode-mirror").checked = true;
-        document.getElementById("reader").classList.add("mirror-mode");
-      }
+      if(sess.mirrorMode === true) { document.getElementById("mode-mirror").checked = true; document.getElementById("reader").classList.add("mirror-mode"); }
 
       resetUI(); await syncData(false); 
       qrScanner = new Html5Qrcode("reader"); initCam();
@@ -248,14 +250,29 @@
       let isMirror = document.getElementById("mode-mirror").checked;
       let sess = JSON.parse(localStorage.getItem("pmbSess"));
       if(sess) { sess.mirrorMode = isMirror; localStorage.setItem("pmbSess", JSON.stringify(sess)); }
-      
-      // Tambah atau Hapus class mirror-mode dari container kamera
-      if (isMirror) {
-        document.getElementById("reader").classList.add("mirror-mode");
-      } else {
-        document.getElementById("reader").classList.remove("mirror-mode");
-      }
+      if (isMirror) document.getElementById("reader").classList.add("mirror-mode");
+      else document.getElementById("reader").classList.remove("mirror-mode");
     }
+
+    // --- FUNGSI INPUT MANUAL ---
+    function handleManual(e) { if (e.key === 'Enter') prosesManual(); }
+
+    async function prosesManual() {
+      let val = document.getElementById("input-manual").value.trim().toLowerCase();
+      if (!val) return Swal.fire({icon:'warning', text:'Ketik nomor peserta!', toast:true, position:'top', showConfirmButton:false, timer:1500});
+      document.getElementById("input-manual").value = "";
+      
+      if(isBulkMode && bulkQueue.find(x => x.no.toString().trim().toLowerCase() === val)) {
+         return Swal.fire({icon:'info', text:'Peserta ini sudah ada di antrean bulk', toast:true, position:'top', showConfirmButton:false, timer:2000});
+      }
+      
+      isScanningPaused = true;
+      if (!isBulkMode && qrScanner) {
+        try { await qrScanner.stop(); } catch(e) {}
+      }
+      prosesDataScan(val);
+    }
+    // ----------------------------
 
     function renderBulkUI() {
       document.getElementById("bulk-count").innerText = bulkQueue.length;
@@ -309,7 +326,7 @@
     async function prosesDataScan(teksScan) {
       let p = pesertaList.find(x => x.no.toString().trim().toLowerCase() === teksScan);
       if(!p) {
-        if (isBulkMode) qrScanner.stop(); 
+        if (isBulkMode) { try { qrScanner.stop(); } catch(e){} }
         Swal.fire({
           title: 'Mencari data terbaru...', allowOutsideClick: false,
           didOpen: async () => {
@@ -372,6 +389,7 @@
               <div class="col-3"><input type="number" id="bulk-lari-h-${idx}" class="form-control form-control-sm text-center border-success text-success fw-bold px-1" placeholder="H" title="Hijau" value="${sh}"></div>
               <div class="col-3"><input type="number" id="bulk-lari-b-${idx}" class="form-control form-control-sm text-center border-primary text-primary fw-bold px-1" placeholder="B" title="Biru" value="${sb}"></div>
             </div>
+            <p class="text-danger small mb-2 fw-bold" style="font-size: 0.65rem;">*WAJIB DIISI SEMUA (Ketik 0 jika kosong).</p>
           `;
         } else if (!isKesehatan) {
           let isLolos = p.tempVal === "Lolos"; let isChecked = isLolos ? "checked" : "";
@@ -404,9 +422,16 @@
       let payload = { action: "simpanNilai", noPeserta: activeNo, kategori: t, nilaiCatatan: document.getElementById("val-catatan-single").value, namaPanitia: sess.nama };
       
       if (t.toLowerCase().includes("lari")) {
-        let m = document.getElementById("lari-m-single").value; let k = document.getElementById("lari-k-single").value;
-        let h = document.getElementById("lari-h-single").value; let b = document.getElementById("lari-b-single").value;
-        if(m === "" && k === "" && h === "" && b === "") return Swal.fire({icon:'warning', text:'Isi setidaknya satu warna stik untuk hasil lari!', confirmButtonColor:'#5b7cfa'});
+        let m = document.getElementById("lari-m-single").value; 
+        let k = document.getElementById("lari-k-single").value;
+        let h = document.getElementById("lari-h-single").value; 
+        let b = document.getElementById("lari-b-single").value;
+        
+        // PENGAMAN (SAFEGUARD) TES LARI: Harus diisi, tolak jika kosong
+        if(m === "" || k === "" || h === "" || b === "") {
+          return Swal.fire({icon:'warning', title:'Data Belum Lengkap', text:'Keempat warna stik WAJIB diisi! Jika peserta tidak mendapatkan stik warna tertentu, silakan ketik angka 0.', confirmButtonColor:'#5b7cfa'});
+        }
+        
         payload.lariM = m; payload.lariK = k; payload.lariH = h; payload.lariB = b;
       } else if (!t.toLowerCase().includes("kesehatan") && !t.toLowerCase().includes("medis")) {
         payload.nilaiUtama = document.getElementById("val-check-single").checked ? "Lolos" : "Tidak Lolos";
@@ -431,7 +456,12 @@
         if(isLari) {
           let m = document.getElementById(`bulk-lari-m-${i}`).value, k = document.getElementById(`bulk-lari-k-${i}`).value;
           let h = document.getElementById(`bulk-lari-h-${i}`).value, b = document.getElementById(`bulk-lari-b-${i}`).value;
-          if(m === "" && k === "" && h === "" && b === "") return Swal.fire({icon:'warning', text:`Isi setidaknya satu angka stik untuk peserta nomor urut ${i+1}!`, confirmButtonColor:'#5b7cfa'});
+          
+          // PENGAMAN (SAFEGUARD) TES LARI BULK
+          if(m === "" || k === "" || h === "" || b === "") {
+             return Swal.fire({icon:'warning', title:'Data Belum Lengkap', text:`Peserta No. ${i+1} belum lengkap! Keempat warna stik WAJIB diisi. Silakan ketik angka 0 jika kosong.`, confirmButtonColor:'#5b7cfa'});
+          }
+          
           bulkQueue[i].tempM = m; bulkQueue[i].tempK = k; bulkQueue[i].tempH = h; bulkQueue[i].tempB = b;
         } else if(!isKesehatan) {
           bulkQueue[i].tempVal = document.getElementById(`bulk-check-${i}`).checked ? "Lolos" : "Tidak Lolos";
