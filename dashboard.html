@@ -42,7 +42,7 @@
 
   <div id="view-login" class="login-wrapper fade-in">
     <div class="card-login text-center">
-      <img src="https://i.ibb.co.com/TDsSQQ6B/IMG-1501-removebg-preview.png" alt="Logo" class="campus-logo">
+      <img src="https://i.ibb.co.com/TDsSQQ6B/IMG-1501-removebg-preview.png" alt="Logo Kampus" class="campus-logo">
       <h4 class="fw-bold mb-1">Portal Dashboard</h4>
       <p class="small mb-4 fw-medium text-muted">Dashboard Monitor Tes Fisik PMB PIPB</p>
       <div class="input-group mb-3"><span class="input-group-text"><i class="bi bi-envelope"></i></span><input type="email" id="email" class="form-control" placeholder="Email Terdaftar"></div>
@@ -54,7 +54,10 @@
   <div id="view-dashboard" class="dashboard-wrapper hidden fade-in">
     <div class="navbar-custom container-fluid">
       <div class="d-flex align-items-center gap-3">
-        <h5 class="mb-0 fw-bold">Monitor Tes Fisik PMB PIPB</h5>
+        <img src="https://via.placeholder.com/50x50?text=LOGO" alt="Logo" style="height: 40px; object-fit: contain;">
+        <div class="border-start ps-3 border-2" style="border-color: var(--border-soft) !important;">
+          <h5 class="mb-0 fw-bold" style="color: var(--text-main);">Monitor Tes Fisik PMB PIPB</h5>
+        </div>
       </div>
       <div class="d-flex align-items-center gap-3">
         <div class="text-end d-none d-md-block">
@@ -105,7 +108,7 @@
               <div class="progress" style="height: 8px;"><div id="bar-lari" class="progress-bar bg-primary" style="width: 0%"></div></div>
             </div>
             <div class="mt-auto pt-2 border-top d-flex justify-content-between small fw-bold text-muted">
-              <span>Sudah: <span id="d-sudah-lari" class="text-primary">0</span></span>
+              <span>Sudah : <span id="d-sudah-lari" class="text-primary">0</span></span>
               <span>Belum: <span id="d-antre-lari">0</span></span>
             </div>
           </div>
@@ -164,7 +167,7 @@
       </div>
     </div>
 
-    <div class="container-fluid" id="section-tabel">
+    <div class="container-fluid" id="section-tabel" style="transition: all 0.3s ease;">
       <div class="table-container">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
           <div>
@@ -327,7 +330,20 @@
       let fotoHtml = p.foto ? `<img src="${p.foto}" class="photo-thumb-modal shadow-sm">` : `<div class="photo-thumb-modal bg-light d-flex align-items-center justify-content-center mx-auto border"><i class="bi bi-person text-muted fs-1"></i></div>`;
       Swal.fire({
         title: 'Profil Peserta',
-        html: `${fotoHtml}<div class="text-start small"><table class="table table-sm table-borderless"><tr><td width="100" class="fw-bold">NIK</td><td>: ${p.nik || '-'}</td></tr><tr><td class="fw-bold">Nama</td><td>: ${p.nama}</td></tr><tr><td class="fw-bold">Gender</td><td>: ${p.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan'}</td></tr><tr><td class="fw-bold">Jalur</td><td>: ${p.jalur}</td></tr><tr class="border-top"><td colspan="2" class="pt-2 fw-bold text-primary">Pilihan Jurusan:</td></tr><tr><td class="fw-bold">Jurusan 1</td><td>: ${p.jurusan_1 || '-'}</td></tr><tr><td class="fw-bold">Jurusan 2</td><td>: ${p.jurusan_2 || '-'}</td></tr></table></div>`,
+        html: `
+          ${fotoHtml}
+          <div class="text-start small">
+            <table class="table table-sm table-borderless">
+              <tr><td width="100" class="fw-bold">NIK</td><td>: ${p.nik || '-'}</td></tr>
+              <tr><td class="fw-bold">Nama</td><td>: ${p.nama}</td></tr>
+              <tr><td class="fw-bold">Gender</td><td>: ${p.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan'}</td></tr>
+              <tr><td class="fw-bold">Jalur</td><td>: ${p.jalur}</td></tr>
+              <tr class="border-top"><td colspan="2" class="pt-2 fw-bold text-primary">Pilihan Jurusan:</td></tr>
+              <tr><td class="fw-bold">Jurusan 1</td><td>: ${p.jurusan_1 || '-'}</td></tr>
+              <tr><td class="fw-bold">Jurusan 2</td><td>: ${p.jurusan_2 || '-'}</td></tr>
+            </table>
+          </div>
+        `,
         confirmButtonText: 'Tutup', confirmButtonColor: '#5b7cfa'
       });
     }
@@ -359,10 +375,10 @@
         if (p.lari !== "") {
             badgeLari = `
               <div class="d-flex justify-content-center flex-wrap gap-1" style="font-size:0.75rem;">
-                <span class="badge bg-danger border border-danger shadow-sm" title="Merah">M: ${p.lari.m || 0}</span>
-                <span class="badge bg-warning text-dark border border-warning shadow-sm" title="Kuning">K: ${p.lari.k || 0}</span>
-                <span class="badge bg-success border border-success shadow-sm" title="Hijau">H: ${p.lari.h || 0}</span>
-                <span class="badge bg-primary border border-primary shadow-sm" title="Biru">B: ${p.lari.b || 0}</span>
+                <span class="badge bg-danger border border-danger shadow-sm" title="Merah">M: ${p.lari.m !== "" ? p.lari.m : 0}</span>
+                <span class="badge bg-warning text-dark border border-warning shadow-sm" title="Kuning">K: ${p.lari.k !== "" ? p.lari.k : 0}</span>
+                <span class="badge bg-success border border-success shadow-sm" title="Hijau">H: ${p.lari.h !== "" ? p.lari.h : 0}</span>
+                <span class="badge bg-primary border border-primary shadow-sm" title="Biru">B: ${p.lari.b !== "" ? p.lari.b : 0}</span>
               </div>
             `;
         }
