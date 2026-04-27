@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
-    :root { --bg-page: #e8eef2; --bg-card: #fdfdfd; --text-main: #334155; --text-muted: #64748b; --accent: #5b7cfa; --accent-soft: #edf2ff; --success: #38d9a9; --danger: #ff8787; --warning: #fcc419; --border-soft: #dce4ec; }
+    :root { --bg-page: #e8eef2; --bg-card: #fdfdfd; --text-main: #334155; --text-muted: #64748b; --accent: #5b7cfa; --accent-soft: #edf2ff; --success: #38d9a9; --danger: #ff8787; --warning: #fcc419; --info: #4dabf7; --purple: #845ef7; --border-soft: #dce4ec; }
     body { background: var(--bg-page); color: var(--text-main); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; min-height: 100vh; display: flex; flex-direction: column; }
     .login-wrapper { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
     .card-login { background: var(--bg-card); border-radius: 24px; box-shadow: 0 10px 25px -5px rgba(100,116,139,0.06); padding: 40px 30px; border: 1px solid #ffffff; width: 100%; max-width: 420px; }
@@ -67,10 +67,11 @@
     </div>
 
     <div class="container-fluid mb-4">
+      
       <div class="row mb-4">
         <div class="col-12">
           <div class="stat-card">
-            <div class="stat-title text-primary"><i class="bi bi-people-fill"></i> Total Check-in Kehadiran</div>
+            <div class="stat-title text-primary"><i class="bi bi-people-fill"></i> Total Check-in Kehadiran (Master Data)</div>
             <div class="d-flex justify-content-between align-items-end mb-2">
               <h2 class="fw-bold mb-0"><span id="d-hadir">0</span> / <span id="d-total">0</span> <small class="fs-6 text-muted">Peserta</small></h2>
               <div class="fw-bold fs-3 text-primary"><span id="d-persen">0</span>%</div>
@@ -81,43 +82,74 @@
       </div>
 
       <div class="row g-4">
-        <div class="col-md-4">
+        
+        <div class="col-lg-4 col-md-6">
           <div class="stat-card">
-            <div class="stat-title text-warning"><i class="bi bi-shield-check"></i> Verifikasi Administrasi</div>
+            <div class="stat-title text-warning"><i class="bi bi-shield-check"></i> 1. Verifikasi Administrasi</div>
             <div class="mb-3">
-              <div class="d-flex justify-content-between micro-label"><span>Lolos Administrasi</span><span><span id="d-lolos-verif">0</span> / <span class="d-hadir-val">0</span></span></div>
-              <div class="progress" style="height: 8px;"><div id="bar-lolos-verif" class="progress-bar bg-success" style="width: 0%"></div></div>
+              <div class="d-flex justify-content-between micro-label"><span>Persentase Pengecekan</span><span id="d-persen-verif">0%</span></div>
+              <div class="progress" style="height: 8px;"><div id="bar-lolos-verif" class="progress-bar bg-warning" style="width: 0%"></div></div>
             </div>
             <div class="mt-auto pt-2 border-top d-flex justify-content-between small fw-bold text-muted">
+              <span>Lolos: <span id="d-lolos-verif" class="text-success">0</span></span>
               <span>Gagal: <span id="d-gagal-verif" class="text-danger">0</span></span>
-              <span>Sisa Antre: <span id="d-antre-verif">0</span></span>
+              <span>Antre: <span id="d-antre-verif">0</span></span>
             </div>
           </div>
         </div>
-        <div class="col-md-4">
+
+        <div class="col-lg-4 col-md-6">
           <div class="stat-card">
-            <div class="stat-title text-success"><i class="bi bi-stopwatch"></i> Kemajuan Tes Fisik</div>
-            <div class="mb-2">
-              <div class="d-flex justify-content-between micro-label"><span>1. Pos Lari</span><span id="p-lari">0%</span></div>
-              <div class="progress" style="height: 6px;"><div id="bar-lari" class="progress-bar bg-success" style="width: 0%"></div></div>
+            <div class="stat-title text-primary"><i class="bi bi-stopwatch"></i> 2. Tes Lari (Stik)</div>
+            <div class="mb-3">
+              <div class="d-flex justify-content-between micro-label"><span>Penyelesaian Tes</span><span id="d-persen-lari">0%</span></div>
+              <div class="progress" style="height: 8px;"><div id="bar-lari" class="progress-bar bg-primary" style="width: 0%"></div></div>
             </div>
-            <div class="mb-2">
-              <div class="d-flex justify-content-between micro-label"><span>2. Pos Ketinggian</span><span id="p-tinggi">0%</span></div>
-              <div class="progress" style="height: 6px;"><div id="bar-tinggi" class="progress-bar bg-success" style="width: 0%"></div></div>
-            </div>
-            <div>
-              <div class="d-flex justify-content-between micro-label"><span>3. Ruang Sempit</span><span id="p-sempit">0%</span></div>
-              <div class="progress" style="height: 6px;"><div id="bar-sempit" class="progress-bar bg-success" style="width: 0%"></div></div>
+            <div class="mt-auto pt-2 border-top d-flex justify-content-between small fw-bold text-muted">
+              <span>Sudah Lari: <span id="d-sudah-lari" class="text-primary">0</span></span>
+              <span>Antre Lari: <span id="d-antre-lari">0</span></span>
             </div>
           </div>
         </div>
-        <div class="col-md-4">
+
+        <div class="col-lg-4 col-md-6">
+          <div class="stat-card">
+            <div class="stat-title text-info"><i class="bi bi-ladder"></i> 3. Tes Ketinggian</div>
+            <div class="mb-3">
+              <div class="d-flex justify-content-between micro-label"><span>Penyelesaian Tes</span><span id="d-persen-tinggi">0%</span></div>
+              <div class="progress" style="height: 8px;"><div id="bar-tinggi" class="progress-bar bg-info" style="width: 0%"></div></div>
+            </div>
+            <div class="mt-auto pt-2 border-top d-flex justify-content-between small fw-bold text-muted">
+              <span>Lolos: <span id="d-lolos-tinggi" class="text-success">0</span></span>
+              <span>Gagal: <span id="d-gagal-tinggi" class="text-danger">0</span></span>
+              <span>Antre: <span id="d-antre-tinggi">0</span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+          <div class="stat-card">
+            <div class="stat-title" style="color: var(--purple);"><i class="bi bi-box-seam"></i> 4. Ruang Sempit & Gelap</div>
+            <div class="mb-3">
+              <div class="d-flex justify-content-between micro-label"><span>Penyelesaian Tes</span><span id="d-persen-sempit">0%</span></div>
+              <div class="progress" style="height: 8px;"><div id="bar-sempit" class="progress-bar" style="background-color: var(--purple); width: 0%"></div></div>
+            </div>
+            <div class="mt-auto pt-2 border-top d-flex justify-content-between small fw-bold text-muted">
+              <span>Lolos: <span id="d-lolos-sempit" class="text-success">0</span></span>
+              <span>Gagal: <span id="d-gagal-sempit" class="text-danger">0</span></span>
+              <span>Antre: <span id="d-antre-sempit">0</span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
           <div id="p3k-card" class="stat-card text-center justify-content-center border-success">
             <div id="p3k-title" class="stat-title justify-content-center text-success"><i class="bi bi-bandaid"></i> Laporan Insiden P3K</div>
             <p class="stat-val text-success" id="d-medis">0</p>
-            <p class="small fw-bold text-success mb-0">Peserta Ditangani Medis</p>
+            <p class="small fw-bold text-success mb-0 mt-2">Peserta Ditangani Medis</p>
           </div>
         </div>
+
       </div>
     </div>
 
@@ -214,29 +246,59 @@
     }
 
     function updateStats(s) {
+      // 1. Induk: Check-in Master
       document.getElementById("d-total").innerText = s.total;
       document.getElementById("d-hadir").innerText = s.hadir;
       document.getElementById("d-persen").innerText = s.persentaseHadir;
       document.getElementById("bar-hadir").style.width = s.persentaseHadir + "%";
-      document.querySelectorAll(".d-hadir-val").forEach(el => el.innerText = s.hadir);
-      
+
+      // 2. Verifikasi Administrasi
+      let pVerif = s.hadir > 0 ? Math.round((s.sudahVerif / s.hadir) * 100) : 0;
       document.getElementById("d-lolos-verif").innerText = s.lolosVerif;
       document.getElementById("d-gagal-verif").innerText = s.gagalVerif;
       document.getElementById("d-antre-verif").innerText = s.hadir - s.sudahVerif;
-      document.getElementById("bar-lolos-verif").style.width = (s.hadir > 0 ? (s.lolosVerif/s.hadir)*100 : 0) + "%";
+      document.getElementById("d-persen-verif").innerText = pVerif + "%";
+      document.getElementById("bar-lolos-verif").style.width = pVerif + "%";
       
-      let pLari = s.lolosVerif > 0 ? Math.round((s.sudahLari/s.lolosVerif)*100) : 0;
-      let pTinggi = s.lolosVerif > 0 ? Math.round((s.sudahKetinggian/s.lolosVerif)*100) : 0;
-      let pSempit = s.lolosVerif > 0 ? Math.round((s.sudahSempit/s.lolosVerif)*100) : 0;
-      
-      document.getElementById("p-lari").innerText = pLari + "%"; document.getElementById("bar-lari").style.width = pLari + "%";
-      document.getElementById("p-tinggi").innerText = pTinggi + "%"; document.getElementById("bar-tinggi").style.width = pTinggi + "%";
-      document.getElementById("p-sempit").innerText = pSempit + "%"; document.getElementById("bar-sempit").style.width = pSempit + "%";
-      
+      // BASE UNTUK TES FISIK (Hanya yang Lolos Verifikasi yang berhak ikut tes fisik)
+      let baseFisik = s.lolosVerif;
+
+      // 3. Tes Lari
+      let pLari = baseFisik > 0 ? Math.round((s.sudahLari / baseFisik) * 100) : 0;
+      document.getElementById("d-sudah-lari").innerText = s.sudahLari;
+      document.getElementById("d-antre-lari").innerText = baseFisik - s.sudahLari;
+      document.getElementById("d-persen-lari").innerText = pLari + "%";
+      document.getElementById("bar-lari").style.width = pLari + "%";
+
+      // 4. Tes Ketinggian
+      let pTinggi = baseFisik > 0 ? Math.round((s.sudahKetinggian / baseFisik) * 100) : 0;
+      document.getElementById("d-lolos-tinggi").innerText = s.lolosKetinggian;
+      document.getElementById("d-gagal-tinggi").innerText = s.gagalKetinggian;
+      document.getElementById("d-antre-tinggi").innerText = baseFisik - s.sudahKetinggian;
+      document.getElementById("d-persen-tinggi").innerText = pTinggi + "%";
+      document.getElementById("bar-tinggi").style.width = pTinggi + "%";
+
+      // 5. Ruang Sempit
+      let pSempit = baseFisik > 0 ? Math.round((s.sudahSempit / baseFisik) * 100) : 0;
+      document.getElementById("d-lolos-sempit").innerText = s.lolosSempit;
+      document.getElementById("d-gagal-sempit").innerText = s.gagalSempit;
+      document.getElementById("d-antre-sempit").innerText = baseFisik - s.sudahSempit;
+      document.getElementById("d-persen-sempit").innerText = pSempit + "%";
+      document.getElementById("bar-sempit").style.width = pSempit + "%";
+
+      // 6. Insiden Medis (P3K)
       document.getElementById("d-medis").innerText = s.insidenMedis;
       let cardMedis = document.getElementById("p3k-card");
-      if(s.insidenMedis > 0) { cardMedis.classList.replace("border-success", "border-danger"); cardMedis.style.background = "#fff5f5"; }
-      else { cardMedis.classList.replace("border-danger", "border-success"); cardMedis.style.background = "#fdfdfd"; }
+      if(s.insidenMedis > 0) { 
+        cardMedis.classList.replace("border-success", "border-danger"); 
+        cardMedis.style.background = "#fff5f5";
+        document.getElementById("p3k-title").classList.replace("text-success", "text-danger");
+        document.getElementById("d-medis").classList.replace("text-success", "text-danger");
+        cardMedis.querySelector("p.small").classList.replace("text-success", "text-danger");
+      } else { 
+        cardMedis.classList.replace("border-danger", "border-success"); 
+        cardMedis.style.background = "#fdfdfd"; 
+      }
     }
 
     // MODAL BIODATA
@@ -283,7 +345,6 @@
         
         const btnLog = (cat, pos, pan, wak, color) => (cat || pan) ? `<a onclick="showDetail('${p.nama.replace(/'/g,"")}', '${pos}', '${cat.replace(/'/g,"")}', '${pan}', '${wak}')" class="text-${color} link-detail"><i class="bi bi-chat-left-text"></i> Log Detail</a>` : "";
 
-        // BACA 4 OBJEK WARNA
         let badgeLari = `<span class="badge bg-secondary">Pending</span>`;
         if (p.lari !== "") {
             badgeLari = `
@@ -309,15 +370,15 @@
             </td>
             <td class="text-center align-middle" style="min-width: 150px;">
               ${badgeLari}
-              ${btnLog(p.catLari, 'Lari', p.panLari, p.wakLari, 'success')}
+              ${btnLog(p.catLari, 'Lari', p.panLari, p.wakLari, 'primary')}
             </td>
             <td class="text-center">
               <span class="badge ${p.tinggi === 'Lolos' ? 'bg-success' : (p.tinggi === 'Tidak Lolos' ? 'bg-danger' : 'bg-secondary')}">${p.tinggi || 'Pending'}</span>
-              ${btnLog(p.catTinggi, 'Ketinggian', p.panTinggi, p.wakTinggi, 'success')}
+              ${btnLog(p.catTinggi, 'Ketinggian', p.panTinggi, p.wakTinggi, 'info')}
             </td>
             <td class="text-center">
-              <span class="badge ${p.sempit === 'Lolos' ? 'bg-success' : (p.sempit === 'Tidak Lolos' ? 'bg-danger' : 'bg-secondary')}">${p.sempit || 'Pending'}</span>
-              ${btnLog(p.catSempit, 'Ruang Sempit', p.panSempit, p.wakSempit, 'success')}
+              <span class="badge ${p.sempit === 'Lolos' ? 'bg-success' : (p.sempit === 'Tidak Lolos' ? 'bg-danger' : 'bg-secondary')}" style="${p.sempit === 'Lolos' ? '' : (p.sempit === 'Tidak Lolos' ? '' : 'background-color:#6c757d;')}">${p.sempit || 'Pending'}</span>
+              ${btnLog(p.catSempit, 'Ruang Sempit', p.panSempit, p.wakSempit, 'purple')}
             </td>
             <td>
               ${p.medis ? `<span class="badge bg-danger shadow-sm">P3K</span> ${btnLog(p.medis, 'Medis', p.panMedis, p.wakMedis, 'danger')}` : '<span class="badge bg-success opacity-50">Aman</span>'}
