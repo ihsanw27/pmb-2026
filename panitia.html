@@ -49,7 +49,7 @@
     
     <div id="view-login" class="card-custom text-center my-auto fade-in">
       <img src="https://i.ibb.co.com/TDsSQQ6B/IMG-1501-removebg-preview.png" alt="Logo Kampus" class="campus-logo">
-      <h4 class="fw-bold mb-1">Portal Panitia</h4>
+      <h4 class="fw-bold mb-1">Akses Panitia</h4>
       <p class="small mb-4 fw-medium text-muted">Portal penilaian peserta</p>
       <div class="input-group mb-3"><span class="input-group-text"><i class="bi bi-envelope"></i></span><input type="email" id="email" class="form-control border-start-0" placeholder="Email Terdaftar"></div>
       <div class="input-group mb-4"><span class="input-group-text"><i class="bi bi-key"></i></span><input type="password" id="kode" class="form-control border-start-0 border-end-0" placeholder="Kode Keamanan"><span class="input-group-text bg-transparent border-start-0 cursor-pointer" onclick="togglePwd()"><i class="bi bi-eye-slash" id="icon-mata"></i></span></div>
@@ -117,7 +117,8 @@
               <div class="w-100">
                 <small class="d-block fw-bold text-muted" style="font-size:0.7rem; letter-spacing: 0.5px;">IDENTITAS PESERTA</small>
                 <h6 id="nama-peserta-single" class="fw-bold mb-1 text-dark"></h6>
-                <div id="progress-peserta-single" class="mt-1"></div> </div>
+                <div id="progress-peserta-single" class="mt-1"></div> 
+              </div>
             </div>
           </div>
           
@@ -286,7 +287,6 @@
       prosesDataScan(val);
     }
 
-    // --- FUNGSI PROGRESS TRACKER (BADGE POS) ---
     function generateProgressHTML(p) {
       const isDone = (val) => (val !== "" && val !== "Pending" && val !== "-" && val != null);
       let sVerif = isDone(p.verif) ? "success" : "secondary";
@@ -419,7 +419,6 @@
       activeNo = txt; 
       document.getElementById("nama-peserta-single").innerText = `${p.nama} (${txt})`;
       
-      // CETAK PROGRESS TRACKER DI BAWAH NAMA PESERTA
       document.getElementById("progress-peserta-single").innerHTML = generateProgressHTML(p);
       
       resetUI(); 
@@ -488,8 +487,6 @@
         }
         
         let catPlaceholder = isKesehatan ? "Detail keluhan medis..." : "Catatan tambahan...";
-        
-        // MENYEMATKAN PROGRESS TRACKER DI BULK
         let progressHTML = generateProgressHTML(p);
 
         container.innerHTML += `
@@ -545,7 +542,12 @@
       btn.disabled = true; txt.innerText = "Menyimpan...";
       
       let res = await api(payload);
-      if(res.success) { Swal.fire({icon:'success', title:'Tersimpan', timer:1500, showConfirmButton:false}); setTimeout(batal, 1500); } 
+      if(res.success) { 
+        // MEMAKSA SINKRONISASI SETELAH SIMPAN AGAR STATE-AWARE TERUPDATE
+        Swal.fire({icon:'success', title:'Tersimpan', text:'Menyinkronkan data...', timer:1500, showConfirmButton:false}); 
+        await syncData(false);
+        batal(); 
+      } 
       else { Swal.fire({icon:'error', title:'Gagal', text:res.message, confirmButtonColor:'#4f46e5'}); btn.disabled = false; txt.innerText = "SIMPAN DATA"; }
     }
 
@@ -612,8 +614,11 @@
         Swal.fire({icon: 'warning', title: 'Selesai dengan Error', html: `<b>${successIndices.length}</b> terkirim.<br><b>${gagal}</b> gagal. Silakan coba lagi.`, confirmButtonText: 'OKE', confirmButtonColor: '#f59e0b'});
         renderBulkUI(); if (bulkQueue.length > 0) mulaiInputBulk(); else batal();
       } else {
-        Swal.fire('Berhasil!', 'Semua data antrean terkirim.', 'success');
-        bulkQueue = []; renderBulkUI(); batal(); 
+        // MEMAKSA SINKRONISASI SETELAH SIMPAN BULK AGAR STATE-AWARE TERUPDATE
+        Swal.fire({icon:'success', title:'Berhasil!', text:'Semua data terkirim. Menyinkronkan...', timer:1500, showConfirmButton:false});
+        bulkQueue = []; renderBulkUI();
+        await syncData(false);
+        batal(); 
       }
     }
   </script>
