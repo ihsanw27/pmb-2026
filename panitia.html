@@ -5,33 +5,43 @@
   <title>Portal Panitia Tes Fisik PMB PIPB</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://unpkg.com/html5-qrcode"></script>
   <style>
-    :root { --bg-page: #e8eef2; --bg-card: #fdfdfd; --text-main: #334155; --text-muted: #64748b; --accent: #5b7cfa; --accent-soft: #edf2ff; --success: #38d9a9; --danger: #ff8787; --border-soft: #dce4ec; }
+    :root { --bg-page: #f1f5f9; --bg-card: #ffffff; --text-main: #334155; --text-muted: #64748b; --accent: #4f46e5; --accent-soft: #e0e7ff; --success: #10b981; --danger: #ef4444; --border-soft: #e2e8f0; }
     body { background: var(--bg-page); color: var(--text-main); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
-    .app-container { max-width: 480px; margin: 0 auto; padding: 15px; min-height: 100vh; display: flex; flex-direction: column; }
-    .card-custom { background: var(--bg-card); border-radius: 24px; box-shadow: 0 10px 25px -5px rgba(100,116,139,0.06); padding: 30px 20px; border: 1px solid #ffffff; }
-    .campus-logo { max-height: 55px; width: auto; margin: 0 auto 20px auto; display: block; object-fit: contain; }
+    .app-container { max-width: 500px; margin: 0 auto; padding: 15px; min-height: 100vh; display: flex; flex-direction: column; }
+    .card-custom { background: var(--bg-card); border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); padding: 25px; border: 1px solid rgba(255,255,255,0.8); }
+    .campus-logo { max-height: 60px; width: auto; margin: 0 auto 20px auto; display: block; object-fit: contain; }
     .campus-logo-mini { max-height: 35px; width: auto; object-fit: contain; }
-    .form-control, .form-select { border-radius: 14px; padding: 14px 18px; border: 1.5px solid var(--border-soft); font-weight: 500; background: #f4f7f9; color: var(--text-main); }
-    .form-control:focus, .form-select:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(91, 124, 250, 0.15); outline: none; background: #ffffff; }
-    .input-group-text { border-radius: 14px; border: 1.5px solid var(--border-soft); background: #f4f7f9; color: var(--text-muted); }
+    
+    .form-control, .form-select { border-radius: 12px; padding: 14px 16px; border: 1.5px solid var(--border-soft); font-weight: 500; background: #f8fafc; color: var(--text-main); transition: all 0.2s; }
+    .form-control:focus, .form-select:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15); outline: none; background: #ffffff; }
+    .input-group-text { border-radius: 12px; border: 1.5px solid var(--border-soft); background: #f8fafc; color: var(--text-muted); }
     .input-group:focus-within .input-group-text { border-color: var(--accent); color: var(--accent); background: #ffffff; }
-    .btn-custom { border-radius: 14px; padding: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
-    .btn-accent { background: var(--accent); color: white; border: none; box-shadow: 0 6px 15px rgba(91, 124, 250, 0.2); }
+    
+    .btn-custom { border-radius: 12px; padding: 14px 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
+    .btn-accent { background: var(--accent); color: white; border: none; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25); }
     .btn-accent:active { transform: translateY(2px); box-shadow: none; }
-    #reader { border-radius: 18px; overflow: hidden; border: 3px solid var(--border-soft); background: #334155; min-height: 280px; transition: transform 0.3s ease; }
-    #reader video { border-radius: 14px; object-fit: cover; }
+    
+    #reader { border-radius: 16px; overflow: hidden; border: 2px solid var(--border-soft); background: #1e293b; min-height: 280px; position: relative; }
+    #reader video { border-radius: 14px; object-fit: cover; width: 100%; height: 100%; }
     #reader.mirror-mode video { transform: scaleX(-1) !important; }
-    .form-check-input { width: 3.5em !important; height: 1.8em !important; cursor: pointer; border-color: var(--border-soft); }
-    .form-check-input:checked { background-color: var(--success); border-color: var(--success); }
+    
+    .form-switch .form-check-input { width: 3em; height: 1.5em; cursor: pointer; border-color: var(--border-soft); }
+    .form-switch .form-check-input:checked { background-color: var(--accent); border-color: var(--accent); }
+    
+    .btn-check:checked + .btn-outline-success { background-color: var(--success); color: white; border-color: var(--success); }
+    .btn-check:checked + .btn-outline-danger { background-color: var(--danger); color: white; border-color: var(--danger); }
+    
     .hidden { display: none !important; }
-    .fade-in { animation: fadeIn 0.4s ease forwards; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .bulk-item-card { background: #f8fafc; border: 1.5px solid var(--border-soft); border-radius: 16px; padding: 15px; margin-bottom: 12px; }
-    .bulk-item-header { font-size: 0.85rem; color: var(--accent); font-weight: 700; margin-bottom: 8px; border-bottom: 1px dashed var(--border-soft); padding-bottom: 8px; }
+    .fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .bulk-item-card { background: #ffffff; border: 1.5px solid var(--border-soft); border-radius: 16px; padding: 18px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+    .bulk-item-header { font-size: 0.9rem; color: var(--accent); font-weight: 700; margin-bottom: 12px; border-bottom: 1px dashed var(--border-soft); padding-bottom: 10px; display: flex; flex-direction: column; gap: 4px; }
+    .badge-progress { font-size: 0.65rem; border-radius: 6px; padding: 4px 6px; display: inline-flex; align-items: center; gap: 3px; font-weight: 600; }
   </style>
 </head>
 <body>
@@ -39,109 +49,127 @@
     
     <div id="view-login" class="card-custom text-center my-auto fade-in">
       <img src="https://i.ibb.co.com/TDsSQQ6B/IMG-1501-removebg-preview.png" alt="Logo Kampus" class="campus-logo">
-      <h4 class="fw-bold mb-1">Akses Petugas</h4>
-      <p class="small mb-4 fw-medium text-muted">Masuk untuk memindai peserta tes</p>
+      <h4 class="fw-bold mb-1">Portal Panitia</h4>
+      <p class="small mb-4 fw-medium text-muted">Portal penilaian peserta</p>
       <div class="input-group mb-3"><span class="input-group-text"><i class="bi bi-envelope"></i></span><input type="email" id="email" class="form-control border-start-0" placeholder="Email Terdaftar"></div>
       <div class="input-group mb-4"><span class="input-group-text"><i class="bi bi-key"></i></span><input type="password" id="kode" class="form-control border-start-0 border-end-0" placeholder="Kode Keamanan"><span class="input-group-text bg-transparent border-start-0 cursor-pointer" onclick="togglePwd()"><i class="bi bi-eye-slash" id="icon-mata"></i></span></div>
       <button onclick="login()" class="btn btn-custom btn-accent w-100" id="btn-login"><i class="bi bi-box-arrow-in-right" id="l-icon"></i> <span id="l-text">MASUK SISTEM</span></button>
     </div>
 
     <div id="view-dashboard" class="hidden flex-grow-1 d-flex flex-column mt-2 fade-in">
-      <div class="card-custom py-3 px-3 mb-3 d-flex flex-row justify-content-between align-items-center">
+      <div class="card-custom py-3 px-3 mb-3 d-flex flex-row justify-content-between align-items-center" style="border-radius: 18px;">
         <div class="d-flex align-items-center gap-3">
           <img src="https://i.ibb.co.com/TDsSQQ6B/IMG-1501-removebg-preview.png" alt="Logo" class="campus-logo-mini border-end pe-3" style="border-color: var(--border-soft) !important;">
-          <div><small class="d-block fw-bold text-muted" style="font-size: 0.7rem;">PETUGAS POS</small><strong id="nama-panitia" class="fs-6"></strong></div>
+          <div><small class="d-block fw-bold text-muted" style="font-size: 0.65rem; letter-spacing: 0.5px;">PETUGAS POS</small><strong id="nama-panitia" class="fs-6 text-dark"></strong></div>
         </div>
-        <button onclick="logout()" class="btn btn-light rounded-circle border p-2 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; color: var(--danger); background: #fff5f5; border-color: #ffe3e3 !important;"><i class="bi bi-power"></i></button>
+        <button onclick="logout()" class="btn btn-light rounded-circle border d-flex align-items-center justify-content-center shadow-sm" style="width: 40px; height: 40px; color: var(--danger); background: #fff5f5;"><i class="bi bi-power"></i></button>
       </div>
 
-      <div class="card-custom flex-grow-1 d-flex flex-column p-3">
-        <div class="mb-3">
-          <label class="form-label small fw-bold ps-1 text-muted">KATEGORI TUGAS:</label>
-          <select id="pilih-tugas" class="form-select fw-bold" onchange="gantiTugas()"></select>
+      <div class="card-custom flex-grow-1 d-flex flex-column p-4">
+        <div class="mb-4">
+          <label class="form-label small fw-bold ps-1 text-muted"><i class="bi bi-geo-alt-fill me-1"></i> POS TUGAS ANDA:</label>
+          <select id="pilih-tugas" class="form-select fw-bold fs-6 shadow-sm border-0" style="background: var(--accent-soft); color: var(--accent);" onchange="gantiTugas()"></select>
         </div>
         
         <div id="area-scanner">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="small fw-bold ps-1 text-muted">KAMERA PEMINDAI</span>
-            <button onclick="syncData()" id="btn-sync" class="btn btn-sm fw-bold px-3 d-flex align-items-center gap-1" style="background: var(--accent-soft); color: var(--accent); border-radius: 20px;"><i class="bi bi-arrow-repeat" id="s-icon"></i> <span id="s-text">Sync</span></button>
-          </div>
+          <div class="card bg-light border-0 rounded-4 mb-4 shadow-sm">
+            <div class="card-body p-3">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="small fw-bold text-muted"><i class="bi bi-gear-fill me-1"></i> Panel Pemindai</span>
+                <button onclick="syncData()" id="btn-sync" class="btn btn-sm fw-bold px-3 d-flex align-items-center gap-1 rounded-pill" style="background: white; border: 1px solid var(--border-soft); color: var(--text-main);"><i class="bi bi-arrow-repeat" id="s-icon"></i> <span id="s-text">Sync</span></button>
+              </div>
+              
+              <div class="input-group input-group-sm mb-3 shadow-sm">
+                <input type="text" id="input-manual" class="form-control fw-bold py-2 border-0" placeholder="Ketik NIK / No. Peserta..." onkeypress="handleManual(event)">
+                <button class="btn text-white fw-bold px-3" style="background: var(--text-main);" onclick="prosesManual()"><i class="bi bi-search"></i> Cari</button>
+              </div>
 
-          <div class="mb-3 p-2 rounded border shadow-sm" style="background: #f8fafc;">
-            <div class="form-check form-switch mb-2">
-              <input class="form-check-input ms-1 me-2 mt-1" type="checkbox" id="mode-bulk" onchange="toggleBulk()">
-              <label class="form-check-label small fw-bold mt-1" for="mode-bulk" style="color: var(--accent);">Mode Scan Banyak (Bulk Tabel)</label>
-            </div>
-            <div class="form-check form-switch border-top pt-2 mb-2">
-              <input class="form-check-input ms-1 me-2 mt-1" type="checkbox" id="mode-mirror" onchange="toggleMirror()">
-              <label class="form-check-label small fw-bold mt-1 text-muted" for="mode-mirror">Mirror View (Untuk Laptop)</label>
-            </div>
-            <div class="border-top pt-2">
-              <label class="form-label small fw-bold text-muted mb-1"><i class="bi bi-keyboard"></i> Input Manual (Jika QR Rusak):</label>
-              <div class="input-group input-group-sm">
-                <input type="text" id="input-manual" class="form-control fw-bold py-2" placeholder="Ketik No Peserta..." onkeypress="handleManual(event)">
-                <button class="btn btn-secondary fw-bold px-3" onclick="prosesManual()"><i class="bi bi-search"></i> Cari</button>
+              <div class="d-flex justify-content-between align-items-center border-top pt-2 mt-2">
+                <div class="form-check form-switch mb-0">
+                  <input class="form-check-input mt-1" type="checkbox" id="mode-bulk" onchange="toggleBulk()">
+                  <label class="form-check-label small fw-bold ms-1" style="color: var(--accent);" for="mode-bulk">Mode Scan Banyak (Bulk)</label>
+                </div>
+                <div class="form-check form-switch mb-0">
+                  <input class="form-check-input mt-1" type="checkbox" id="mode-mirror" onchange="toggleMirror()">
+                  <label class="form-check-label small fw-bold ms-1 text-muted" for="mode-mirror">Mirror Cam</label>
+                </div>
               </div>
             </div>
           </div>
 
-          <div id="reader" class="mb-3 shadow-sm"></div>
+          <div id="reader" class="mb-4 shadow-sm"></div>
           <button onclick="initCam()" class="btn btn-light btn-custom w-100 border hidden mb-3" id="btn-cam" style="color: var(--text-muted);">Nyalakan Kamera Ulang</button>
 
-          <div id="bulk-info" class="hidden rounded p-3 mb-2" style="background: #eef2ff; border: 1.5px dashed var(--accent);">
+          <div id="bulk-info" class="hidden rounded-4 p-3 mb-2 shadow-sm" style="background: var(--accent-soft); border: 1.5px dashed var(--accent);">
             <div class="d-flex justify-content-between align-items-center mb-2">
-              <span class="fw-bold text-primary small">Terkumpul: <span id="bulk-count" class="badge bg-primary">0</span> Peserta</span>
-              <button class="btn btn-sm btn-primary fw-bold px-3 rounded-pill" onclick="mulaiInputBulk()">Buka Form Tabel <i class="bi bi-table"></i></button>
+              <span class="fw-bold text-primary small">Terkumpul: <span id="bulk-count" class="badge bg-primary fs-6 ms-1 rounded-pill">0</span></span>
+              <button class="btn btn-sm btn-primary fw-bold px-3 rounded-pill shadow-sm" onclick="mulaiInputBulk()">Proses Data <i class="bi bi-arrow-right ms-1"></i></button>
             </div>
             <ul id="bulk-list" class="small mb-0 ps-0 text-muted" style="list-style: none;"></ul>
           </div>
         </div>
 
         <div id="form-nilai-single" class="hidden">
-          <div class="alert d-flex align-items-center mb-3 py-2 rounded-4 border-0" style="background: #e6fcf5;">
-            <i class="bi bi-check-circle-fill fs-2 me-3" style="color: var(--success);"></i>
-            <div>
-              <small class="d-block fw-bold" style="font-size:0.7rem; color: #2b8a6e;">PESERTA TERIDENTIFIKASI</small>
-              <h6 id="nama-peserta-single" class="fw-bold mb-0"></h6>
+          
+          <div class="alert mb-3 py-3 rounded-4 shadow-sm border" style="background: #ffffff; border-color: var(--border-soft) !important;">
+            <div class="d-flex align-items-center">
+              <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 45px; height: 45px; min-width: 45px;"><i class="bi bi-person-check-fill fs-4"></i></div>
+              <div class="w-100">
+                <small class="d-block fw-bold text-muted" style="font-size:0.7rem; letter-spacing: 0.5px;">IDENTITAS PESERTA</small>
+                <h6 id="nama-peserta-single" class="fw-bold mb-1 text-dark"></h6>
+                <div id="progress-peserta-single" class="mt-1"></div> </div>
             </div>
           </div>
           
-          <div class="p-3 rounded-4 border mb-3" style="background: #f8fafc; border-color: var(--border-soft);">
-            <label class="form-label small fw-bold text-muted">HASIL TES / PENILAIAN:</label>
-            
-            <div id="alert-existing" class="alert py-2 rounded-3 border-0 mb-3 hidden" style="background: #fff3cd; color: #856404; border-left: 4px solid #ffeeba !important;">
-               <i class="bi bi-info-circle-fill me-2"></i>
-               <span id="txt-existing-info" class="small fw-medium"></span>
-            </div>
+          <div id="alert-existing" class="alert d-flex align-items-start rounded-4 border-0 mb-3 hidden shadow-sm" style="background: #fffbeb; color: #92400e; border-left: 5px solid #f59e0b !important;">
+             <i class="bi bi-clock-history fs-4 me-3 mt-1 text-warning"></i>
+             <div>
+                <small class="fw-bold d-block mb-1" style="color: #b45309;">DATA TELAH TERISI SEBELUMNYA</small>
+                <div id="txt-existing-info" class="small fw-medium" style="line-height: 1.4;"></div>
+             </div>
+          </div>
 
+          <div class="p-3 rounded-4 border mb-3 shadow-sm bg-light">
+            <label class="form-label small fw-bold text-muted mb-3"><i class="bi bi-clipboard2-check-fill me-1"></i> INPUT HASIL TES:</label>
+            
             <div id="wrap-lari-single" class="hidden">
               <div class="row g-2 mb-2">
-                <div class="col-3 text-center"><label class="small fw-bold text-danger mb-1" style="font-size:0.75rem;">Merah</label><input type="number" id="lari-m-single" class="form-control text-center px-1 border-danger text-danger fw-bold" placeholder="0"></div>
-                <div class="col-3 text-center"><label class="small fw-bold text-warning mb-1" style="font-size:0.75rem;">Kuning</label><input type="number" id="lari-k-single" class="form-control text-center px-1 border-warning text-warning fw-bold" placeholder="0"></div>
-                <div class="col-3 text-center"><label class="small fw-bold text-success mb-1" style="font-size:0.75rem;">Hijau</label><input type="number" id="lari-h-single" class="form-control text-center px-1 border-success text-success fw-bold" placeholder="0"></div>
-                <div class="col-3 text-center"><label class="small fw-bold text-primary mb-1" style="font-size:0.75rem;">Biru</label><input type="number" id="lari-b-single" class="form-control text-center px-1 border-primary text-primary fw-bold" placeholder="0"></div>
+                <div class="col-3 text-center"><label class="small fw-bold text-danger mb-2" style="font-size:0.75rem;">Merah</label><input type="number" id="lari-m-single" class="form-control text-center fs-5 px-1 border-danger text-danger fw-bold shadow-sm" placeholder="0"></div>
+                <div class="col-3 text-center"><label class="small fw-bold text-warning mb-2" style="font-size:0.75rem;">Kuning</label><input type="number" id="lari-k-single" class="form-control text-center fs-5 px-1 border-warning text-warning fw-bold shadow-sm" placeholder="0"></div>
+                <div class="col-3 text-center"><label class="small fw-bold text-success mb-2" style="font-size:0.75rem;">Hijau</label><input type="number" id="lari-h-single" class="form-control text-center fs-5 px-1 border-success text-success fw-bold shadow-sm" placeholder="0"></div>
+                <div class="col-3 text-center"><label class="small fw-bold text-primary mb-2" style="font-size:0.75rem;">Biru</label><input type="number" id="lari-b-single" class="form-control text-center fs-5 px-1 border-primary text-primary fw-bold shadow-sm" placeholder="0"></div>
               </div>
-              <p class="text-danger small mb-0 mt-1 fw-bold" style="font-size: 0.65rem;">*WAJIB DIISI SEMUA. Ketik "0" jika tidak mendapat warna stik.</p>
+              <p class="text-danger small mb-0 mt-2 fw-bold" style="font-size: 0.65rem;">*WAJIB ISI SEMUA WARNA. Ketik "0" jika tidak mendapat stik.</p>
             </div>
 
-            <div id="wrap-check-single" class="hidden text-center py-2"><div class="form-check form-switch d-inline-block"><input class="form-check-input shadow-sm" type="checkbox" id="val-check-single" onchange="uiCheckSingle()"><label class="form-check-label ms-2 fs-5 fw-bold" id="lbl-check-single" style="color: var(--danger);">TIDAK LOLOS</label></div></div>
+            <div id="wrap-radio-single" class="hidden mb-3">
+              <div class="btn-group w-100 shadow-sm" role="group">
+                <input type="radio" class="btn-check" name="statusSingle" id="status-lolos" value="Lolos" autocomplete="off">
+                <label class="btn btn-outline-success fw-bold py-2" for="status-lolos"><i class="bi bi-check-circle-fill me-1"></i> LOLOS</label>
+
+                <input type="radio" class="btn-check" name="statusSingle" id="status-gagal" value="Tidak Lolos" autocomplete="off">
+                <label class="btn btn-outline-danger fw-bold py-2" for="status-gagal"><i class="bi bi-x-circle-fill me-1"></i> TIDAK LOLOS</label>
+              </div>
+            </div>
+
+            <label class="form-label small fw-bold text-muted mb-1" id="lbl-catatan-single"><i class="bi bi-pencil-square me-1"></i> Catatan Khusus:</label>
+            <textarea id="val-catatan-single" class="form-control border-0 shadow-sm" rows="2" placeholder="Tulis catatan di sini..."></textarea>
           </div>
-          <textarea id="val-catatan-single" class="form-control mb-3" rows="2" placeholder="Tambahkan catatan jika perlu..." style="background: #fff;"></textarea>
           
           <div class="row g-2 mt-auto">
-            <div class="col-4"><button onclick="batal()" class="btn btn-light btn-custom w-100 border text-muted" style="background: #f8fafc;">Batal</button></div>
-            <div class="col-8"><button onclick="simpanSingle()" class="btn fw-bold btn-custom w-100 text-white" id="btn-simpan-single" style="background: var(--success); border: none;"><i class="bi bi-save2" id="simpan-icon-single"></i> <span id="simpan-text-single">SIMPAN DATA</span></button></div>
+            <div class="col-4"><button onclick="batal()" class="btn btn-light btn-custom w-100 border text-muted shadow-sm">Batal</button></div>
+            <div class="col-8"><button onclick="simpanSingle()" class="btn fw-bold btn-custom w-100 text-white" id="btn-simpan-single" style="background: var(--success);"><i class="bi bi-save2" id="simpan-icon-single"></i> <span id="simpan-text-single">SIMPAN DATA</span></button></div>
           </div>
         </div>
 
         <div id="form-nilai-bulk" class="hidden">
-          <div class="alert mb-3 py-2 rounded-4 border-0 text-center" style="background: #edf2ff; color: var(--accent);">
-            <h6 class="fw-bold mb-0"><i class="bi bi-card-list"></i> PENGISIAN <span id="bulk-total-header">0</span> PESERTA</h6>
+          <div class="alert mb-3 py-3 rounded-4 border-0 text-center shadow-sm" style="background: var(--accent-soft); color: var(--accent);">
+            <h6 class="fw-bold mb-0"><i class="bi bi-stack me-1"></i> DAFTAR ANTREAN: <span id="bulk-total-header" class="badge bg-primary rounded-pill fs-6 ms-1">0</span> PESERTA</h6>
           </div>
           <div id="bulk-table-container" class="mb-3"></div>
-          <div class="row g-2 mt-auto">
-            <div class="col-4"><button onclick="batal()" class="btn btn-light btn-custom w-100 border text-muted" style="background: #f8fafc;">Batal</button></div>
-            <div class="col-8"><button onclick="simpanBulk()" class="btn fw-bold btn-custom w-100 text-white" id="btn-simpan-bulk" style="background: var(--accent); border: none; box-shadow: 0 4px 10px rgba(91, 124, 250, 0.3);"><i class="bi bi-cloud-upload"></i> KIRIM SEMUA</button></div>
+          <div class="row g-2 mt-auto border-top pt-3">
+            <div class="col-4"><button onclick="batal()" class="btn btn-light btn-custom w-100 border text-muted shadow-sm">Batal</button></div>
+            <div class="col-8"><button onclick="simpanBulk()" class="btn fw-bold btn-custom w-100 text-white" id="btn-simpan-bulk" style="background: var(--accent);"><i class="bi bi-cloud-arrow-up-fill me-1"></i> UPLOAD SEMUA</button></div>
           </div>
         </div>
 
@@ -178,7 +206,7 @@
       if(res.success) { 
         localStorage.setItem("pmbSess", JSON.stringify({ nama: res.nama, roles: res.kategoriList, bulkMode: false, mirrorMode: false })); 
         restoreSess(); 
-      } else { Swal.fire({icon:'error', title:'Gagal', text:res.message, confirmButtonColor:'#5b7cfa'}); }
+      } else { Swal.fire({icon:'error', title:'Gagal', text:res.message, confirmButtonColor:'#4f46e5'}); }
       btn.disabled = false; ic.className = "bi bi-box-arrow-in-right"; tx.innerText = "MASUK SISTEM";
     }
 
@@ -210,7 +238,7 @@
       let ic = document.getElementById("s-icon"), btn = document.getElementById("btn-sync");
       if(btn) btn.disabled = true; if(ic) ic.className = "spinner-border spinner-border-sm";
       let res = await api({ action: "getHadir" });
-      if(res.success) { pesertaList = res.data; if(toast) Swal.fire({title:'Data Terupdate', timer:1000, showConfirmButton:false, toast:true, position:'top', icon:'success'}); }
+      if(res.success) { pesertaList = res.data; if(toast) Swal.fire({title:'Data Sinkron!', timer:1000, showConfirmButton:false, toast:true, position:'top', icon:'success'}); }
       if(btn) btn.disabled = false; if(ic) ic.className = "bi bi-arrow-repeat";
     }
 
@@ -218,7 +246,7 @@
       let newRole = document.getElementById("pilih-tugas").value;
       if (isBulkMode && bulkQueue.length > 0) {
         Swal.fire({
-          title: 'Ganti Pos Tugas?', text: 'Terdapat antrean belum disimpan. Hapus dan ganti pos?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ff8787', confirmButtonText: 'Hapus & Ganti', cancelButtonText: 'Batal'
+          title: 'Ganti Pos Tugas?', text: 'Terdapat antrean yang belum disimpan. Yakin hapus antrean dan pindah pos?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', confirmButtonText: 'Hapus & Pindah', cancelButtonText: 'Batal'
         }).then((result) => {
           if (result.isConfirmed) { bulkQueue = []; renderBulkUI(); currentRole = newRole; resetUI(); Swal.fire({toast: true, position: 'top', icon: 'info', title: `Pos aktif: ${currentRole}`, showConfirmButton: false, timer: 1500}); } 
           else { document.getElementById("pilih-tugas").value = currentRole; }
@@ -246,11 +274,11 @@
 
     async function prosesManual() {
       let val = document.getElementById("input-manual").value.trim().toLowerCase();
-      if (!val) return Swal.fire({icon:'warning', text:'Ketik nomor peserta!', toast:true, position:'top', showConfirmButton:false, timer:1500});
+      if (!val) return Swal.fire({icon:'warning', text:'Ketik nomor peserta terlebih dahulu!', toast:true, position:'top', showConfirmButton:false, timer:1500});
       document.getElementById("input-manual").value = "";
       
       if(isBulkMode && bulkQueue.find(x => x.no.toString().trim().toLowerCase() === val)) {
-         return Swal.fire({icon:'info', text:'Peserta ini sudah ada di antrean bulk', toast:true, position:'top', showConfirmButton:false, timer:2000});
+         return Swal.fire({icon:'info', text:'Peserta ini sudah ada di antrean Anda', toast:true, position:'top', showConfirmButton:false, timer:2000});
       }
       
       isScanningPaused = true;
@@ -258,10 +286,30 @@
       prosesDataScan(val);
     }
 
+    // --- FUNGSI PROGRESS TRACKER (BADGE POS) ---
+    function generateProgressHTML(p) {
+      const isDone = (val) => (val !== "" && val !== "Pending" && val !== "-" && val != null);
+      let sVerif = isDone(p.verif) ? "success" : "secondary";
+      let sTinggi = isDone(p.tinggi) ? "success" : "secondary";
+      let sSempit = isDone(p.sempit) ? "success" : "secondary";
+      let sLari = (p.lariM !== "" || p.lariK !== "" || p.lariH !== "" || p.lariB !== "") ? "success" : "secondary";
+      
+      const badge = (stat, label) => `<span class="badge border border-${stat} text-${stat} bg-${stat} bg-opacity-10 me-1 badge-progress"><i class="bi bi-${stat==='success'?'check-circle-fill':'circle'}"></i> ${label}</span>`;
+      
+      return `
+        <div class="mt-1 d-flex flex-wrap gap-1">
+          ${badge(sVerif, 'Verif')}
+          ${badge(sLari, 'Lari')}
+          ${badge(sTinggi, 'Ketinggian')}
+          ${badge(sSempit, 'R. Sempit')}
+        </div>
+      `;
+    }
+
     function renderBulkUI() {
       document.getElementById("bulk-count").innerText = bulkQueue.length;
       let ul = document.getElementById("bulk-list"); ul.innerHTML = "";
-      bulkQueue.forEach((p, idx) => { ul.innerHTML += `<li class="d-flex justify-content-between align-items-center mb-1 py-1 border-bottom border-light"><span><b>${idx+1}.</b> ${p.nama} (${p.no})</span> <i class="bi bi-x-circle text-danger" style="cursor:pointer;" onclick="hapusBulk(${idx})"></i></li>`; });
+      bulkQueue.forEach((p, idx) => { ul.innerHTML += `<li class="d-flex justify-content-between align-items-center mb-1 py-1 border-bottom border-light"><span class="fw-medium"><b>${idx+1}.</b> ${p.nama} <small class="text-muted">(${p.no})</small></span> <i class="bi bi-x-circle-fill text-danger fs-5" style="cursor:pointer;" onclick="hapusBulk(${idx})"></i></li>`; });
     }
 
     function hapusBulk(idx) { bulkQueue.splice(idx, 1); renderBulkUI(); }
@@ -271,8 +319,10 @@
       let isLari = t.includes("lari"), isKesehatan = t.includes("kesehatan") || t.includes("medis");
       
       document.getElementById("wrap-lari-single").classList.toggle("hidden", !isLari);
-      document.getElementById("wrap-check-single").classList.toggle("hidden", isLari || isKesehatan); 
-      document.getElementById("val-catatan-single").placeholder = isKesehatan ? "Detail keluhan medis..." : "Catatan tambahan...";
+      document.getElementById("wrap-radio-single").classList.toggle("hidden", isLari || isKesehatan); 
+      
+      document.getElementById("lbl-catatan-single").innerHTML = isKesehatan ? `<i class="bi bi-heart-pulse-fill me-1"></i> Detail Laporan Medis:` : `<i class="bi bi-pencil-square me-1"></i> Catatan Khusus:`;
+      document.getElementById("val-catatan-single").placeholder = isKesehatan ? "Detail insiden atau keluhan peserta..." : "Ketik catatan jika perlu...";
       
       if(isLari) {
         document.getElementById("lari-m-single").value = ""; document.getElementById("lari-k-single").value = "";
@@ -280,19 +330,13 @@
       }
 
       let btnSimpan = document.getElementById("btn-simpan-single");
-      if (isKesehatan) btnSimpan.style.background = "var(--danger)"; else btnSimpan.style.background = "var(--success)";
-      document.getElementById("val-check-single").checked = false; uiCheckSingle();
+      if (isKesehatan) { btnSimpan.style.background = "var(--danger)"; btnSimpan.innerHTML = `<i class="bi bi-bandaid-fill"></i> <span id="simpan-text-single">LAPORKAN MEDIS</span>`; } 
+      else { btnSimpan.style.background = "var(--success)"; btnSimpan.innerHTML = `<i class="bi bi-save2-fill"></i> <span id="simpan-text-single">SIMPAN DATA</span>`; }
+      
+      document.getElementById("status-lolos").checked = false;
+      document.getElementById("status-gagal").checked = false;
+      
       document.getElementById("alert-existing").classList.add("hidden");
-    }
-
-    function uiCheckSingle() {
-      let c = document.getElementById("val-check-single"), l = document.getElementById("lbl-check-single");
-      l.innerText = c.checked ? "LOLOS POS INI" : "TIDAK LOLOS"; l.style.color = c.checked ? "var(--success)" : "var(--danger)";
-    }
-
-    function uiCheckBulk(idx) {
-      let c = document.getElementById(`bulk-check-${idx}`), l = document.getElementById(`bulk-lbl-${idx}`);
-      l.innerText = c.checked ? "LOLOS" : "TIDAK LOLOS"; l.style.color = c.checked ? "var(--success)" : "var(--danger)";
     }
 
     function initCam() {
@@ -317,7 +361,7 @@
           didOpen: async () => {
             Swal.showLoading(); await syncData(false);
             p = pesertaList.find(x => x.no.toString().trim().toLowerCase() === teksScan);
-            if (!p) { Swal.fire({icon:'error', title:'DITOLAK!', text:'Peserta belum Check-In.', confirmButtonColor:'#5b7cfa'}).then(() => { if (isBulkMode) initCam(); else batal(); }); } 
+            if (!p) { Swal.fire({icon:'error', title:'TIDAK DITEMUKAN!', text:'Peserta belum melakukan Check-In di meja panitia.', confirmButtonColor:'#4f46e5'}).then(() => { if (isBulkMode) initCam(); else batal(); }); } 
             else { Swal.close(); if (isBulkMode) initCam(); lanjutScan(p, teksScan); }
           }
         });
@@ -335,11 +379,10 @@
       let isLari = t.includes("lari");
 
       if (!isVerifikasi && !isKesehatan && p.verif.toLowerCase() !== "lolos") {
-        Swal.fire({icon:'error', title:'Ditolak!', text:`Peserta Belum Lolos Verifikasi Administrasi!`, confirmButtonColor:'#5b7cfa'}).then(() => { if (!isBulkMode) batal(); else isScanningPaused = false; });
+        Swal.fire({icon:'error', title:'Akses Ditolak!', text:`Peserta bersangkutan Belum Lolos Verifikasi Administrasi!`, confirmButtonColor:'#4f46e5'}).then(() => { if (!isBulkMode) batal(); else isScanningPaused = false; });
         return;
       }
 
-      // --- LOGIKA DETEKSI RIWAYAT / HISTORY (STATE-AWARE) ---
       let exVal = "", exCat = "", exPan = "", exWak = "", exM = "", exK = "", exH = "", exB = "";
       if (isVerifikasi) { exVal = p.verif; exCat = p.catVerif; exPan = p.panVerif; exWak = p.wakVerif; }
       else if (isTinggi) { exVal = p.tinggi; exCat = p.catTinggi; exPan = p.panTinggi; exWak = p.wakTinggi; }
@@ -356,11 +399,12 @@
       if (isBulkMode) {
         if (isFilled) {
            if (isLari) { p.tempM = exM; p.tempK = exK; p.tempH = exH; p.tempB = exB; }
-           else { p.tempVal = exVal; }
-           p.tempCat = exCat;
-           p.historyText = `Data ada: Oleh ${exPan} (${exWak})`;
+           else if (isKesehatan) { p.tempCat = exVal; } 
+           else { p.tempVal = exVal; } 
+           p.tempCat = !isKesehatan ? exCat : p.tempCat;
+           p.historyText = `Oleh ${exPan} pada ${exWak}`;
         } else {
-           p.historyText = "";
+           p.historyText = ""; p.tempVal = ""; p.tempCat = "";
         }
 
         bulkQueue.push(p); renderBulkUI();
@@ -372,35 +416,39 @@
         return;
       }
 
-      activeNo = txt; document.getElementById("nama-peserta-single").innerText = `${p.nama} (${txt})`;
+      activeNo = txt; 
+      document.getElementById("nama-peserta-single").innerText = `${p.nama} (${txt})`;
+      
+      // CETAK PROGRESS TRACKER DI BAWAH NAMA PESERTA
+      document.getElementById("progress-peserta-single").innerHTML = generateProgressHTML(p);
+      
       resetUI(); 
 
-      // MUNCULKAN BANNER HISTORY UNTUK SINGLE MODE JIKA SUDAH PERNAH DIISI
       let alertBox = document.getElementById("alert-existing");
       if(isFilled) {
           alertBox.classList.remove("hidden");
-          let dispVal = isLari ? `M:${exM} K:${exK} H:${exH} B:${exB}` : exVal;
-          document.getElementById("txt-existing-info").innerHTML = `<b>SUDAH DIISI:</b> [${dispVal}]<br><small>Oleh: ${exPan} pada ${exWak}</small>`;
+          let dispVal = isLari ? `M:${exM} | K:${exK} | H:${exH} | B:${exB}` : (isKesehatan ? "Laporan Tercatat" : exVal);
+          document.getElementById("txt-existing-info").innerHTML = `<b>Status Tersimpan: <span class="text-dark">${dispVal}</span></b><br>Oleh: ${exPan} <span class="text-muted">(${exWak})</span>`;
           
           if (isLari) {
              document.getElementById("lari-m-single").value = exM;
              document.getElementById("lari-k-single").value = exK;
              document.getElementById("lari-h-single").value = exH;
              document.getElementById("lari-b-single").value = exB;
-          } else if (!isKesehatan) {
-             document.getElementById("val-check-single").checked = (exVal === "Lolos");
-             uiCheckSingle();
+          } else if (isKesehatan) {
+             document.getElementById("val-catatan-single").value = exVal;
+          } else {
+             if (exVal.toLowerCase() === "lolos") document.getElementById("status-lolos").checked = true;
+             else if (exVal.toLowerCase() === "tidak lolos") document.getElementById("status-gagal").checked = true;
           }
-          document.getElementById("val-catatan-single").value = exCat;
-      } else {
-          alertBox.classList.add("hidden");
+          if (!isKesehatan) document.getElementById("val-catatan-single").value = exCat;
       }
 
       document.getElementById("area-scanner").classList.add("hidden"); document.getElementById("form-nilai-single").classList.remove("hidden");
     }
 
     function mulaiInputBulk() {
-      if(bulkQueue.length === 0) return Swal.fire('Kosong', 'Belum ada peserta yang discan', 'warning');
+      if(bulkQueue.length === 0) return Swal.fire('Kosong', 'Belum ada peserta di antrean.', 'warning');
       try { qrScanner.stop(); } catch(e){} 
       
       document.getElementById("bulk-total-header").innerText = bulkQueue.length;
@@ -412,35 +460,49 @@
 
       bulkQueue.forEach((p, idx) => {
         let inputHTML = "", savedCat = p.tempCat !== undefined ? p.tempCat : "";
-        let historyHTML = p.historyText ? `<div class="alert alert-warning py-1 px-2 mb-2 small fw-medium" style="font-size:0.7rem;"><i class="bi bi-info-circle-fill"></i> <b>SUDAH DIISI</b><br>${p.historyText}</div>` : "";
+        let historyHTML = p.historyText ? `<div class="alert alert-warning py-1 px-2 mb-2 small fw-medium rounded-3 border-0" style="font-size:0.7rem; background:#fef3c7; color:#92400e;"><i class="bi bi-info-circle-fill"></i> Data ada: ${p.historyText}</div>` : "";
         
         if (isLari) {
-          let sm = p.tempM !== undefined ? p.tempM : "";
-          let sk = p.tempK !== undefined ? p.tempK : "";
-          let sh = p.tempH !== undefined ? p.tempH : "";
-          let sb = p.tempB !== undefined ? p.tempB : "";
+          let sm = p.tempM !== undefined ? p.tempM : ""; let sk = p.tempK !== undefined ? p.tempK : "";
+          let sh = p.tempH !== undefined ? p.tempH : ""; let sb = p.tempB !== undefined ? p.tempB : "";
           inputHTML = `
             <div class="row g-2 mb-2">
-              <div class="col-3"><input type="number" id="bulk-lari-m-${idx}" class="form-control form-control-sm text-center border-danger text-danger fw-bold px-1" placeholder="M" title="Merah" value="${sm}"></div>
-              <div class="col-3"><input type="number" id="bulk-lari-k-${idx}" class="form-control form-control-sm text-center border-warning text-warning fw-bold px-1" placeholder="K" title="Kuning" value="${sk}"></div>
-              <div class="col-3"><input type="number" id="bulk-lari-h-${idx}" class="form-control form-control-sm text-center border-success text-success fw-bold px-1" placeholder="H" title="Hijau" value="${sh}"></div>
-              <div class="col-3"><input type="number" id="bulk-lari-b-${idx}" class="form-control form-control-sm text-center border-primary text-primary fw-bold px-1" placeholder="B" title="Biru" value="${sb}"></div>
+              <div class="col-3"><input type="number" id="bulk-lari-m-${idx}" class="form-control form-control-sm text-center border-danger text-danger fw-bold px-1" placeholder="M" value="${sm}"></div>
+              <div class="col-3"><input type="number" id="bulk-lari-k-${idx}" class="form-control form-control-sm text-center border-warning text-warning fw-bold px-1" placeholder="K" value="${sk}"></div>
+              <div class="col-3"><input type="number" id="bulk-lari-h-${idx}" class="form-control form-control-sm text-center border-success text-success fw-bold px-1" placeholder="H" value="${sh}"></div>
+              <div class="col-3"><input type="number" id="bulk-lari-b-${idx}" class="form-control form-control-sm text-center border-primary text-primary fw-bold px-1" placeholder="B" value="${sb}"></div>
             </div>
-            <p class="text-danger small mb-2 fw-bold" style="font-size: 0.65rem;">*WAJIB DIISI SEMUA (Ketik 0 jika kosong).</p>
+            <p class="text-danger small mb-2 fw-bold" style="font-size: 0.65rem;">*WAJIB DIISI (Ketik 0 jika kosong).</p>
           `;
         } else if (!isKesehatan) {
-          let isLolos = p.tempVal === "Lolos"; let isChecked = isLolos ? "checked" : "";
-          let lblColor = isLolos ? "var(--success)" : "var(--danger)"; let lblText = isLolos ? "LOLOS" : "TIDAK LOLOS";
-          inputHTML = `<div class="form-check form-switch mb-2"><input class="form-check-input shadow-sm" type="checkbox" id="bulk-check-${idx}" onchange="uiCheckBulk(${idx})" ${isChecked}><label class="form-check-label ms-2 fw-bold" id="bulk-lbl-${idx}" style="color: ${lblColor};">${lblText}</label></div>`;
+          let isLolos = p.tempVal === "Lolos"; let isGagal = p.tempVal === "Tidak Lolos";
+          let initialColor = isLolos ? "text-success border-success" : (isGagal ? "text-danger border-danger" : "text-muted");
+          
+          inputHTML = `
+            <select id="bulk-status-${idx}" class="form-select form-select-sm fw-bold mb-2 shadow-sm ${initialColor}" style="cursor:pointer;" onchange="this.className='form-select form-select-sm fw-bold mb-2 shadow-sm ' + (this.value==='Lolos'?'text-success border-success':'text-danger border-danger')">
+              <option value="" ${!isLolos && !isGagal ? 'selected' : ''} disabled>-- Pilih Status --</option>
+              <option value="Lolos" class="text-success fw-bold" ${isLolos ? 'selected' : ''}>&#10004; LOLOS</option>
+              <option value="Tidak Lolos" class="text-danger fw-bold" ${isGagal ? 'selected' : ''}>&#10006; TIDAK LOLOS</option>
+            </select>
+          `;
         }
         
-        let catPlaceholder = isKesehatan ? "Keluhan medis..." : "Catatan...";
+        let catPlaceholder = isKesehatan ? "Detail keluhan medis..." : "Catatan tambahan...";
+        
+        // MENYEMATKAN PROGRESS TRACKER DI BULK
+        let progressHTML = generateProgressHTML(p);
+
         container.innerHTML += `
           <div class="bulk-item-card">
-            <div class="bulk-item-header"><i class="bi bi-person-bounding-box"></i> ${idx+1}. ${p.nama} <br><span class="text-muted" style="font-weight:500;">No: ${p.no}</span></div>
+            <div class="bulk-item-header">
+              <div class="w-100">
+                <i class="bi bi-person-vcard-fill fs-5 me-1 text-primary"></i> <span class="fw-bold">${idx+1}. ${p.nama} <span class="text-muted fw-normal">(${p.no})</span></span>
+                ${progressHTML}
+              </div>
+            </div>
             ${historyHTML}
             ${inputHTML}
-            <input type="text" id="bulk-catatan-${idx}" class="form-control form-control-sm" placeholder="${catPlaceholder}" style="background: #fff;" value="${savedCat}">
+            <input type="text" id="bulk-catatan-${idx}" class="form-control form-control-sm border-0 bg-light" placeholder="${catPlaceholder}" value="${savedCat}">
           </div>
         `;
       });
@@ -451,57 +513,57 @@
       document.getElementById("form-nilai-single").classList.add("hidden"); document.getElementById("form-nilai-bulk").classList.add("hidden"); document.getElementById("area-scanner").classList.remove("hidden"); 
       document.getElementById("alert-existing").classList.add("hidden");
       let btnSingle = document.getElementById("btn-simpan-single");
-      if(btnSingle) { document.getElementById("simpan-text-single").innerText = "SIMPAN DATA"; document.getElementById("simpan-icon-single").className = "bi bi-save2"; btnSingle.disabled = false; }
+      if(btnSingle) { btnSingle.disabled = false; }
       initCam(); 
     }
 
     async function simpanSingle() {
       let t = document.getElementById("pilih-tugas").value;
+      let t_low = t.toLowerCase();
       let sess = JSON.parse(localStorage.getItem("pmbSess"));
       let payload = { action: "simpanNilai", noPeserta: activeNo, kategori: t, nilaiCatatan: document.getElementById("val-catatan-single").value, namaPanitia: sess.nama };
       
-      if (t.toLowerCase().includes("lari")) {
-        let m = document.getElementById("lari-m-single").value; 
-        let k = document.getElementById("lari-k-single").value;
-        let h = document.getElementById("lari-h-single").value; 
-        let b = document.getElementById("lari-b-single").value;
-        
+      let isLari = t_low.includes("lari"), isKesehatan = t_low.includes("kesehatan") || t_low.includes("medis");
+
+      if (isLari) {
+        let m = document.getElementById("lari-m-single").value; let k = document.getElementById("lari-k-single").value;
+        let h = document.getElementById("lari-h-single").value; let b = document.getElementById("lari-b-single").value;
         if(m === "" || k === "" || h === "" || b === "") {
-          return Swal.fire({icon:'warning', title:'Data Belum Lengkap', text:'Keempat warna stik WAJIB diisi! Jika peserta tidak mendapatkan stik warna tertentu, silakan ketik angka 0.', confirmButtonColor:'#5b7cfa'});
+          return Swal.fire({icon:'warning', title:'Data Belum Lengkap', text:'Keempat warna stik WAJIB diisi! Ketik angka 0 jika kosong.', confirmButtonColor:'#4f46e5'});
         }
-        
         payload.lariM = m; payload.lariK = k; payload.lariH = h; payload.lariB = b;
-      } else if (!t.toLowerCase().includes("kesehatan") && !t.toLowerCase().includes("medis")) {
-        payload.nilaiUtama = document.getElementById("val-check-single").checked ? "Lolos" : "Tidak Lolos";
+      } else if (!isKesehatan) {
+        let lolosChecked = document.getElementById("status-lolos").checked;
+        let gagalChecked = document.getElementById("status-gagal").checked;
+        if (!lolosChecked && !gagalChecked) {
+           return Swal.fire({icon:'warning', title:'Status Belum Dipilih', text:'Silakan pilih LOLOS atau TIDAK LOLOS terlebih dahulu!', confirmButtonColor:'#4f46e5'});
+        }
+        payload.nilaiUtama = lolosChecked ? "Lolos" : "Tidak Lolos";
       }
       
-      let btn = document.getElementById("btn-simpan-single"), ic = document.getElementById("simpan-icon-single"), tx = document.getElementById("simpan-text-single");
-      btn.disabled = true; ic.className = "spinner-border spinner-border-sm"; tx.innerText = "Menyimpan...";
+      let btn = document.getElementById("btn-simpan-single"), txt = document.getElementById("simpan-text-single");
+      btn.disabled = true; txt.innerText = "Menyimpan...";
       
       let res = await api(payload);
       if(res.success) { Swal.fire({icon:'success', title:'Tersimpan', timer:1500, showConfirmButton:false}); setTimeout(batal, 1500); } 
-      else { Swal.fire({icon:'error', title:'Gagal', text:res.message, confirmButtonColor:'#5b7cfa'}); resetUI(); }
-      btn.disabled = false; ic.className = "bi bi-save2"; tx.innerText = "SIMPAN DATA";
+      else { Swal.fire({icon:'error', title:'Gagal', text:res.message, confirmButtonColor:'#4f46e5'}); btn.disabled = false; txt.innerText = "SIMPAN DATA"; }
     }
 
     async function simpanBulk() {
       let t = document.getElementById("pilih-tugas").value;
       let t_low = t.toLowerCase();
-      let isLari = t_low.includes("lari");
-      let isKesehatan = t_low.includes("kesehatan") || t_low.includes("medis");
+      let isLari = t_low.includes("lari"), isKesehatan = t_low.includes("kesehatan") || t_low.includes("medis");
 
       for(let i=0; i<bulkQueue.length; i++) {
         if(isLari) {
           let m = document.getElementById(`bulk-lari-m-${i}`).value, k = document.getElementById(`bulk-lari-k-${i}`).value;
           let h = document.getElementById(`bulk-lari-h-${i}`).value, b = document.getElementById(`bulk-lari-b-${i}`).value;
-          
-          if(m === "" || k === "" || h === "" || b === "") {
-             return Swal.fire({icon:'warning', title:'Data Belum Lengkap', text:`Peserta No. ${i+1} belum lengkap! Keempat warna stik WAJIB diisi. Silakan ketik angka 0 jika kosong.`, confirmButtonColor:'#5b7cfa'});
-          }
-          
+          if(m === "" || k === "" || h === "" || b === "") return Swal.fire({icon:'warning', title:'Belum Lengkap', text:`Peserta No. ${i+1} belum lengkap! Keempat warna stik WAJIB diisi (Ketik 0 jika kosong).`, confirmButtonColor:'#4f46e5'});
           bulkQueue[i].tempM = m; bulkQueue[i].tempK = k; bulkQueue[i].tempH = h; bulkQueue[i].tempB = b;
         } else if(!isKesehatan) {
-          bulkQueue[i].tempVal = document.getElementById(`bulk-check-${i}`).checked ? "Lolos" : "Tidak Lolos";
+          let val = document.getElementById(`bulk-status-${i}`).value;
+          if(val === "") return Swal.fire({icon:'warning', title:'Belum Lengkap', text:`Silakan pilih status Lolos/Tidak Lolos untuk peserta baris ke-${i+1}`, confirmButtonColor:'#4f46e5'});
+          bulkQueue[i].tempVal = val;
         }
         bulkQueue[i].tempCat = document.getElementById(`bulk-catatan-${i}`).value;
       }
@@ -510,10 +572,10 @@
       let isCancelled = false;
 
       Swal.fire({
-         title: 'Sedang Mengunggah Data...',
+         title: 'Sedang Mengunggah...',
          html: `<div class="my-4"><div class="spinner-border text-primary" style="width: 3.5rem; height: 3.5rem;" role="status"></div></div><div id="swal-progress-text" class="fw-bold fs-5 text-primary">Memulai...</div>`,
          allowOutsideClick: false, showConfirmButton: false, showCancelButton: true,
-         cancelButtonText: '<i class="bi bi-x-octagon-fill me-1"></i> BATALKAN SISA', cancelButtonColor: '#dc3545',
+         cancelButtonText: '<i class="bi bi-x-octagon-fill me-1"></i> BATALKAN SISA', cancelButtonColor: '#ef4444',
          customClass: { cancelButton: 'btn btn-danger btn-lg px-4 py-2 fw-bold shadow-sm w-100' }
       }).then((result) => { if (result.isDismissed) isCancelled = true; });
 
@@ -541,16 +603,16 @@
           Swal.fire({
              icon: 'info', title: 'Pengiriman Dihentikan',
              html: `<div class="text-start mt-3"><p class="mb-1"><i class="bi bi-check-circle-fill text-success"></i> <b>${successIndices.length}</b> terkirim.</p><p class="mb-0"><i class="bi bi-exclamation-circle-fill text-warning"></i> <b>${bulkQueue.length}</b> sisa dibatalkan.</p></div>`,
-             confirmButtonText: 'OKE SAYA MENGERTI', confirmButtonColor: '#5b7cfa'
+             confirmButtonText: 'OKE', confirmButtonColor: '#4f46e5'
           });
           renderBulkUI(); if (bulkQueue.length > 0) mulaiInputBulk(); else batal(); return;
       }
 
       if(gagal > 0) {
-        Swal.fire({icon: 'warning', title: 'Selesai dengan Error', html: `<b>${successIndices.length}</b> terkirim.<br><b>${gagal}</b> gagal. Silakan coba lagi.`, confirmButtonText: 'OKE', confirmButtonColor: '#fcc419'});
+        Swal.fire({icon: 'warning', title: 'Selesai dengan Error', html: `<b>${successIndices.length}</b> terkirim.<br><b>${gagal}</b> gagal. Silakan coba lagi.`, confirmButtonText: 'OKE', confirmButtonColor: '#f59e0b'});
         renderBulkUI(); if (bulkQueue.length > 0) mulaiInputBulk(); else batal();
       } else {
-        Swal.fire('Berhasil!', 'Semua data telah diupload.', 'success');
+        Swal.fire('Berhasil!', 'Semua data antrean terkirim.', 'success');
         bulkQueue = []; renderBulkUI(); batal(); 
       }
     }
