@@ -22,8 +22,12 @@
     .btn-custom { border-radius: 14px; padding: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
     .btn-accent { background: var(--accent); color: white; border: none; box-shadow: 0 6px 15px rgba(91, 124, 250, 0.2); }
     .btn-accent:active { transform: translateY(2px); box-shadow: none; }
-    #reader { border-radius: 18px; overflow: hidden; border: 3px solid var(--border-soft); background: #334155; min-height: 280px; }
+    #reader { border-radius: 18px; overflow: hidden; border: 3px solid var(--border-soft); background: #334155; min-height: 280px; transition: transform 0.3s ease; }
     #reader video { border-radius: 14px; object-fit: cover; }
+    
+    /* CLASS KHUSUS UNTUK EFEK MIRROR */
+    #reader.mirror-mode video { transform: scaleX(-1) !important; }
+    
     .form-check-input { width: 3.5em !important; height: 1.8em !important; cursor: pointer; border-color: var(--border-soft); }
     .form-check-input:checked { background-color: var(--success); border-color: var(--success); }
     .hidden { display: none !important; }
@@ -67,12 +71,18 @@
             <button onclick="syncData()" id="btn-sync" class="btn btn-sm fw-bold px-3 d-flex align-items-center gap-1" style="background: var(--accent-soft); color: var(--accent); border-radius: 20px;"><i class="bi bi-arrow-repeat" id="s-icon"></i> <span id="s-text">Sync</span></button>
           </div>
 
-          <div class="form-check form-switch mb-3 p-2 rounded border" style="background: #f8fafc;">
-            <input class="form-check-input ms-1 me-2 mt-1" type="checkbox" id="mode-bulk" onchange="toggleBulk()">
-            <label class="form-check-label small fw-bold mt-1" for="mode-bulk" style="color: var(--accent);">Mode Scan Banyak (Bulk Tabel)</label>
+          <div class="mb-3 p-2 rounded border shadow-sm" style="background: #f8fafc;">
+            <div class="form-check form-switch mb-2">
+              <input class="form-check-input ms-1 me-2 mt-1" type="checkbox" id="mode-bulk" onchange="toggleBulk()">
+              <label class="form-check-label small fw-bold mt-1" for="mode-bulk" style="color: var(--accent);">Mode Scan Banyak (Bulk Tabel)</label>
+            </div>
+            <div class="form-check form-switch border-top pt-2">
+              <input class="form-check-input ms-1 me-2 mt-1" type="checkbox" id="mode-mirror" onchange="toggleMirror()">
+              <label class="form-check-label small fw-bold mt-1 text-muted" for="mode-mirror">Mirror View (Untuk Kamera Laptop)</label>
+            </div>
           </div>
 
-          <div id="reader" class="mb-3"></div>
+          <div id="reader" class="mb-3 shadow-sm"></div>
           <button onclick="initCam()" class="btn btn-light btn-custom w-100 border hidden mb-3" id="btn-cam" style="color: var(--text-muted);">Nyalakan Kamera Ulang</button>
 
           <div id="bulk-info" class="hidden rounded p-3 mb-2" style="background: #eef2ff; border: 1.5px dashed var(--accent);">
@@ -143,7 +153,9 @@
   </div>
 
   <script>
+    // MASUKKAN URL DEPLOYMENT APPS SCRIPT ANDA DI SINI
     const API_URL = "https://script.google.com/macros/s/AKfycbzJQjxT6QKsyuNMn4KCxsFuRAD5MPItgHdqPVdAvintroDIf9dAeMxhCWyyaX4LkfeW/exec"; 
+    
     let qrScanner, activeNo = "", pesertaList = [], intervalSync;
     let isBulkMode = false, bulkQueue = [], isScanningPaused = false, currentRole = ""; 
 
@@ -168,7 +180,7 @@
       
       let res = await api({ action: "login", email: email, kodeLogin: kode });
       if(res.success) { 
-        localStorage.setItem("pmbSess", JSON.stringify({ nama: res.nama, roles: res.kategoriList, bulkMode: false })); 
+        localStorage.setItem("pmbSess", JSON.stringify({ nama: res.nama, roles: res.kategoriList, bulkMode: false, mirrorMode: false })); 
         restoreSess(); 
       } else { Swal.fire({icon:'error', title:'Gagal', text:res.message, confirmButtonColor:'#5b7cfa'}); }
       btn.disabled = false; ic.className = "bi bi-box-arrow-in-right"; tx.innerText = "MASUK SISTEM";
@@ -187,7 +199,14 @@
       tugasScanner.forEach(r => sel.innerHTML += `<option value="${r.trim()}">${r.trim()}</option>`);
       currentRole = sel.value; 
       
+      // Load Preference Bulk Mode
       if(sess.bulkMode === true) { document.getElementById("mode-bulk").checked = true; isBulkMode = true; document.getElementById("bulk-info").classList.remove("hidden"); }
+      
+      // Load Preference Mirror View
+      if(sess.mirrorMode === true) {
+        document.getElementById("mode-mirror").checked = true;
+        document.getElementById("reader").classList.add("mirror-mode");
+      }
 
       resetUI(); await syncData(false); 
       qrScanner = new Html5Qrcode("reader"); initCam();
@@ -223,6 +242,19 @@
       if(sess) { sess.bulkMode = isBulkMode; localStorage.setItem("pmbSess", JSON.stringify(sess)); }
       document.getElementById("bulk-info").classList.toggle("hidden", !isBulkMode);
       if(!isBulkMode) { bulkQueue = []; renderBulkUI(); } 
+    }
+
+    function toggleMirror() {
+      let isMirror = document.getElementById("mode-mirror").checked;
+      let sess = JSON.parse(localStorage.getItem("pmbSess"));
+      if(sess) { sess.mirrorMode = isMirror; localStorage.setItem("pmbSess", JSON.stringify(sess)); }
+      
+      // Tambah atau Hapus class mirror-mode dari container kamera
+      if (isMirror) {
+        document.getElementById("reader").classList.add("mirror-mode");
+      } else {
+        document.getElementById("reader").classList.remove("mirror-mode");
+      }
     }
 
     function renderBulkUI() {
