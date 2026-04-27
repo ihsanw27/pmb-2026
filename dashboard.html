@@ -15,6 +15,8 @@
     .card-login { background: var(--bg-card); border-radius: 24px; box-shadow: 0 10px 25px -5px rgba(100,116,139,0.06); padding: 40px 30px; border: 1px solid #ffffff; width: 100%; max-width: 420px; }
     .campus-logo { max-height: 60px; width: auto; margin: 0 auto 25px auto; display: block; object-fit: contain; }
     .form-control { border-radius: 14px; padding: 14px 18px; border: 1.5px solid var(--border-soft); font-weight: 500; background: #f4f7f9; }
+    .form-control:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(91, 124, 250, 0.15); outline: none; background: #ffffff; }
+    .input-group-text { border-radius: 14px; border: 1.5px solid var(--border-soft); background: #f4f7f9; color: var(--text-muted); }
     .btn-custom { border-radius: 14px; padding: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
     .btn-accent { background: var(--accent); color: white; border: none; box-shadow: 0 6px 15px rgba(91, 124, 250, 0.2); }
     .dashboard-wrapper { flex-grow: 1; padding: 20px; }
@@ -141,7 +143,7 @@
                 <th>NO</th>
                 <th>NAMA & BIODATA</th>
                 <th>VERIF ADM</th>
-                <th class="text-center">LARI</th>
+                <th class="text-center">TES LARI (STIK)</th>
                 <th class="text-center">KETINGGIAN</th>
                 <th class="text-center">RUANG SEMPIT</th>
                 <th>MEDIS</th>
@@ -279,8 +281,20 @@
       data.forEach(p => {
         let pStr = JSON.stringify(p).replace(/"/g, '&quot;');
         
-        // Tombol Detail tiap Pos
-        const btnLog = (cat, pos, pan, wak, color) => (cat || pan) ? `<a onclick="showDetail('${p.nama.replace(/'/g,"")}', '${pos}', '${cat.replace(/'/g,"")}', '${pan}', '${wak}')" class="text-${color} link-detail"><i class="bi bi-chat-left-text"></i> Log</a>` : "";
+        const btnLog = (cat, pos, pan, wak, color) => (cat || pan) ? `<a onclick="showDetail('${p.nama.replace(/'/g,"")}', '${pos}', '${cat.replace(/'/g,"")}', '${pan}', '${wak}')" class="text-${color} link-detail"><i class="bi bi-chat-left-text"></i> Log Detail</a>` : "";
+
+        // BACA 4 OBJEK WARNA
+        let badgeLari = `<span class="badge bg-secondary">Pending</span>`;
+        if (p.lari !== "") {
+            badgeLari = `
+              <div class="d-flex justify-content-center flex-wrap gap-1" style="font-size:0.75rem;">
+                <span class="badge bg-danger border border-danger shadow-sm" title="Merah">M: ${p.lari.m || 0}</span>
+                <span class="badge bg-warning text-dark border border-warning shadow-sm" title="Kuning">K: ${p.lari.k || 0}</span>
+                <span class="badge bg-success border border-success shadow-sm" title="Hijau">H: ${p.lari.h || 0}</span>
+                <span class="badge bg-primary border border-primary shadow-sm" title="Biru">B: ${p.lari.b || 0}</span>
+              </div>
+            `;
+        }
 
         tbody.innerHTML += `
           <tr class="peserta-row">
@@ -293,8 +307,8 @@
               <span class="badge ${p.verif === 'Lolos' ? 'bg-success' : (p.verif === 'Tidak Lolos' ? 'bg-danger' : 'bg-secondary')}">${p.verif || 'Pending'}</span>
               ${btnLog(p.catVerif, 'Verifikasi', p.panVerif, p.wakVerif, 'primary')}
             </td>
-            <td class="text-center">
-              <span class="fw-bold">${p.lari || '-'}</span>
+            <td class="text-center align-middle" style="min-width: 150px;">
+              ${badgeLari}
               ${btnLog(p.catLari, 'Lari', p.panLari, p.wakLari, 'success')}
             </td>
             <td class="text-center">
@@ -306,7 +320,7 @@
               ${btnLog(p.catSempit, 'Ruang Sempit', p.panSempit, p.wakSempit, 'success')}
             </td>
             <td>
-              ${p.medis ? `<span class="badge bg-danger">P3K</span> ${btnLog(p.medis, 'Medis', p.panMedis, p.wakMedis, 'danger')}` : '<span class="badge bg-success opacity-50">Aman</span>'}
+              ${p.medis ? `<span class="badge bg-danger shadow-sm">P3K</span> ${btnLog(p.medis, 'Medis', p.panMedis, p.wakMedis, 'danger')}` : '<span class="badge bg-success opacity-50">Aman</span>'}
             </td>
           </tr>
         `;
