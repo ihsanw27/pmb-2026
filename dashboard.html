@@ -301,6 +301,18 @@
       }
     }
 
+    <div class="col-lg-4 col-md-12">
+          <div class="stat-card" style="background: linear-gradient(135deg, var(--accent) 0%, #3b5bdb 100%); color: white; border: none;">
+            <div class="stat-title text-white opacity-75"><i class="bi bi-check2-all"></i> 5. Peserta yang Sudah Selesai</div>
+            <div class="d-flex justify-content-between align-items-end mb-2">
+              <h2 class="fw-bold mb-0 text-white"><span id="d-selesai-semua">0</span> <small class="fs-6 opacity-75">Orang</small></h2>
+            </div>
+            <p class="small fw-medium opacity-75 mt-auto mb-0 pt-3 border-top border-light">
+              *Peserta yang lolos verifikasi awal dan telah merampungkan seluruh tahapan tes fisik.
+            </p>
+          </div>
+        </div>
+
     // MODAL BIODATA
     function showBiodata(p) {
       let fotoHtml = p.foto ? `<img src="${p.foto}" class="photo-thumb-modal shadow-sm">` : `<div class="photo-thumb-modal bg-light d-flex align-items-center justify-content-center mx-auto border"><i class="bi bi-person text-muted fs-1"></i></div>`;
@@ -340,9 +352,19 @@
     function renderTable(data) {
       let tbody = document.getElementById("tbody-peserta");
       tbody.innerHTML = "";
+      
+      // Variabel untuk menghitung peserta selesai
+      let selesaiSemua = 0;
+
       data.forEach(p => {
         let pStr = JSON.stringify(p).replace(/"/g, '&quot;');
         
+        // --- LOGIKA PESERTA SELESAI ---
+        // Hanya yang Lolos Verifikasi dan sudah menyelesaikan ke-3 pos fisik
+        if (p.verif === 'Lolos' && p.tinggi !== "" && p.sempit !== "" && p.lari !== "") {
+          selesaiSemua++;
+        }
+
         const btnLog = (cat, pos, pan, wak, color) => (cat || pan) ? `<a onclick="showDetail('${p.nama.replace(/'/g,"")}', '${pos}', '${cat.replace(/'/g,"")}', '${pan}', '${wak}')" class="text-${color} link-detail"><i class="bi bi-chat-left-text"></i> Log Detail</a>` : "";
 
         let badgeLari = `<span class="badge bg-secondary">Pending</span>`;
@@ -386,6 +408,11 @@
           </tr>
         `;
       });
+      
+      // Tampilkan hasil hitungan ke Card ke-6
+      if (document.getElementById("d-selesai-semua")) {
+        document.getElementById("d-selesai-semua").innerText = selesaiSemua;
+      }
     }
 
     function filterTable() {
