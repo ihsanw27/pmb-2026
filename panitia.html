@@ -274,13 +274,21 @@
     function handleManual(e) { if (e.key === 'Enter') prosesManual(); }
 
     async function prosesManual() {
-      let val = document.getElementById("input-manual").value.trim().toLowerCase();
-      if (!val) return Swal.fire({icon:'warning', text:'Ketik nomor peserta terlebih dahulu!', toast:true, position:'top', showConfirmButton:false, timer:1500});
+      let valRaw = document.getElementById("input-manual").value.trim();
+      if (!valRaw) return Swal.fire({icon:'warning', text:'Ketik nomor peserta terlebih dahulu!', toast:true, position:'top', showConfirmButton:false, timer:1500});
+      
+      // TRIK PEMOTONG STRING (Manual Input)
+      let val = valRaw.split('-')[0].toLowerCase();
       document.getElementById("input-manual").value = "";
       
       if(isBulkMode && bulkQueue.find(x => x.no.toString().trim().toLowerCase() === val)) {
          return Swal.fire({icon:'info', text:'Peserta ini sudah ada di antrean Anda', toast:true, position:'top', showConfirmButton:false, timer:2000});
       }
+      
+      isScanningPaused = true;
+      if (!isBulkMode && qrScanner) { try { await qrScanner.stop(); } catch(e) {} }
+      prosesDataScan(val);
+    }
       
       isScanningPaused = true;
       if (!isBulkMode && qrScanner) { try { await qrScanner.stop(); } catch(e) {} }
@@ -346,7 +354,10 @@
 
     function onScan(txt) {
       if (isScanningPaused) return; 
-      let teksScan = txt.toString().trim().toLowerCase();
+      
+      // TRIK PEMOTONG STRING: Ambil bagian pertama sebelum tanda "-"
+      let teksScan = txt.toString().trim().split('-')[0].toLowerCase();
+      
       if(isBulkMode && bulkQueue.find(x => x.no.toString().trim().toLowerCase() === teksScan)) return;
       isScanningPaused = true; 
       if (!isBulkMode) qrScanner.stop().then(() => prosesDataScan(teksScan)); else prosesDataScan(teksScan);
