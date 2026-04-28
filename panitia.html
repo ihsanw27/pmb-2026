@@ -289,11 +289,6 @@
       if (!isBulkMode && qrScanner) { try { await qrScanner.stop(); } catch(e) {} }
       prosesDataScan(val);
     }
-      
-      isScanningPaused = true;
-      if (!isBulkMode && qrScanner) { try { await qrScanner.stop(); } catch(e) {} }
-      prosesDataScan(val);
-    }
 
     function generateProgressHTML(p) {
       const isDone = (val) => (val !== "" && val !== "Pending" && val !== "-" && val != null);
@@ -554,7 +549,6 @@
       
       let res = await api(payload);
       if(res.success) { 
-        // MEMAKSA SINKRONISASI SETELAH SIMPAN AGAR STATE-AWARE TERUPDATE
         Swal.fire({icon:'success', title:'Tersimpan', text:'Menyinkronkan data...', timer:1500, showConfirmButton:false}); 
         await syncData(false);
         batal(); 
@@ -565,7 +559,7 @@
     async function simpanBulk() {
       let t = document.getElementById("pilih-tugas").value;
       let t_low = t.toLowerCase();
-      let isLari = t_low.includes("lari"), isKesehatan = t_low.includes("kesehatan") || t_low.includes("medis");
+      let isLari = t_low.includes("lari"), isKesehatan = t_low.includes("kesehatan") || t.includes("medis");
 
       for(let i=0; i<bulkQueue.length; i++) {
         if(isLari) {
@@ -625,7 +619,6 @@
         Swal.fire({icon: 'warning', title: 'Selesai dengan Error', html: `<b>${successIndices.length}</b> terkirim.<br><b>${gagal}</b> gagal. Silakan coba lagi.`, confirmButtonText: 'OKE', confirmButtonColor: '#f59e0b'});
         renderBulkUI(); if (bulkQueue.length > 0) mulaiInputBulk(); else batal();
       } else {
-        // MEMAKSA SINKRONISASI SETELAH SIMPAN BULK AGAR STATE-AWARE TERUPDATE
         Swal.fire({icon:'success', title:'Berhasil!', text:'Semua data terkirim. Menyinkronkan...', timer:1500, showConfirmButton:false});
         bulkQueue = []; renderBulkUI();
         await syncData(false);
