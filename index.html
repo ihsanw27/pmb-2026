@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Portal Check-in Peserta PMB</title>
+  <title>Portal Check-in Peserta PMB PIPB</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -151,10 +151,30 @@
     // Fungsi saat kamera berhasil membaca QR
     function onScan(txt) {
       if (isScanningPaused) return; 
-      isScanningPaused = true; 
+      
+      let rawText = txt.toString().trim();
+      
+      // PENGAMAN (SAFEGUARD) POLA QR CODE
+      // Harus memiliki pola: [Angka]-[Angka]-[Teks Bebas]
+      // Contoh valid: 2026100008-2026100043-KIEZA ADITYA
+      let isCardPattern = /^\d+-\d+-.+$/.test(rawText);
+      
+      if (!isCardPattern) {
+        isScanningPaused = true;
+        Swal.fire({
+          icon: 'error', 
+          title: 'QR Code Ditolak!', 
+          text: 'Harap scan QR Code dari Kartu Ujian PMB yang resmi.', 
+          confirmButtonColor: '#5b7cfa'
+        }).then(() => {
+          isScanningPaused = false;
+        });
+        return;
+      }
 
-      // Ambil ID dan bersihkan
-      tempID = txt.toString().trim().split('-')[0].toLowerCase();
+      isScanningPaused = true; 
+      // Ambil ID Part pertama (sebelum tanda -)
+      tempID = rawText.split('-')[0].toLowerCase();
       
       // Tampilkan Layar Konfirmasi
       document.getElementById("display-scanned-id").innerText = tempID.toUpperCase();
@@ -166,12 +186,25 @@
       let valRaw = document.getElementById("noPeserta").value.trim();
       if (!valRaw) return Swal.fire({icon: 'warning', text: 'Masukkan nomor peserta.', confirmButtonColor: '#5b7cfa'});
       
+      // PENGAMAN (SAFEGUARD) INPUT MANUAL ATAU PISTOL SCANNER
+      let isCardPattern = /^\d+-\d+-.+$/.test(valRaw); // Jika pakai pistol scanner
+      let isNumberOnly = /^[a-zA-Z0-9]+$/.test(valRaw); // Jika diketik manual polos
+      
+      if (!isCardPattern && !isNumberOnly) {
+         return Swal.fire({
+            icon: 'error', 
+            title: 'Format Tidak Dikenali', 
+            text: 'Harap ketik Nomor Peserta saja, atau scan langsung Kartu Ujian PMB.', 
+            confirmButtonColor: '#5b7cfa'
+         });
+      }
+
       let noInput = valRaw.split('-')[0].toLowerCase();
       doCheckIn(noInput);
     }
 
     async function doCheckIn(noInput) {
-      // Handle Button State (Cek tombol mana yang sedang aktif)
+      // Handle Button State
       let btnConfirm = document.getElementById("btn-confirm-final");
       let btnManual = document.getElementById("btn-checkin");
       
