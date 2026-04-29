@@ -184,10 +184,7 @@
       <div class="table-container">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
           <div>
-            <h5 class="fw-bold mb-1">Live Rekapitulasi Penilaian</h5>
-            <span class="badge bg-light text-muted border">
-              <i class="bi bi-broadcast text-primary"></i> Auto-refresh dalam <strong id="timer-text" class="text-primary">30</strong> detik
-            </span>
+            <h5 class="fw-bold mb-1">Rekapitulasi Penilaian Akhir</h5>
           </div>
           <div class="input-group" style="max-width: 350px;">
             <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
@@ -219,7 +216,6 @@
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzJQjxT6QKsyuNMn4KCxsFuRAD5MPItgHdqPVdAvintroDIf9dAeMxhCWyyaX4LkfeW/exec"; 
-    let countdownInterval, secondsLeft = 30;
     let isLivestreamMode = false;
 
     window.onload = () => { if(localStorage.getItem("dashSess")) restoreSession(); };
@@ -258,20 +254,10 @@
       document.getElementById("view-login").classList.add("hidden"); 
       document.getElementById("view-dashboard").classList.remove("hidden");
       document.getElementById("admin-nama").innerText = sess.nama;
-      loadData(); startCountdown();
+      loadData(); // Timer startCountdown() telah dihapus
     }
 
     function logout() { localStorage.removeItem("dashSess"); location.reload(); }
-
-    function startCountdown() {
-      if (countdownInterval) clearInterval(countdownInterval);
-      secondsLeft = 30;
-      countdownInterval = setInterval(() => {
-        secondsLeft--;
-        if (secondsLeft <= 0) { loadData(false); secondsLeft = 30; }
-        document.getElementById("timer-text").innerText = secondsLeft;
-      }, 1000);
-    }
 
     async function loadData(showToast = true) {
       let res = await api({ action: "getDashboard" });
